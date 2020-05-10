@@ -572,7 +572,7 @@ const getCurrentZoom = this.getZoom = function () { return currentZoom; };
 * @type {module:path.EditorContext#round}
 */
 const round = this.round = function (val) {
-  return Number.parseInt(val * currentZoom) / currentZoom;
+  return parseInt(val * currentZoom) / currentZoom;
 };
 
 selectInit(
@@ -1231,8 +1231,8 @@ const getIntersectionList = this.getIntersectionList = function (rect) {
   if (!isIE()) {
     if (typeof svgroot.getIntersectionList === 'function') {
       // Offset the bbox of the rubber box by the offset of the svgcontent element.
-      rubberBBox.x += Number.parseInt(svgcontent.getAttribute('x'));
-      rubberBBox.y += Number.parseInt(svgcontent.getAttribute('y'));
+      rubberBBox.x += parseInt(svgcontent.getAttribute('x'));
+      rubberBBox.y += parseInt(svgcontent.getAttribute('y'));
 
       resultList = svgroot.getIntersectionList(rubberBBox, parent);
     }
@@ -1498,7 +1498,7 @@ const ffClone = function (elem) {
 */
 this.setRotationAngle = function (val, preventUndo) {
   // ensure val is the proper type
-  val = Number.parseFloat(val);
+  val = parseFloat(val);
   const elem = selectedElements[0];
   const oldTransform = elem.getAttribute('transform');
   const bbox = utilsGetBBox(elem);
@@ -2849,7 +2849,7 @@ const mouseUp = function (evt) {
 
     let aniDur = 0.2;
     let cAni;
-    if (opacAni.beginElement && Number.parseFloat(element.getAttribute('opacity')) !== curShape.opacity) {
+    if (opacAni.beginElement && parseFloat(element.getAttribute('opacity')) !== curShape.opacity) {
       cAni = $(opacAni).clone().attr({
         to: curShape.opacity,
         dur: aniDur
@@ -2886,8 +2886,10 @@ const mouseUp = function (evt) {
 };
 
 const dblClick = function (evt) {
+ 
   const evtTarget = evt.target;
   const parent = evtTarget.parentNode;
+  call('dblClick')
 
   // Do nothing if already in current group
   if (parent === currentGroup) { return; }
@@ -4511,9 +4513,7 @@ this.setSvgString = function (xmlString, preventUndo) {
 
     // remove old svg document
     const {nextSibling} = svgcontent;
-
-    svgcontent.remove();
-    const oldzoom = svgcontent;
+    const oldzoom = svgroot.removeChild(svgcontent);
     batchCmd.addSubCommand(new RemoveElementCommand(oldzoom, nextSibling, svgroot));
 
     // set new svg document
@@ -6329,8 +6329,7 @@ this.deleteSelectedElements = function () {
     }
 
     const {nextSibling} = t;
-    t.remove();
-    const elem = t;
+    const elem = parent.removeChild(t);
     selectedCopy.push(selected); // for the copy
     batchCmd.addSubCommand(new RemoveElementCommand(elem, nextSibling, parent));
   }
@@ -6802,7 +6801,7 @@ this.ungroupSelectedElement = function () {
 
     let i = 0;
     while (g.firstChild) {
-      const elem = g.firstChild;
+      let elem = g.firstChild;
       const oldNextSibling = elem.nextSibling;
       const oldParent = elem.parentNode;
 
@@ -6814,12 +6813,7 @@ this.ungroupSelectedElement = function () {
         continue;
       }
 
-      if (anchor) {
-        anchor.before(elem);
-      } else {
-        g.after(elem);
-      }
-      children[i++] = elem;
+      children[i++] = elem = anchor.before(elem);
       batchCmd.addSubCommand(new MoveElementCommand(elem, oldNextSibling, oldParent));
     }
 
@@ -6828,7 +6822,7 @@ this.ungroupSelectedElement = function () {
 
     // delete the group element (but make undo-able)
     const gNextSibling = g.nextSibling;
-    g.remove();
+    g = parent.removeChild(g);
     batchCmd.addSubCommand(new RemoveElementCommand(g, gNextSibling, parent));
 
     if (!batchCmd.isEmpty()) { addCommandToHistory(batchCmd); }
