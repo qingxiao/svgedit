@@ -2889,7 +2889,7 @@ const dblClick = function (evt) {
  
   const evtTarget = evt.target;
   const parent = evtTarget.parentNode;
-  call('dblClick')
+  call('dblClick', evtTarget)
 
   // Do nothing if already in current group
   if (parent === currentGroup) { return; }
