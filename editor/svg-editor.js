@@ -1720,6 +1720,8 @@ editor.init = function () {
    * @returns {void}
    */
   const saveHandler = function (wind, svg) {
+    debugger;
+  
     editor.showSaveWarning = false;
 
     // by default, we add the XML prolog back, systems integrating SVG-edit (wikis, CMSs)
