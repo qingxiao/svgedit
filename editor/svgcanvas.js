@@ -2889,7 +2889,7 @@ const dblClick = function (evt) {
  
   const evtTarget = evt.target;
   const parent = evtTarget.parentNode;
-  call('dblClick', evtTarget)
+  
 
   // Do nothing if already in current group
   if (parent === currentGroup) { return; }
@@ -2923,9 +2923,13 @@ const dblClick = function (evt) {
     mouseTarget === selectorManager.selectorParentGroup
   ) {
     // Escape from in-group edit
-    return;
+    // xiaoqing
+    // return;
   }
-  draw.setContext(mouseTarget);
+
+  // xiaoqing
+  call('dblClick', mouseTarget)
+  // draw.setContext(mouseTarget);
 };
 
 // prevent links from being followed in the canvas
