@@ -1720,8 +1720,6 @@ editor.init = function () {
    * @returns {void}
    */
   const saveHandler = function (wind, svg) {
-    debugger;
-  
     editor.showSaveWarning = false;
 
     // by default, we add the XML prolog back, systems integrating SVG-edit (wikis, CMSs)
@@ -5678,7 +5676,8 @@ editor.init = function () {
       {sel: '#tool_prefs_save', fn: savePreferences, evt: 'click'},
       {sel: '#tool_editor_prefs', fn: showPreferences, evt: 'click'},
       {sel: '#tool_editor_homepage', fn: openHomePage, evt: 'click'},
-      {sel: '#tool_open', fn () { window.dispatchEvent(new CustomEvent('openImage')); }, evt: 'click'},
+      // xiaoqing todo 取消掉原有的点击打开窗口
+      // {sel: '#tool_open', fn () { window.dispatchEvent(new CustomEvent('openImage')); }, evt: 'click'},
       {sel: '#tool_import', fn () { window.dispatchEvent(new CustomEvent('importImage')); }, evt: 'click'},
       {sel: '#tool_delete,#tool_delete_multi', fn: deleteSelected,
         evt: 'click', key: ['del/backspace', true]},
