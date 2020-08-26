@@ -38,8 +38,8 @@ import {
   setContext,
 } from './draw.js';
 import * as pathModule from './path.js';
-import {sanitizeSvg} from './sanitize.js';
-import {getReverseNS, NS} from './namespaces.js';
+import { sanitizeSvg } from './sanitize.js';
+import { getReverseNS, NS } from './namespaces.js';
 import {
   importSetGlobal,
   importScript,
@@ -107,11 +107,14 @@ import {
   resetListMap,
   SVGTransformList as SVGEditTransformList,
 } from './svgtransformlist.js';
-import {remapElement, init as coordsInit} from './coords.js';
-import {recalculateDimensions, init as recalculateInit} from './recalculate.js';
-import {getSelectorManager, Selector, init as selectInit} from './select.js';
+import { remapElement, init as coordsInit } from './coords.js';
+import {
+  recalculateDimensions,
+  init as recalculateInit,
+} from './recalculate.js';
+import { getSelectorManager, Selector, init as selectInit } from './select.js';
 
-let $ = jQueryPluginSVG (jQuery);
+let $ = jQueryPluginSVG(jQuery);
 const {
   MoveElementCommand,
   InsertElementCommand,
@@ -124,58 +127,58 @@ const {
 
 if (!window.console) {
   window.console = {};
-  window.console.log = function (str) {
+  window.console.log = function(str) {
     /* */
   };
-  window.console.dir = function (str) {
+  window.console.dir = function(str) {
     /* */
   };
 }
 
 if (window.opera) {
-  window.console.log = function (str) {
-    window.opera.postError (str);
+  window.console.log = function(str) {
+    window.opera.postError(str);
   };
-  window.console.dir = function (str) {
+  window.console.dir = function(str) {
     /* */
   };
 }
 
 // Reenable after fixing eslint-plugin-jsdoc to handle
 /**
-* The main SvgCanvas class that manages all SVG-related functions.
-* @memberof module:svgcanvas
-*
-* @borrows module:coords.remapElement as #remapElement
-* @borrows module:recalculate.recalculateDimensions as #recalculateDimensions
-*
-* @borrows module:utilities.cleanupElement as #cleanupElement
-* @borrows module:utilities.getStrokedBBoxDefaultVisible as #getStrokedBBox
-* @borrows module:utilities.getVisibleElements as #getVisibleElements
-* @borrows module:utilities.findDefs as #findDefs
-* @borrows module:utilities.getUrlFromAttr as #getUrlFromAttr
-* @borrows module:utilities.getHref as #getHref
-* @borrows module:utilities.setHref as #setHref
-* @borrows module:utilities.getRotationAngle as #getRotationAngle
-* @borrows module:utilities.getBBox as #getBBox
-* @borrows module:utilities.getElem as #getElem
-* @borrows module:utilities.getRefElem as #getRefElem
-* @borrows module:utilities.assignAttributes as #assignAttributes
-*
-* @borrows module:SVGTransformList.getTransformList as #getTransformList
-* @borrows module:math.matrixMultiply as #matrixMultiply
-* @borrows module:math.hasMatrixTransform as #hasMatrixTransform
-* @borrows module:math.transformListToTransform as #transformListToTransform
-* @borrows module:units.convertToNum as #convertToNum
-* @borrows module:sanitize.sanitizeSvg as #sanitizeSvg
-* @borrows module:path.pathActions.linkControlPoints as #linkControlPoints
-*/
+ * The main SvgCanvas class that manages all SVG-related functions.
+ * @memberof module:svgcanvas
+ *
+ * @borrows module:coords.remapElement as #remapElement
+ * @borrows module:recalculate.recalculateDimensions as #recalculateDimensions
+ *
+ * @borrows module:utilities.cleanupElement as #cleanupElement
+ * @borrows module:utilities.getStrokedBBoxDefaultVisible as #getStrokedBBox
+ * @borrows module:utilities.getVisibleElements as #getVisibleElements
+ * @borrows module:utilities.findDefs as #findDefs
+ * @borrows module:utilities.getUrlFromAttr as #getUrlFromAttr
+ * @borrows module:utilities.getHref as #getHref
+ * @borrows module:utilities.setHref as #setHref
+ * @borrows module:utilities.getRotationAngle as #getRotationAngle
+ * @borrows module:utilities.getBBox as #getBBox
+ * @borrows module:utilities.getElem as #getElem
+ * @borrows module:utilities.getRefElem as #getRefElem
+ * @borrows module:utilities.assignAttributes as #assignAttributes
+ *
+ * @borrows module:SVGTransformList.getTransformList as #getTransformList
+ * @borrows module:math.matrixMultiply as #matrixMultiply
+ * @borrows module:math.hasMatrixTransform as #hasMatrixTransform
+ * @borrows module:math.transformListToTransform as #transformListToTransform
+ * @borrows module:units.convertToNum as #convertToNum
+ * @borrows module:sanitize.sanitizeSvg as #sanitizeSvg
+ * @borrows module:path.pathActions.linkControlPoints as #linkControlPoints
+ */
 class SvgCanvas {
   /**
-  * @param {HTMLElement} container - The container HTML element that should hold the SVG root element
-  * @param {module:SVGEditor.curConfig} config - An object that contains configuration data
-  */
-  constructor (container, config) {
+   * @param {HTMLElement} container - The container HTML element that should hold the SVG root element
+   * @param {module:SVGEditor.curConfig} config - An object that contains configuration data
+   */
+  constructor(container, config) {
     // Alias Namespace constants
 
     // Default configuration options
@@ -187,11 +190,11 @@ class SvgCanvas {
 
     // Update config with new one if given
     if (config) {
-      $.extend (curConfig, config);
+      $.extend(curConfig, config);
     }
 
     // Array with width/height of canvas
-    const {dimensions} = curConfig;
+    const { dimensions } = curConfig;
 
     const canvas = this; // eslint-disable-line consistent-this
 
@@ -201,11 +204,11 @@ class SvgCanvas {
 
     // This is a container for the document being edited, not the document itself.
     /**
- * @name module:svgcanvas~svgroot
- * @type {SVGSVGElement}
- */
-    const svgroot = svgdoc.importNode (
-      text2xml (
+     * @name module:svgcanvas~svgroot
+     * @type {SVGSVGElement}
+     */
+    const svgroot = svgdoc.importNode(
+      text2xml(
         '<svg id="svgroot" xmlns="' +
           NS.SVG +
           '" xlinkns="' +
@@ -230,30 +233,30 @@ class SvgCanvas {
           '</feMerge>' +
           '</filter>' +
           '</defs>' +
-          '</svg>'
+          '</svg>',
       ).documentElement,
-      true
+      true,
     );
-    container.append (svgroot);
+    container.append(svgroot);
 
     /**
- * The actual element that represents the final output SVG element.
- * @name module:svgcanvas~svgcontent
- * @type {SVGSVGElement}
- */
-    let svgcontent = svgdoc.createElementNS (NS.SVG, 'svg');
+     * The actual element that represents the final output SVG element.
+     * @name module:svgcanvas~svgcontent
+     * @type {SVGSVGElement}
+     */
+    let svgcontent = svgdoc.createElementNS(NS.SVG, 'svg');
 
     /**
-* This function resets the svgcontent element while keeping it in the DOM.
-* @function module:svgcanvas.SvgCanvas#clearSvgContentElement
-* @returns {void}
-*/
-    const clearSvgContentElement = (canvas.clearSvgContentElement = function () {
-      $ (svgcontent).empty ();
+     * This function resets the svgcontent element while keeping it in the DOM.
+     * @function module:svgcanvas.SvgCanvas#clearSvgContentElement
+     * @returns {void}
+     */
+    const clearSvgContentElement = (canvas.clearSvgContentElement = function() {
+      $(svgcontent).empty();
 
       // TODO: Clear out all other attributes first?
-      $ (svgcontent)
-        .attr ({
+      $(svgcontent)
+        .attr({
           id: 'svgcontent',
           width: dimensions[0],
           height: dimensions[1],
@@ -264,49 +267,49 @@ class SvgCanvas {
           'xmlns:se': NS.SE,
           'xmlns:xlink': NS.XLINK,
         })
-        .appendTo (svgroot);
+        .appendTo(svgroot);
 
       // TODO: make this string optional and set by the client
-      const comment = svgdoc.createComment (
-        ' Created with SVG-edit - https://github.com/SVG-Edit/svgedit'
+      const comment = svgdoc.createComment(
+        ' Created with SVG-edit - https://github.com/SVG-Edit/svgedit',
       );
-      svgcontent.append (comment);
+      svgcontent.append(comment);
     });
-    clearSvgContentElement ();
+    clearSvgContentElement();
 
     // Prefix string for element IDs
     let idprefix = 'svg_';
 
     /**
-* Changes the ID prefix to the given value.
-* @function module:svgcanvas.SvgCanvas#setIdPrefix
-* @param {string} p - String with the new prefix
-* @returns {void}
-*/
-    canvas.setIdPrefix = function (p) {
+     * Changes the ID prefix to the given value.
+     * @function module:svgcanvas.SvgCanvas#setIdPrefix
+     * @param {string} p - String with the new prefix
+     * @returns {void}
+     */
+    canvas.setIdPrefix = function(p) {
       idprefix = p;
     };
 
     /**
-* Current `draw.Drawing` object.
-* @type {module:draw.Drawing}
-* @name module:svgcanvas.SvgCanvas#current_drawing_
-*/
-    canvas.current_drawing_ = new draw.Drawing (svgcontent, idprefix);
+     * Current `draw.Drawing` object.
+     * @type {module:draw.Drawing}
+     * @name module:svgcanvas.SvgCanvas#current_drawing_
+     */
+    canvas.current_drawing_ = new draw.Drawing(svgcontent, idprefix);
 
     /**
-* Returns the current Drawing.
-* @name module:svgcanvas.SvgCanvas#getCurrentDrawing
-* @type {module:draw.DrawCanvasInit#getCurrentDrawing}
-*/
-    const getCurrentDrawing = (canvas.getCurrentDrawing = function () {
+     * Returns the current Drawing.
+     * @name module:svgcanvas.SvgCanvas#getCurrentDrawing
+     * @type {module:draw.DrawCanvasInit#getCurrentDrawing}
+     */
+    const getCurrentDrawing = (canvas.getCurrentDrawing = function() {
       return canvas.current_drawing_;
     });
 
     /**
-* Float displaying the current zoom level (1 = 100%, .5 = 50%, etc.).
-* @type {Float}
-*/
+     * Float displaying the current zoom level (1 = 100%, .5 = 50%, etc.).
+     * @type {Float}
+     */
     let currentZoom = 1;
 
     // pointer to current group (for in-group editing)
@@ -315,7 +318,8 @@ class SvgCanvas {
     // Object containing data for the currently selected styles
     const allProperties = {
       shape: {
-        fill: (curConfig.initFill.color === 'none' ? '' : '#') +
+        fill:
+          (curConfig.initFill.color === 'none' ? '' : '#') +
           curConfig.initFill.color,
         fill_paint: null,
         fill_opacity: curConfig.initFill.opacity,
@@ -330,8 +334,8 @@ class SvgCanvas {
       },
     };
 
-    allProperties.text = $.extend (true, {}, allProperties.shape);
-    $.extend (allProperties.text, {
+    allProperties.text = $.extend(true, {}, allProperties.shape);
+    $.extend(allProperties.text, {
       fill: '#000000',
       stroke_width: curConfig.text && curConfig.text.stroke_width,
       font_size: curConfig.text && curConfig.text.font_size,
@@ -346,20 +350,18 @@ class SvgCanvas {
     let selectedElements = [];
 
     /**
-* @typedef {PlainObject} module:svgcanvas.SVGAsJSON
-* @property {string} element
-* @property {PlainObject<string, string>} attr
-* @property {module:svgcanvas.SVGAsJSON[]} children
-*/
+     * @typedef {PlainObject} module:svgcanvas.SVGAsJSON
+     * @property {string} element
+     * @property {PlainObject<string, string>} attr
+     * @property {module:svgcanvas.SVGAsJSON[]} children
+     */
 
     /**
-* @function module:svgcanvas.SvgCanvas#getContentElem
-* @param {Text|Element} data
-* @returns {module:svgcanvas.SVGAsJSON}
-*/
-    const getJsonFromSvgElement = (this.getJsonFromSvgElement = function (
-      data
-    ) {
+     * @function module:svgcanvas.SvgCanvas#getContentElem
+     * @param {Text|Element} data
+     * @returns {module:svgcanvas.SVGAsJSON}
+     */
+    const getJsonFromSvgElement = (this.getJsonFromSvgElement = function(data) {
       // Text node
       if (data.nodeType === 3) return data.nodeValue;
 
@@ -377,38 +379,36 @@ class SvgCanvas {
 
       // Iterate children
       for (let i = 0, node; (node = data.childNodes[i]); i++) {
-        retval.children[i] = getJsonFromSvgElement (node);
+        retval.children[i] = getJsonFromSvgElement(node);
       }
 
       return retval;
     });
 
     /**
-* This should really be an intersection implementing all rather than a union.
-* @name module:svgcanvas.SvgCanvas#addSVGElementFromJson
-* @type {module:utilities.EditorContext#addSVGElementFromJson|module:path.EditorContext#addSVGElementFromJson}
-*/
-    const addSVGElementFromJson = (this.addSVGElementFromJson = function (
-      data
-    ) {
-      if (typeof data === 'string') return svgdoc.createTextNode (data);
+     * This should really be an intersection implementing all rather than a union.
+     * @name module:svgcanvas.SvgCanvas#addSVGElementFromJson
+     * @type {module:utilities.EditorContext#addSVGElementFromJson|module:path.EditorContext#addSVGElementFromJson}
+     */
+    const addSVGElementFromJson = (this.addSVGElementFromJson = function(data) {
+      if (typeof data === 'string') return svgdoc.createTextNode(data);
 
-      let shape = getElem (data.attr.id);
+      let shape = getElem(data.attr.id);
       // if shape is a path but we need to create a rect/ellipse, then remove the path
-      const currentLayer = getCurrentDrawing ().getCurrentLayer ();
+      const currentLayer = getCurrentDrawing().getCurrentLayer();
       if (shape && data.element !== shape.tagName) {
-        shape.remove ();
+        shape.remove();
         shape = null;
       }
       if (!shape) {
         const ns = data.namespace || NS.SVG;
-        shape = svgdoc.createElementNS (ns, data.element);
+        shape = svgdoc.createElementNS(ns, data.element);
         if (currentLayer) {
-          (currentGroup || currentLayer).append (shape);
+          (currentGroup || currentLayer).append(shape);
         }
       }
       if (data.curStyles) {
-        assignAttributes (
+        assignAttributes(
           shape,
           {
             fill: curShape.fill,
@@ -422,16 +422,16 @@ class SvgCanvas {
             opacity: curShape.opacity / 2,
             style: 'pointer-events:inherit',
           },
-          100
+          100,
         );
       }
-      assignAttributes (shape, data.attr, 100);
-      cleanupElement (shape);
+      assignAttributes(shape, data.attr, 100);
+      cleanupElement(shape);
 
       // Children
       if (data.children) {
-        data.children.forEach (child => {
-          shape.append (addSVGElementFromJson (child));
+        data.children.forEach(child => {
+          shape.append(addSVGElementFromJson(child));
         });
       }
 
@@ -445,84 +445,84 @@ class SvgCanvas {
     canvas.transformListToTransform = transformListToTransform;
 
     /**
-* @type {module:utilities.EditorContext#getBaseUnit}
-*/
+     * @type {module:utilities.EditorContext#getBaseUnit}
+     */
     const getBaseUnit = () => {
       return curConfig.baseUnit;
     };
 
     /**
-* Initialize from units.js.
-* Send in an object implementing the ElementContainer interface (see units.js).
-*/
-    unitsInit (
+     * Initialize from units.js.
+     * Send in an object implementing the ElementContainer interface (see units.js).
+     */
+    unitsInit(
       /**
-  * @implements {module:units.ElementContainer}
-  */
+       * @implements {module:units.ElementContainer}
+       */
       {
         getBaseUnit,
         getElement: getElem,
-        getHeight () {
-          return svgcontent.getAttribute ('height') / currentZoom;
+        getHeight() {
+          return svgcontent.getAttribute('height') / currentZoom;
         },
-        getWidth () {
-          return svgcontent.getAttribute ('width') / currentZoom;
+        getWidth() {
+          return svgcontent.getAttribute('width') / currentZoom;
         },
-        getRoundDigits () {
+        getRoundDigits() {
           return saveOptions.round_digits;
         },
-      }
+      },
     );
 
     canvas.convertToNum = convertToNum;
 
     /**
-* This should really be an intersection implementing all rather than a union.
-* @type {module:draw.DrawCanvasInit#getSVGContent|module:utilities.EditorContext#getSVGContent}
-*/
+     * This should really be an intersection implementing all rather than a union.
+     * @type {module:draw.DrawCanvasInit#getSVGContent|module:utilities.EditorContext#getSVGContent}
+     */
     const getSVGContent = () => {
       return svgcontent;
     };
 
     /**
-* Should really be an intersection with all needing to apply rather than a union.
-* @name module:svgcanvas.SvgCanvas#getSelectedElements
-* @type {module:utilities.EditorContext#getSelectedElements|module:draw.DrawCanvasInit#getSelectedElements|module:path.EditorContext#getSelectedElements}
-*/
-    const getSelectedElements = (this.getSelectedElems = function () {
+     * Should really be an intersection with all needing to apply rather than a union.
+     * @name module:svgcanvas.SvgCanvas#getSelectedElements
+     * @type {module:utilities.EditorContext#getSelectedElements|module:draw.DrawCanvasInit#getSelectedElements|module:path.EditorContext#getSelectedElements}
+     */
+    const getSelectedElements = (this.getSelectedElems = function() {
       return selectedElements;
     });
 
-    const {pathActions} = pathModule;
+    const { pathActions } = pathModule;
 
     /**
-* This should actually be an intersection as all interfaces should be met.
-* @type {module:utilities.EditorContext#getSVGRoot|module:recalculate.EditorContext#getSVGRoot|module:coords.EditorContext#getSVGRoot|module:path.EditorContext#getSVGRoot}
-*/
+     * This should actually be an intersection as all interfaces should be met.
+     * @type {module:utilities.EditorContext#getSVGRoot|module:recalculate.EditorContext#getSVGRoot|module:coords.EditorContext#getSVGRoot|module:path.EditorContext#getSVGRoot}
+     */
     const getSVGRoot = () => svgroot;
 
-    utilsInit (
+    utilsInit(
       /**
-  * @implements {module:utilities.EditorContext}
-  */
+       * @implements {module:utilities.EditorContext}
+       */
       {
         pathActions, // Ok since not modifying
         getSVGContent,
         addSVGElementFromJson,
         getSelectedElements,
-        getDOMDocument () {
+        getDOMDocument() {
           return svgdoc;
         },
-        getDOMContainer () {
+        getDOMContainer() {
           return container;
         },
         getSVGRoot,
         // TODO: replace this mostly with a way to get the current drawing.
         getBaseUnit,
-        getSnappingStep () {
+        getSnappingStep() {
           return curConfig.snappingStep;
         },
-      }
+      },
     );
 
     canvas.findDefs = findDefs;
@@ -538,110 +538,110 @@ class SvgCanvas {
     this.cleanupElement = cleanupElement;
 
     /**
-* This should actually be an intersection not a union as all should apply.
-* @type {module:coords.EditorContext#getGridSnapping|module:path.EditorContext#getGridSnapping}
-*/
+     * This should actually be an intersection not a union as all should apply.
+     * @type {module:coords.EditorContext#getGridSnapping|module:path.EditorContext#getGridSnapping}
+     */
     const getGridSnapping = () => {
       return curConfig.gridSnapping;
     };
 
-    coordsInit (
+    coordsInit(
       /**
-  * @implements {module:coords.EditorContext}
-  */
+       * @implements {module:coords.EditorContext}
+       */
       {
-        getDrawing () {
-          return getCurrentDrawing ();
+        getDrawing() {
+          return getCurrentDrawing();
         },
         getSVGRoot,
         getGridSnapping,
-      }
+      },
     );
     this.remapElement = remapElement;
 
-    recalculateInit (
+    recalculateInit(
       /**
-  * @implements {module:recalculate.EditorContext}
-  */
+       * @implements {module:recalculate.EditorContext}
+       */
       {
         getSVGRoot,
-        getStartTransform () {
+        getStartTransform() {
           return startTransform;
         },
-        setStartTransform (transform) {
+        setStartTransform(transform) {
           startTransform = transform;
         },
-      }
+      },
     );
     this.recalculateDimensions = recalculateDimensions;
 
     // import from sanitize.js
-    const nsMap = getReverseNS ();
+    const nsMap = getReverseNS();
     canvas.sanitizeSvg = sanitizeSvg;
 
     /**
-* @name undoMgr
-* @memberof module:svgcanvas.SvgCanvas#
-* @type {module:history.HistoryEventHandler}
-*/
-    const undoMgr = (canvas.undoMgr = new UndoManager ({
+     * @name undoMgr
+     * @memberof module:svgcanvas.SvgCanvas#
+     * @type {module:history.HistoryEventHandler}
+     */
+    const undoMgr = (canvas.undoMgr = new UndoManager({
       /**
-   * @param {string} eventType One of the HistoryEvent types
-   * @param {module:history.HistoryCommand} cmd Fulfills the HistoryCommand interface
-   * @fires module:svgcanvas.SvgCanvas#event:changed
-   * @returns {void}
-   */
-      handleHistoryEvent (eventType, cmd) {
+       * @param {string} eventType One of the HistoryEvent types
+       * @param {module:history.HistoryCommand} cmd Fulfills the HistoryCommand interface
+       * @fires module:svgcanvas.SvgCanvas#event:changed
+       * @returns {void}
+       */
+      handleHistoryEvent(eventType, cmd) {
         const EventTypes = HistoryEventTypes;
         // TODO: handle setBlurOffsets.
         if (
           eventType === EventTypes.BEFORE_UNAPPLY ||
           eventType === EventTypes.BEFORE_APPLY
         ) {
-          canvas.clearSelection ();
+          canvas.clearSelection();
         } else if (
           eventType === EventTypes.AFTER_APPLY ||
           eventType === EventTypes.AFTER_UNAPPLY
         ) {
-          const elems = cmd.elements ();
-          canvas.pathActions.clear ();
-          call ('changed', elems);
-          const cmdType = cmd.type ();
+          const elems = cmd.elements();
+          canvas.pathActions.clear();
+          call('changed', elems);
+          const cmdType = cmd.type();
           const isApply = eventType === EventTypes.AFTER_APPLY;
-          if (cmdType === MoveElementCommand.type ()) {
+          if (cmdType === MoveElementCommand.type()) {
             const parent = isApply ? cmd.newParent : cmd.oldParent;
             if (parent === svgcontent) {
-              draw.identifyLayers ();
+              draw.identifyLayers();
             }
           } else if (
-            cmdType === InsertElementCommand.type () ||
-            cmdType === RemoveElementCommand.type ()
+            cmdType === InsertElementCommand.type() ||
+            cmdType === RemoveElementCommand.type()
           ) {
             if (cmd.parent === svgcontent) {
-              draw.identifyLayers ();
+              draw.identifyLayers();
             }
-            if (cmdType === InsertElementCommand.type ()) {
+            if (cmdType === InsertElementCommand.type()) {
               if (isApply) {
-                restoreRefElems (cmd.elem);
+                restoreRefElems(cmd.elem);
               }
             } else if (!isApply) {
-              restoreRefElems (cmd.elem);
+              restoreRefElems(cmd.elem);
             }
             if (cmd.elem.tagName === 'use') {
-              setUseData (cmd.elem);
+              setUseData(cmd.elem);
             }
-          } else if (cmdType === ChangeElementCommand.type ()) {
+          } else if (cmdType === ChangeElementCommand.type()) {
             // if we are changing layer names, re-identify all layers
             if (
               cmd.elem.tagName === 'title' &&
               cmd.elem.parentNode.parentNode === svgcontent
             ) {
-              draw.identifyLayers ();
+              draw.identifyLayers();
             }
             const values = isApply ? cmd.newValues : cmd.oldValues;
             // If stdDeviation was changed, update the blur.
             if (values.stdDeviation) {
-              canvas.setBlurOffsets (cmd.elem.parentNode, values.stdDeviation);
+              canvas.setBlurOffsets(cmd.elem.parentNode, values.stdDeviation);
             }
             // This is resolved in later versions of webkit, perhaps we should
             // have a featured detection for correct 'use' behavior?
@@ -663,116 +663,116 @@ class SvgCanvas {
     }));
 
     /**
-* This should really be an intersection applying to all types rather than a union.
-* @name module:svgcanvas~addCommandToHistory
-* @type {module:path.EditorContext#addCommandToHistory|module:draw.DrawCanvasInit#addCommandToHistory}
-*/
-    const addCommandToHistory = function (cmd) {
-      canvas.undoMgr.addCommandToHistory (cmd);
+     * This should really be an intersection applying to all types rather than a union.
+     * @name module:svgcanvas~addCommandToHistory
+     * @type {module:path.EditorContext#addCommandToHistory|module:draw.DrawCanvasInit#addCommandToHistory}
+     */
+    const addCommandToHistory = function(cmd) {
+      canvas.undoMgr.addCommandToHistory(cmd);
     };
 
     /**
-* This should really be an intersection applying to all types rather than a union.
-* @name module:svgcanvas.SvgCanvas#getZoom
-* @type {module:path.EditorContext#getCurrentZoom|module:select.SVGFactory#getCurrentZoom}
-*/
-    const getCurrentZoom = (this.getZoom = function () {
+     * This should really be an intersection applying to all types rather than a union.
+     * @name module:svgcanvas.SvgCanvas#getZoom
+     * @type {module:path.EditorContext#getCurrentZoom|module:select.SVGFactory#getCurrentZoom}
+     */
+    const getCurrentZoom = (this.getZoom = function() {
       return currentZoom;
     });
 
     /**
-* This method rounds the incoming value to the nearest value based on the `currentZoom`
-* @name module:svgcanvas.SvgCanvas#round
-* @type {module:path.EditorContext#round}
-*/
-    const round = (this.round = function (val) {
-      return parseInt (val * currentZoom) / currentZoom;
+     * This method rounds the incoming value to the nearest value based on the `currentZoom`
+     * @name module:svgcanvas.SvgCanvas#round
+     * @type {module:path.EditorContext#round}
+     */
+    const round = (this.round = function(val) {
+      return parseInt(val * currentZoom) / currentZoom;
     });
 
-    selectInit (
+    selectInit(
       curConfig,
       /**
-  * Export to select.js.
-  * @implements {module:select.SVGFactory}
-  */
+       * Export to select.js.
+       * @implements {module:select.SVGFactory}
+       */
       {
-        createSVGElement (jsonMap) {
-          return canvas.addSVGElementFromJson (jsonMap);
+        createSVGElement(jsonMap) {
+          return canvas.addSVGElementFromJson(jsonMap);
         },
-        svgRoot () {
+        svgRoot() {
           return svgroot;
         },
-        svgContent () {
+        svgContent() {
           return svgcontent;
         },
         getCurrentZoom,
-      }
+      },
     );
     /**
-* This object manages selectors for us.
-* @name module:svgcanvas.SvgCanvas#selectorManager
-* @type {module:select.SelectorManager}
-*/
-    const selectorManager = (this.selectorManager = getSelectorManager ());
+     * This object manages selectors for us.
+     * @name module:svgcanvas.SvgCanvas#selectorManager
+     * @type {module:select.SelectorManager}
+     */
+    const selectorManager = (this.selectorManager = getSelectorManager());
 
     /**
-* @name module:svgcanvas.SvgCanvas#getNextId
-* @type {module:path.EditorContext#getNextId}
-*/
-    const getNextId = (canvas.getNextId = function () {
-      return getCurrentDrawing ().getNextId ();
+     * @name module:svgcanvas.SvgCanvas#getNextId
+     * @type {module:path.EditorContext#getNextId}
+     */
+    const getNextId = (canvas.getNextId = function() {
+      return getCurrentDrawing().getNextId();
     });
 
     /**
-* @name module:svgcanvas.SvgCanvas#getId
-* @type {module:path.EditorContext#getId}
-*/
-    const getId = (canvas.getId = function () {
-      return getCurrentDrawing ().getId ();
+     * @name module:svgcanvas.SvgCanvas#getId
+     * @type {module:path.EditorContext#getId}
+     */
+    const getId = (canvas.getId = function() {
+      return getCurrentDrawing().getId();
     });
 
     /**
-* The "implements" should really be an intersection applying to all types rather than a union.
-* @name module:svgcanvas.SvgCanvas#call
-* @type {module:draw.DrawCanvasInit#call|module:path.EditorContext#call}
-*/
-    const call = function (ev, arg) {
+     * The "implements" should really be an intersection applying to all types rather than a union.
+     * @name module:svgcanvas.SvgCanvas#call
+     * @type {module:draw.DrawCanvasInit#call|module:path.EditorContext#call}
+     */
+    const call = function(ev, arg) {
       if (events[ev]) {
-        return events[ev] (window, arg);
+        return events[ev](window, arg);
       }
       return undefined;
     };
 
     /**
-* Clears the selection. The 'selected' handler is then optionally called.
-* This should really be an intersection applying to all types rather than a union.
-* @name module:svgcanvas.SvgCanvas#clearSelection
-* @type {module:draw.DrawCanvasInit#clearSelection|module:path.EditorContext#clearSelection}
-* @fires module:svgcanvas.SvgCanvas#event:selected
-*/
-    const clearSelection = (this.clearSelection = function (noCall) {
-      selectedElements.forEach (elem => {
-        if (isNullish (elem)) {
+     * Clears the selection. The 'selected' handler is then optionally called.
+     * This should really be an intersection applying to all types rather than a union.
+     * @name module:svgcanvas.SvgCanvas#clearSelection
+     * @type {module:draw.DrawCanvasInit#clearSelection|module:path.EditorContext#clearSelection}
+     * @fires module:svgcanvas.SvgCanvas#event:selected
+     */
+    const clearSelection = (this.clearSelection = function(noCall) {
+      selectedElements.forEach(elem => {
+        if (isNullish(elem)) {
           return;
         }
-        selectorManager.releaseSelector (elem);
+        selectorManager.releaseSelector(elem);
       });
       selectedElements = [];
 
       if (!noCall) {
-        call ('selected', selectedElements);
+        call('selected', selectedElements);
       }
     });
 
     /**
-* Adds a list of elements to the selection. The 'selected' handler is then called.
-* @name module:svgcanvas.SvgCanvas#addToSelection
-* @type {module:path.EditorContext#addToSelection}
-* @fires module:svgcanvas.SvgCanvas#event:selected
-*/
-    const addToSelection = (this.addToSelection = function (
+     * Adds a list of elements to the selection. The 'selected' handler is then called.
+     * @name module:svgcanvas.SvgCanvas#addToSelection
+     * @type {module:path.EditorContext#addToSelection}
+     * @fires module:svgcanvas.SvgCanvas#event:selected
+     */
+    const addToSelection = (this.addToSelection = function(
       elemsToAdd,
-      showGrips
+      showGrips,
     ) {
       if (!elemsToAdd.length) {
         return;
@@ -781,7 +781,7 @@ class SvgCanvas {
 
       let j = 0;
       while (j < selectedElements.length) {
-        if (isNullish (selectedElements[j])) {
+        if (isNullish(selectedElements[j])) {
           break;
         }
         ++j;
@@ -794,7 +794,7 @@ class SvgCanvas {
         if (!elem) {
           continue;
         }
-        const bbox = utilsGetBBox (elem);
+        const bbox = utilsGetBBox(elem);
         if (!bbox) {
           continue;
         }
@@ -805,62 +805,62 @@ class SvgCanvas {
         }
 
         // if it's not already there, add it
-        if (!selectedElements.includes (elem)) {
+        if (!selectedElements.includes(elem)) {
           selectedElements[j] = elem;
 
           // only the first selectedBBoxes element is ever used in the codebase these days
           // if (j === 0) selectedBBoxes[0] = utilsGetBBox(elem);
           j++;
-          const sel = selectorManager.requestSelector (elem, bbox);
+          const sel = selectorManager.requestSelector(elem, bbox);
 
           if (selectedElements.length > 1) {
-            sel.showGrips (false);
+            sel.showGrips(false);
           }
         }
       }
       if (!selectedElements.length) {
         return;
       }
-      call ('selected', selectedElements);
+      call('selected', selectedElements);
 
       if (showGrips || selectedElements.length === 1) {
-        selectorManager.requestSelector (selectedElements[0]).showGrips (true);
+        selectorManager.requestSelector(selectedElements[0]).showGrips(true);
       } else {
-        selectorManager.requestSelector (selectedElements[0]).showGrips (false);
+        selectorManager.requestSelector(selectedElements[0]).showGrips(false);
       }
 
       // make sure the elements are in the correct order
       // See: https://www.w3.org/TR/DOM-Level-3-Core/core.html#Node3-compareDocumentPosition
 
-      selectedElements.sort (function (a, b) {
+      selectedElements.sort(function(a, b) {
         if (a && b && a.compareDocumentPosition) {
-          return 3 - (b.compareDocumentPosition (a) & 6); // eslint-disable-line no-bitwise
+          return 3 - (b.compareDocumentPosition(a) & 6); // eslint-disable-line no-bitwise
         }
-        if (isNullish (a)) {
+        if (isNullish(a)) {
           return 1;
         }
         return 0;
       });
 
       // Make sure first elements are not null
-      while (isNullish (selectedElements[0])) {
-        selectedElements.shift (0);
+      while (isNullish(selectedElements[0])) {
+        selectedElements.shift(0);
       }
     });
 
     /**
-* @type {module:path.EditorContext#getOpacity}
-*/
-    const getOpacity = function () {
+     * @type {module:path.EditorContext#getOpacity}
+     */
+    const getOpacity = function() {
       return curShape.opacity;
     };
 
     /**
-* @name module:svgcanvas.SvgCanvas#getMouseTarget
-* @type {module:path.EditorContext#getMouseTarget}
-*/
-    const getMouseTarget = (this.getMouseTarget = function (evt) {
-      if (isNullish (evt)) {
+     * @name module:svgcanvas.SvgCanvas#getMouseTarget
+     * @type {module:path.EditorContext#getMouseTarget}
+     */
+    const getMouseTarget = (this.getMouseTarget = function(evt) {
+      if (isNullish(evt)) {
         return null;
       }
       let mouseTarget = evt.target;
@@ -873,7 +873,7 @@ class SvgCanvas {
       // for foreign content, go up until we find the foreignObject
       // WebKit browsers set the mouse target to the svgcanvas div
       if (
-        [NS.MATH, NS.HTML].includes (mouseTarget.namespaceURI) &&
+        [NS.MATH, NS.HTML].includes(mouseTarget.namespaceURI) &&
         mouseTarget.id !== 'svgcanvas'
       ) {
         while (mouseTarget.nodeName !== 'foreignObject') {
@@ -886,17 +886,17 @@ class SvgCanvas {
 
       // Get the desired mouseTarget with jQuery selector-fu
       // If it's root-like, select the root
-      const currentLayer = getCurrentDrawing ().getCurrentLayer ();
+      const currentLayer = getCurrentDrawing().getCurrentLayer();
       if (
-        [svgroot, container, svgcontent, currentLayer].includes (mouseTarget)
+        [svgroot, container, svgcontent, currentLayer].includes(mouseTarget)
       ) {
         return svgroot;
       }
 
-      const $target = $ (mouseTarget);
+      const $target = $(mouseTarget);
 
       // If it's a selection grip, return the grip parent
-      if ($target.closest ('#selectorParentGroup').length) {
+      if ($target.closest('#selectorParentGroup').length) {
         // While we could instead have just returned mouseTarget,
         // this makes it easier to indentify as being a selector grip
         return selectorManager.selectorParentGroup;
@@ -921,21 +921,21 @@ class SvgCanvas {
     });
 
     /**
-* @namespace {module:path.pathActions} pathActions
-* @memberof module:svgcanvas.SvgCanvas#
-* @see module:path.pathActions
-*/
+     * @namespace {module:path.pathActions} pathActions
+     * @memberof module:svgcanvas.SvgCanvas#
+     * @see module:path.pathActions
+     */
     canvas.pathActions = pathActions;
     /**
-* @type {module:path.EditorContext#resetD}
-*/
-    function resetD (p) {
-      p.setAttribute ('d', pathActions.convertPath (p));
+     * @type {module:path.EditorContext#resetD}
+     */
+    function resetD(p) {
+      p.setAttribute('d', pathActions.convertPath(p));
     }
-    pathModule.init (
+    pathModule.init(
       /**
-  * @implements {module:path.EditorContext}
-  */
+       * @implements {module:path.EditorContext}
+       */
       {
         selectorManager, // Ok since not changing
         canvas, // Ok since not changing
@@ -950,65 +950,65 @@ class SvgCanvas {
         getGridSnapping,
         getOpacity,
         getSelectedElements,
-        getContainer () {
+        getContainer() {
           return container;
         },
-        setStarted (s) {
+        setStarted(s) {
           started = s;
         },
-        getRubberBox () {
+        getRubberBox() {
           return rubberBox;
         },
-        setRubberBox (rb) {
+        setRubberBox(rb) {
           rubberBox = rb;
           return rubberBox;
         },
         /**
-     * @param {PlainObject} ptsInfo
-     * @param {boolean} ptsInfo.closedSubpath
-     * @param {SVGCircleElement[]} ptsInfo.grips
-     * @fires module:svgcanvas.SvgCanvas#event:pointsAdded
-     * @fires module:svgcanvas.SvgCanvas#event:selected
-     * @returns {void}
-     */
-        addPtsToSelection({closedSubpath, grips}) {
+         * @param {PlainObject} ptsInfo
+         * @param {boolean} ptsInfo.closedSubpath
+         * @param {SVGCircleElement[]} ptsInfo.grips
+         * @fires module:svgcanvas.SvgCanvas#event:pointsAdded
+         * @fires module:svgcanvas.SvgCanvas#event:selected
+         * @returns {void}
+         */
+        addPtsToSelection({ closedSubpath, grips }) {
           // TODO: Correct this:
           pathActions.canDeleteNodes = true;
           pathActions.closed_subpath = closedSubpath;
-          call ('pointsAdded', {closedSubpath, grips});
-          call ('selected', grips);
+          call('pointsAdded', { closedSubpath, grips });
+          call('selected', grips);
         },
         /**
-     * @param {PlainObject} changes
-     * @param {ChangeElementCommand} changes.cmd
-     * @param {SVGPathElement} changes.elem
-     * @fires module:svgcanvas.SvgCanvas#event:changed
-     * @returns {void}
-     */
-        endChanges({cmd, elem}) {
-          addCommandToHistory (cmd);
-          call ('changed', [elem]);
+         * @param {PlainObject} changes
+         * @param {ChangeElementCommand} changes.cmd
+         * @param {SVGPathElement} changes.elem
+         * @fires module:svgcanvas.SvgCanvas#event:changed
+         * @returns {void}
+         */
+        endChanges({ cmd, elem }) {
+          addCommandToHistory(cmd);
+          call('changed', [elem]);
         },
         getCurrentZoom,
         getId,
         getNextId,
         getMouseTarget,
-        getCurrentMode () {
+        getCurrentMode() {
           return currentMode;
         },
-        setCurrentMode (cm) {
+        setCurrentMode(cm) {
           currentMode = cm;
           return currentMode;
         },
-        getDrawnPath () {
+        getDrawnPath() {
           return drawnPath;
         },
-        setDrawnPath (dp) {
+        setDrawnPath(dp) {
           drawnPath = dp;
           return drawnPath;
         },
         getSVGRoot,
-      }
+      },
     );
 
     // Interface strings, usually for title elements
@@ -1030,35 +1030,35 @@ class SvgCanvas {
     const elData = $.data;
 
     // Animation element to change the opacity of any newly created element
-    const opacAni = document.createElementNS (NS.SVG, 'animate');
-    $ (opacAni)
-      .attr ({
+    const opacAni = document.createElementNS(NS.SVG, 'animate');
+    $(opacAni)
+      .attr({
         attributeName: 'opacity',
         begin: 'indefinite',
         dur: 1,
         fill: 'freeze',
       })
-      .appendTo (svgroot);
+      .appendTo(svgroot);
 
-    const restoreRefElems = function (elem) {
+    const restoreRefElems = function(elem) {
       // Look for missing reference elements, restore any found
-      const attrs = $ (elem).attr (refAttrs);
-      Object.values (attrs).forEach (val => {
-        if (val && val.startsWith ('url(')) {
-          const id = getUrlFromAttr (val).substr (1);
-          const ref = getElem (id);
+      const attrs = $(elem).attr(refAttrs);
+      Object.values(attrs).forEach(val => {
+        if (val && val.startsWith('url(')) {
+          const id = getUrlFromAttr(val).substr(1);
+          const ref = getElem(id);
           if (!ref) {
-            findDefs ().append (removedElements[id]);
+            findDefs().append(removedElements[id]);
             delete removedElements[id];
           }
         }
       });
 
-      const childs = elem.getElementsByTagName ('*');
+      const childs = elem.getElementsByTagName('*');
 
       if (childs.length) {
         for (let i = 0, l = childs.length; i < l; i++) {
-          restoreRefElems (childs[i]);
+          restoreRefElems(childs[i]);
         }
       }
     };
@@ -1073,19 +1073,19 @@ class SvgCanvas {
     // }());
 
     /**
- * @typedef {PlainObject} module:svgcanvas.SaveOptions
- * @property {boolean} apply
- * @property {"embed"} [image]
- * @property {Integer} round_digits
- */
+     * @typedef {PlainObject} module:svgcanvas.SaveOptions
+     * @property {boolean} apply
+     * @property {"embed"} [image]
+     * @property {Integer} round_digits
+     */
 
     // Object to contain image data for raster images that were found encodable
     const encodableImages = {},
       // Object with save options
       /**
-   * @type {module:svgcanvas.SaveOptions}
-   */
-      saveOptions = {round_digits: 5},
+       * @type {module:svgcanvas.SaveOptions}
+       */
+      saveOptions = { round_digits: 5 },
       // Object with IDs for imported files, to see if one was already added
       importIds = {},
       // Current text style properties
@@ -1096,7 +1096,7 @@ class SvgCanvas {
       removedElements = {};
 
     let // String with image URL of last loadable image
-    lastGoodImgUrl = curConfig.imgPath + 'logo.png',
+      lastGoodImgUrl = curConfig.imgPath + 'logo.png',
       // Boolean indicating whether or not a draw action has been started
       started = false,
       // String with an element's initial transform attribute value
@@ -1119,52 +1119,52 @@ class SvgCanvas {
       // Canvas point for the most recent right click
       lastClickPoint = null;
 
-    this.runExtension = function (name, action, vars) {
-      return this.runExtensions (action, vars, false, n => n === name);
+    this.runExtension = function(name, action, vars) {
+      return this.runExtensions(action, vars, false, n => n === name);
     };
     /**
-* @typedef {module:svgcanvas.ExtensionMouseDownStatus|module:svgcanvas.ExtensionMouseUpStatus|module:svgcanvas.ExtensionIDsUpdatedStatus|module:locale.ExtensionLocaleData[]|void} module:svgcanvas.ExtensionStatus
-* @tutorial ExtensionDocs
-*/
+     * @typedef {module:svgcanvas.ExtensionMouseDownStatus|module:svgcanvas.ExtensionMouseUpStatus|module:svgcanvas.ExtensionIDsUpdatedStatus|module:locale.ExtensionLocaleData[]|void} module:svgcanvas.ExtensionStatus
+     * @tutorial ExtensionDocs
+     */
     /**
-* @callback module:svgcanvas.ExtensionVarBuilder
-* @param {string} name The name of the extension
-* @returns {module:svgcanvas.SvgCanvas#event:ext_addLangData}
-*/
+     * @callback module:svgcanvas.ExtensionVarBuilder
+     * @param {string} name The name of the extension
+     * @returns {module:svgcanvas.SvgCanvas#event:ext_addLangData}
+     */
     /**
-* @callback module:svgcanvas.ExtensionNameFilter
-* @param {string} name
-* @returns {boolean}
-*/
+     * @callback module:svgcanvas.ExtensionNameFilter
+     * @param {string} name
+     * @returns {boolean}
+     */
     /**
-* @todo Consider: Should this return an array by default, so extension results aren't overwritten?
-* @todo Would be easier to document if passing in object with key of action and vars as value; could then define an interface which tied both together
-* @function module:svgcanvas.SvgCanvas#runExtensions
-* @param {"mouseDown"|"mouseMove"|"mouseUp"|"zoomChanged"|"IDsUpdated"|"canvasUpdated"|"toolButtonStateUpdate"|"selectedChanged"|"elementTransition"|"elementChanged"|"langReady"|"langChanged"|"addLangData"|"onNewDocument"|"workareaResized"} action
-* @param {module:svgcanvas.SvgCanvas#event:ext_mouseDown|module:svgcanvas.SvgCanvas#event:ext_mouseMove|module:svgcanvas.SvgCanvas#event:ext_mouseUp|module:svgcanvas.SvgCanvas#event:ext_zoomChanged|module:svgcanvas.SvgCanvas#event:ext_IDsUpdated|module:svgcanvas.SvgCanvas#event:ext_canvasUpdated|module:svgcanvas.SvgCanvas#event:ext_toolButtonStateUpdate|module:svgcanvas.SvgCanvas#event:ext_selectedChanged|module:svgcanvas.SvgCanvas#event:ext_elementTransition|module:svgcanvas.SvgCanvas#event:ext_elementChanged|module:svgcanvas.SvgCanvas#event:ext_langReady|module:svgcanvas.SvgCanvas#event:ext_langChanged|module:svgcanvas.SvgCanvas#event:ext_addLangData|module:svgcanvas.SvgCanvas#event:ext_onNewDocument|module:svgcanvas.SvgCanvas#event:ext_workareaResized|module:svgcanvas.ExtensionVarBuilder} [vars]
-* @param {boolean} [returnArray]
-* @param {module:svgcanvas.ExtensionNameFilter} nameFilter
-* @returns {GenericArray<module:svgcanvas.ExtensionStatus>|module:svgcanvas.ExtensionStatus|false} See {@tutorial ExtensionDocs} on the ExtensionStatus.
-*/
-    const runExtensions = (this.runExtensions = function (
+     * @todo Consider: Should this return an array by default, so extension results aren't overwritten?
+     * @todo Would be easier to document if passing in object with key of action and vars as value; could then define an interface which tied both together
+     * @function module:svgcanvas.SvgCanvas#runExtensions
+     * @param {"mouseDown"|"mouseMove"|"mouseUp"|"zoomChanged"|"IDsUpdated"|"canvasUpdated"|"toolButtonStateUpdate"|"selectedChanged"|"elementTransition"|"elementChanged"|"langReady"|"langChanged"|"addLangData"|"onNewDocument"|"workareaResized"} action
+     * @param {module:svgcanvas.SvgCanvas#event:ext_mouseDown|module:svgcanvas.SvgCanvas#event:ext_mouseMove|module:svgcanvas.SvgCanvas#event:ext_mouseUp|module:svgcanvas.SvgCanvas#event:ext_zoomChanged|module:svgcanvas.SvgCanvas#event:ext_IDsUpdated|module:svgcanvas.SvgCanvas#event:ext_canvasUpdated|module:svgcanvas.SvgCanvas#event:ext_toolButtonStateUpdate|module:svgcanvas.SvgCanvas#event:ext_selectedChanged|module:svgcanvas.SvgCanvas#event:ext_elementTransition|module:svgcanvas.SvgCanvas#event:ext_elementChanged|module:svgcanvas.SvgCanvas#event:ext_langReady|module:svgcanvas.SvgCanvas#event:ext_langChanged|module:svgcanvas.SvgCanvas#event:ext_addLangData|module:svgcanvas.SvgCanvas#event:ext_onNewDocument|module:svgcanvas.SvgCanvas#event:ext_workareaResized|module:svgcanvas.ExtensionVarBuilder} [vars]
+     * @param {boolean} [returnArray]
+     * @param {module:svgcanvas.ExtensionNameFilter} nameFilter
+     * @returns {GenericArray<module:svgcanvas.ExtensionStatus>|module:svgcanvas.ExtensionStatus|false} See {@tutorial ExtensionDocs} on the ExtensionStatus.
+     */
+    const runExtensions = (this.runExtensions = function(
       action,
       vars,
       returnArray,
-      nameFilter
+      nameFilter,
     ) {
       let result = returnArray ? [] : false;
-      $.each (extensions, function (name, ext) {
-        if (nameFilter && !nameFilter (name)) {
+      $.each(extensions, function(name, ext) {
+        if (nameFilter && !nameFilter(name)) {
           return;
         }
         if (ext && action in ext) {
           if (typeof vars === 'function') {
-            vars = vars (name); // ext, action
+            vars = vars(name); // ext, action
           }
           if (returnArray) {
-            result.push (ext[action] (vars));
+            result.push(ext[action](vars));
           } else {
-            result = ext[action] (vars);
+            result = ext[action](vars);
           }
         }
       });
@@ -1172,216 +1172,209 @@ class SvgCanvas {
     });
 
     /**
-* @typedef {PlainObject} module:svgcanvas.ExtensionMouseDownStatus
-* @property {boolean} started Indicates that creating/editing has started
-*/
+     * @typedef {PlainObject} module:svgcanvas.ExtensionMouseDownStatus
+     * @property {boolean} started Indicates that creating/editing has started
+     */
     /**
-* @typedef {PlainObject} module:svgcanvas.ExtensionMouseUpStatus
-* @property {boolean} keep Indicates if the current element should be kept
-* @property {boolean} started Indicates if editing should still be considered as "started"
-* @property {Element} element The element being affected
-*/
+     * @typedef {PlainObject} module:svgcanvas.ExtensionMouseUpStatus
+     * @property {boolean} keep Indicates if the current element should be kept
+     * @property {boolean} started Indicates if editing should still be considered as "started"
+     * @property {Element} element The element being affected
+     */
     /**
-* @typedef {PlainObject} module:svgcanvas.ExtensionIDsUpdatedStatus
-* @property {string[]} remove Contains string IDs (used by `ext-connector.js`)
-*/
+     * @typedef {PlainObject} module:svgcanvas.ExtensionIDsUpdatedStatus
+     * @property {string[]} remove Contains string IDs (used by `ext-connector.js`)
+     */
 
     /**
- * @interface module:svgcanvas.ExtensionInitResponse
- * @property {module:SVGEditor.ContextTool[]|PlainObject<string, module:SVGEditor.ContextTool>} [context_tools]
- * @property {module:SVGEditor.Button[]|PlainObject<Integer, module:SVGEditor.Button>} [buttons]
- * @property {string} [svgicons] The location of a local SVG or SVGz file
-*/
+     * @interface module:svgcanvas.ExtensionInitResponse
+     * @property {module:SVGEditor.ContextTool[]|PlainObject<string, module:SVGEditor.ContextTool>} [context_tools]
+     * @property {module:SVGEditor.Button[]|PlainObject<Integer, module:SVGEditor.Button>} [buttons]
+     * @property {string} [svgicons] The location of a local SVG or SVGz file
+     */
     /**
- * @function module:svgcanvas.ExtensionInitResponse#mouseDown
- * @param {module:svgcanvas.SvgCanvas#event:ext_mouseDown} arg
- * @returns {void|module:svgcanvas.ExtensionMouseDownStatus}
- */
+     * @function module:svgcanvas.ExtensionInitResponse#mouseDown
+     * @param {module:svgcanvas.SvgCanvas#event:ext_mouseDown} arg
+     * @returns {void|module:svgcanvas.ExtensionMouseDownStatus}
+     */
     /**
- * @function module:svgcanvas.ExtensionInitResponse#mouseMove
- * @param {module:svgcanvas.SvgCanvas#event:ext_mouseMove} arg
- * @returns {void}
-*/
+     * @function module:svgcanvas.ExtensionInitResponse#mouseMove
+     * @param {module:svgcanvas.SvgCanvas#event:ext_mouseMove} arg
+     * @returns {void}
+     */
     /**
- * @function module:svgcanvas.ExtensionInitResponse#mouseUp
- * @param {module:svgcanvas.SvgCanvas#event:ext_mouseUp} arg
- * @returns {module:svgcanvas.ExtensionMouseUpStatus}
- */
+     * @function module:svgcanvas.ExtensionInitResponse#mouseUp
+     * @param {module:svgcanvas.SvgCanvas#event:ext_mouseUp} arg
+     * @returns {module:svgcanvas.ExtensionMouseUpStatus}
+     */
     /**
- * @function module:svgcanvas.ExtensionInitResponse#zoomChanged
- * @param {module:svgcanvas.SvgCanvas#event:ext_zoomChanged} arg
- * @returns {void}
-*/
+     * @function module:svgcanvas.ExtensionInitResponse#zoomChanged
+     * @param {module:svgcanvas.SvgCanvas#event:ext_zoomChanged} arg
+     * @returns {void}
+     */
     /**
- * @function module:svgcanvas.ExtensionInitResponse#IDsUpdated
- * @param {module:svgcanvas.SvgCanvas#event:ext_IDsUpdated} arg
- * @returns {module:svgcanvas.ExtensionIDsUpdatedStatus}
- */
+     * @function module:svgcanvas.ExtensionInitResponse#IDsUpdated
+     * @param {module:svgcanvas.SvgCanvas#event:ext_IDsUpdated} arg
+     * @returns {module:svgcanvas.ExtensionIDsUpdatedStatus}
+     */
     /**
- * @function module:svgcanvas.ExtensionInitResponse#canvasUpdated
- * @param {module:svgcanvas.SvgCanvas#event:ext_canvasUpdated} arg
- * @returns {void}
-*/
+     * @function module:svgcanvas.ExtensionInitResponse#canvasUpdated
+     * @param {module:svgcanvas.SvgCanvas#event:ext_canvasUpdated} arg
+     * @returns {void}
+     */
     /**
- * @function module:svgcanvas.ExtensionInitResponse#toolButtonStateUpdate
- * @param {module:svgcanvas.SvgCanvas#event:ext_toolButtonStateUpdate} arg
- * @returns {void}
-*/
+     * @function module:svgcanvas.ExtensionInitResponse#toolButtonStateUpdate
+     * @param {module:svgcanvas.SvgCanvas#event:ext_toolButtonStateUpdate} arg
+     * @returns {void}
+     */
     /**
- * @function module:svgcanvas.ExtensionInitResponse#selectedChanged
- * @param {module:svgcanvas.SvgCanvas#event:ext_selectedChanged} arg
- * @returns {void}
-*/
+     * @function module:svgcanvas.ExtensionInitResponse#selectedChanged
+     * @param {module:svgcanvas.SvgCanvas#event:ext_selectedChanged} arg
+     * @returns {void}
+     */
     /**
- * @function module:svgcanvas.ExtensionInitResponse#elementTransition
- * @param {module:svgcanvas.SvgCanvas#event:ext_elementTransition} arg
- * @returns {void}
-*/
+     * @function module:svgcanvas.ExtensionInitResponse#elementTransition
+     * @param {module:svgcanvas.SvgCanvas#event:ext_elementTransition} arg
+     * @returns {void}
+     */
     /**
- * @function module:svgcanvas.ExtensionInitResponse#elementChanged
- * @param {module:svgcanvas.SvgCanvas#event:ext_elementChanged} arg
- * @returns {void}
-*/
+     * @function module:svgcanvas.ExtensionInitResponse#elementChanged
+     * @param {module:svgcanvas.SvgCanvas#event:ext_elementChanged} arg
+     * @returns {void}
+     */
     /**
- * @function module:svgcanvas.ExtensionInitResponse#langReady
- * @param {module:svgcanvas.SvgCanvas#event:ext_langReady} arg
- * @returns {void}
-*/
+     * @function module:svgcanvas.ExtensionInitResponse#langReady
+     * @param {module:svgcanvas.SvgCanvas#event:ext_langReady} arg
+     * @returns {void}
+     */
     /**
- * @function module:svgcanvas.ExtensionInitResponse#langChanged
- * @param {module:svgcanvas.SvgCanvas#event:ext_langChanged} arg
- * @returns {void}
-*/
+     * @function module:svgcanvas.ExtensionInitResponse#langChanged
+     * @param {module:svgcanvas.SvgCanvas#event:ext_langChanged} arg
+     * @returns {void}
+     */
     /**
- * @function module:svgcanvas.ExtensionInitResponse#addLangData
- * @param {module:svgcanvas.SvgCanvas#event:ext_addLangData} arg
- * @returns {Promise<module:locale.ExtensionLocaleData>} Resolves to {@link module:locale.ExtensionLocaleData}
-*/
+     * @function module:svgcanvas.ExtensionInitResponse#addLangData
+     * @param {module:svgcanvas.SvgCanvas#event:ext_addLangData} arg
+     * @returns {Promise<module:locale.ExtensionLocaleData>} Resolves to {@link module:locale.ExtensionLocaleData}
+     */
     /**
- * @function module:svgcanvas.ExtensionInitResponse#onNewDocument
- * @param {module:svgcanvas.SvgCanvas#event:ext_onNewDocument} arg
- * @returns {void}
-*/
+     * @function module:svgcanvas.ExtensionInitResponse#onNewDocument
+     * @param {module:svgcanvas.SvgCanvas#event:ext_onNewDocument} arg
+     * @returns {void}
+     */
     /**
- * @function module:svgcanvas.ExtensionInitResponse#workareaResized
- * @param {module:svgcanvas.SvgCanvas#event:ext_workareaResized} arg
- * @returns {void}
-*/
+     * @function module:svgcanvas.ExtensionInitResponse#workareaResized
+     * @param {module:svgcanvas.SvgCanvas#event:ext_workareaResized} arg
+     * @returns {void}
+     */
     /**
- * @function module:svgcanvas.ExtensionInitResponse#callback
- * @this module:SVGEditor
- * @param {module:svgcanvas.SvgCanvas#event:ext_callback} arg
- * @returns {void}
-*/
+     * @function module:svgcanvas.ExtensionInitResponse#callback
+     * @this module:SVGEditor
+     * @param {module:svgcanvas.SvgCanvas#event:ext_callback} arg
+     * @returns {void}
+     */
 
     /**
-* @callback module:svgcanvas.ExtensionInitCallback
-* @this module:SVGEditor
-* @param {module:svgcanvas.ExtensionArgumentObject} arg
-* @returns {Promise<module:svgcanvas.ExtensionInitResponse|void>} Resolves to [ExtensionInitResponse]{@link module:svgcanvas.ExtensionInitResponse} or `undefined`
-*/
+     * @callback module:svgcanvas.ExtensionInitCallback
+     * @this module:SVGEditor
+     * @param {module:svgcanvas.ExtensionArgumentObject} arg
+     * @returns {Promise<module:svgcanvas.ExtensionInitResponse|void>} Resolves to [ExtensionInitResponse]{@link module:svgcanvas.ExtensionInitResponse} or `undefined`
+     */
     /**
-* @typedef {PlainObject} module:svgcanvas.ExtensionInitArgs
-* @property {external:jQuery} $
-* @property {module:SVGEditor~ImportLocale} importLocale
-*/
+     * @typedef {PlainObject} module:svgcanvas.ExtensionInitArgs
+     * @property {external:jQuery} $
+     * @property {module:SVGEditor~ImportLocale} importLocale
+     */
     /**
-* Add an extension to the editor.
-* @function module:svgcanvas.SvgCanvas#addExtension
-* @param {string} name - String with the ID of the extension. Used internally; no need for i18n.
-* @param {module:svgcanvas.ExtensionInitCallback} [extInitFunc] - Function supplied by the extension with its data
-* @param {module:svgcanvas.ExtensionInitArgs} initArgs
-* @fires module:svgcanvas.SvgCanvas#event:extension_added
-* @throws {TypeError|Error} `TypeError` if `extInitFunc` is not a function, `Error`
-*   if extension of supplied name already exists
-* @returns {Promise<void>} Resolves to `undefined`
-*/
-    this.addExtension = async function (
+     * Add an extension to the editor.
+     * @function module:svgcanvas.SvgCanvas#addExtension
+     * @param {string} name - String with the ID of the extension. Used internally; no need for i18n.
+     * @param {module:svgcanvas.ExtensionInitCallback} [extInitFunc] - Function supplied by the extension with its data
+     * @param {module:svgcanvas.ExtensionInitArgs} initArgs
+     * @fires module:svgcanvas.SvgCanvas#event:extension_added
+     * @throws {TypeError|Error} `TypeError` if `extInitFunc` is not a function, `Error`
+     *   if extension of supplied name already exists
+     * @returns {Promise<void>} Resolves to `undefined`
+     */
+    this.addExtension = async function(
       name,
       extInitFunc,
-      {$: jq, importLocale}
+      { $: jq, importLocale },
     ) {
       if (typeof extInitFunc !== 'function') {
-        throw new TypeError (
-          'Function argument expected for `svgcanvas.addExtension`'
+        throw new TypeError(
+          'Function argument expected for `svgcanvas.addExtension`',
         );
       }
       if (name in extensions) {
-        throw new Error (
+        throw new Error(
           'Cannot add extension "' +
             name +
-            '", an extension by that name already exists.'
+            '", an extension by that name already exists.',
         );
       }
       // Provide private vars/funcs here. Is there a better way to do this?
       /**
-   * @typedef {module:svgcanvas.PrivateMethods} module:svgcanvas.ExtensionArgumentObject
-   * @property {SVGSVGElement} svgroot See {@link module:svgcanvas~svgroot}
-   * @property {SVGSVGElement} svgcontent See {@link module:svgcanvas~svgcontent}
-   * @property {!(string|Integer)} nonce See {@link module:draw.Drawing#getNonce}
-   * @property {module:select.SelectorManager} selectorManager
-   * @property {module:SVGEditor~ImportLocale} importLocale
-   */
+       * @typedef {module:svgcanvas.PrivateMethods} module:svgcanvas.ExtensionArgumentObject
+       * @property {SVGSVGElement} svgroot See {@link module:svgcanvas~svgroot}
+       * @property {SVGSVGElement} svgcontent See {@link module:svgcanvas~svgcontent}
+       * @property {!(string|Integer)} nonce See {@link module:draw.Drawing#getNonce}
+       * @property {module:select.SelectorManager} selectorManager
+       * @property {module:SVGEditor~ImportLocale} importLocale
+       */
       /**
-   * @type {module:svgcanvas.ExtensionArgumentObject}
-   * @see {@link module:svgcanvas.PrivateMethods} source for the other methods/properties
-   */
-      const argObj = $.extend (canvas.getPrivateMethods (), {
+       * @type {module:svgcanvas.ExtensionArgumentObject}
+       * @see {@link module:svgcanvas.PrivateMethods} source for the other methods/properties
+       */
+      const argObj = $.extend(canvas.getPrivateMethods(), {
         $: jq,
         importLocale,
         svgroot,
         svgcontent,
-        nonce: getCurrentDrawing ().getNonce (),
+        nonce: getCurrentDrawing().getNonce(),
         selectorManager,
       });
-      const extObj = await extInitFunc (argObj);
+      const extObj = await extInitFunc(argObj);
       if (extObj) {
         extObj.name = name;
       }
 
       extensions[name] = extObj;
-      return call ('extension_added', extObj);
+      return call('extension_added', extObj);
     };
 
     /**
-* This method sends back an array or a NodeList full of elements that
-* intersect the multi-select rubber-band-box on the currentLayer only.
-*
-* We brute-force `getIntersectionList` for browsers that do not support it (Firefox).
-*
-* Reference:
-* Firefox does not implement `getIntersectionList()`, see {@link https://bugzilla.mozilla.org/show_bug.cgi?id=501421}.
-* @function module:svgcanvas.SvgCanvas#getIntersectionList
-* @param {SVGRect} rect
-* @returns {Element[]|NodeList} Bbox elements
-*/
-    const getIntersectionList = (this.getIntersectionList = function (rect) {
-      if (isNullish (rubberBox)) {
+     * This method sends back an array or a NodeList full of elements that
+     * intersect the multi-select rubber-band-box on the currentLayer only.
+     *
+     * We brute-force `getIntersectionList` for browsers that do not support it (Firefox).
+     *
+     * Reference:
+     * Firefox does not implement `getIntersectionList()`, see {@link https://bugzilla.mozilla.org/show_bug.cgi?id=501421}.
+     * @function module:svgcanvas.SvgCanvas#getIntersectionList
+     * @param {SVGRect} rect
+     * @returns {Element[]|NodeList} Bbox elements
+     */
+    const getIntersectionList = (this.getIntersectionList = function(rect) {
+      if (isNullish(rubberBox)) {
         return null;
       }
 
-      const parent = currentGroup || getCurrentDrawing ().getCurrentLayer ();
+      const parent = currentGroup || getCurrentDrawing().getCurrentLayer();
 
       let rubberBBox;
       if (!rect) {
-        rubberBBox = rubberBox.getBBox ();
-        const bb = svgcontent.createSVGRect ();
+        rubberBBox = rubberBox.getBBox();
+        const bb = svgcontent.createSVGRect();
 
-        [
-          'x',
-          'y',
-          'width',
-          'height',
-          'top',
-          'right',
-          'bottom',
-          'left',
-        ].forEach (o => {
-          bb[o] = rubberBBox[o] / currentZoom;
-        });
+        ['x', 'y', 'width', 'height', 'top', 'right', 'bottom', 'left'].forEach(
+          o => {
+            bb[o] = rubberBBox[o] / currentZoom;
+          },
+        );
         rubberBBox = bb;
       } else {
-        rubberBBox = svgcontent.createSVGRect ();
+        rubberBBox = svgcontent.createSVGRect();
         rubberBBox.x = rect.x;
         rubberBBox.y = rect.y;
         rubberBBox.width = rect.width;
@@ -1389,30 +1382,30 @@ class SvgCanvas {
       }
 
       let resultList = null;
-      if (!isIE ()) {
+      if (!isIE()) {
         if (typeof svgroot.getIntersectionList === 'function') {
           // Offset the bbox of the rubber box by the offset of the svgcontent element.
-          rubberBBox.x += parseInt (svgcontent.getAttribute ('x'));
-          rubberBBox.y += parseInt (svgcontent.getAttribute ('y'));
+          rubberBBox.x += parseInt(svgcontent.getAttribute('x'));
+          rubberBBox.y += parseInt(svgcontent.getAttribute('y'));
 
-          resultList = svgroot.getIntersectionList (rubberBBox, parent);
+          resultList = svgroot.getIntersectionList(rubberBBox, parent);
         }
       }
 
-      if (isNullish (resultList) || typeof resultList.item !== 'function') {
+      if (isNullish(resultList) || typeof resultList.item !== 'function') {
         resultList = [];
 
         if (!curBBoxes.length) {
           // Cache all bboxes
-          curBBoxes = getVisibleElementsAndBBoxes (parent);
+          curBBoxes = getVisibleElementsAndBBoxes(parent);
         }
         let i = curBBoxes.length;
         while (i--) {
           if (!rubberBBox.width) {
             continue;
           }
-          if (rectsIntersect (rubberBBox, curBBoxes[i].bbox)) {
-            resultList.push (curBBoxes[i].elem);
+          if (rectsIntersect(rubberBBox, curBBoxes[i].bbox)) {
+            resultList.push(curBBoxes[i].elem);
           }
         }
       }
@@ -1428,47 +1421,51 @@ class SvgCanvas {
     this.getVisibleElements = getVisibleElements;
 
     /**
-* @typedef {PlainObject} ElementAndBBox
-* @property {Element} elem - The element
-* @property {module:utilities.BBoxObject} bbox - The element's BBox as retrieved from `getStrokedBBoxDefaultVisible`
-*/
+     * @typedef {PlainObject} ElementAndBBox
+     * @property {Element} elem - The element
+     * @property {module:utilities.BBoxObject} bbox - The element's BBox as retrieved from `getStrokedBBoxDefaultVisible`
+     */
 
     /**
-* Get all elements that have a BBox (excludes `<defs>`, `<title>`, etc).
-* Note that 0-opacity, off-screen etc elements are still considered "visible"
-* for this function.
-* @function module:svgcanvas.SvgCanvas#getVisibleElementsAndBBoxes
-* @param {Element} parent - The parent DOM element to search within
-* @returns {ElementAndBBox[]} An array with objects that include:
-*/
-    const getVisibleElementsAndBBoxes = (this.getVisibleElementsAndBBoxes = function (
-      parent
+     * Get all elements that have a BBox (excludes `<defs>`, `<title>`, etc).
+     * Note that 0-opacity, off-screen etc elements are still considered "visible"
+     * for this function.
+     * @function module:svgcanvas.SvgCanvas#getVisibleElementsAndBBoxes
+     * @param {Element} parent - The parent DOM element to search within
+     * @returns {ElementAndBBox[]} An array with objects that include:
+     */
+    const getVisibleElementsAndBBoxes = (this.getVisibleElementsAndBBoxes = function(
+      parent,
     ) {
       if (!parent) {
-        parent = $ (svgcontent).children (); // Prevent layers from being included
+        parent = $(svgcontent).children(); // Prevent layers from being included
       }
       const contentElems = [];
-      $ (parent).children ().each (function (i, elem) {
-        if (elem.getBBox) {
-          contentElems.push ({
-            elem,
-            bbox: getStrokedBBoxDefaultVisible ([elem]),
-          });
-        }
-      });
-      return contentElems.reverse ();
+      $(parent)
+        .children()
+        .each(function(i, elem) {
+          if (elem.getBBox) {
+            contentElems.push({
+              elem,
+              bbox: getStrokedBBoxDefaultVisible([elem]),
+            });
+          }
+        });
+      return contentElems.reverse();
     });
 
     /**
-* Wrap an SVG element into a group element, mark the group as 'gsvg'.
-* @function module:svgcanvas.SvgCanvas#groupSvgElem
-* @param {Element} elem - SVG element to wrap
-* @returns {void}
-*/
-    const groupSvgElem = (this.groupSvgElem = function (elem) {
-      const g = document.createElementNS (NS.SVG, 'g');
-      elem.replaceWith (g);
-      $ (g).append (elem).data ('gsvg', elem)[0].id = getNextId ();
+     * Wrap an SVG element into a group element, mark the group as 'gsvg'.
+     * @function module:svgcanvas.SvgCanvas#groupSvgElem
+     * @param {Element} elem - SVG element to wrap
+     * @returns {void}
+     */
+    const groupSvgElem = (this.groupSvgElem = function(elem) {
+      const g = document.createElementNS(NS.SVG, 'g');
+      elem.replaceWith(g);
+      $(g)
+        .append(elem)
+        .data('gsvg', elem)[0].id = getNextId();
     });
 
     // Set scope for these functions
@@ -1478,176 +1475,176 @@ class SvgCanvas {
 
     canvas.call = call;
     /**
- * Array of what was changed (elements, layers).
- * @event module:svgcanvas.SvgCanvas#event:changed
- * @type {Element[]}
- */
+     * Array of what was changed (elements, layers).
+     * @event module:svgcanvas.SvgCanvas#event:changed
+     * @type {Element[]}
+     */
     /**
- * Array of selected elements.
- * @event module:svgcanvas.SvgCanvas#event:selected
- * @type {Element[]}
- */
+     * Array of selected elements.
+     * @event module:svgcanvas.SvgCanvas#event:selected
+     * @type {Element[]}
+     */
     /**
- * Array of selected elements.
- * @event module:svgcanvas.SvgCanvas#event:transition
- * @type {Element[]}
- */
+     * Array of selected elements.
+     * @event module:svgcanvas.SvgCanvas#event:transition
+     * @type {Element[]}
+     */
     /**
- * The Element is always `SVGGElement`?
- * If not `null`, will be the set current group element.
- * @event module:svgcanvas.SvgCanvas#event:contextset
- * @type {null|Element}
- */
+     * The Element is always `SVGGElement`?
+     * If not `null`, will be the set current group element.
+     * @event module:svgcanvas.SvgCanvas#event:contextset
+     * @type {null|Element}
+     */
     /**
- * @event module:svgcanvas.SvgCanvas#event:pointsAdded
- * @type {PlainObject}
- * @property {boolean} closedSubpath
- * @property {SVGCircleElement[]} grips Grips elements
- */
+     * @event module:svgcanvas.SvgCanvas#event:pointsAdded
+     * @type {PlainObject}
+     * @property {boolean} closedSubpath
+     * @property {SVGCircleElement[]} grips Grips elements
+     */
 
     /**
- * @event module:svgcanvas.SvgCanvas#event:zoomed
- * @type {PlainObject}
- * @property {Float} x
- * @property {Float} y
- * @property {Float} width
- * @property {Float} height
- * @property {0.5|2} factor
- * @see module:SVGEditor.BBoxObjectWithFactor
- */
+     * @event module:svgcanvas.SvgCanvas#event:zoomed
+     * @type {PlainObject}
+     * @property {Float} x
+     * @property {Float} y
+     * @property {Float} width
+     * @property {Float} height
+     * @property {0.5|2} factor
+     * @see module:SVGEditor.BBoxObjectWithFactor
+     */
     /**
- * @event module:svgcanvas.SvgCanvas#event:updateCanvas
- * @type {PlainObject}
- * @property {false} center
- * @property {module:math.XYObject} newCtr
- */
+     * @event module:svgcanvas.SvgCanvas#event:updateCanvas
+     * @type {PlainObject}
+     * @property {false} center
+     * @property {module:math.XYObject} newCtr
+     */
     /**
- * @typedef {PlainObject} module:svgcanvas.ExtensionInitResponsePlusName
- * @implements {module:svgcanvas.ExtensionInitResponse}
- * @property {string} name The extension's resolved ID (whether explicit or based on file name)
- */
+     * @typedef {PlainObject} module:svgcanvas.ExtensionInitResponsePlusName
+     * @implements {module:svgcanvas.ExtensionInitResponse}
+     * @property {string} name The extension's resolved ID (whether explicit or based on file name)
+     */
     /**
- * Generalized extension object response of
- * [`init()`]{@link module:svgcanvas.ExtensionInitCallback}
- * along with the name of the extension.
- * @event module:svgcanvas.SvgCanvas#event:extension_added
- * @type {module:svgcanvas.ExtensionInitResponsePlusName|void}
- */
+     * Generalized extension object response of
+     * [`init()`]{@link module:svgcanvas.ExtensionInitCallback}
+     * along with the name of the extension.
+     * @event module:svgcanvas.SvgCanvas#event:extension_added
+     * @type {module:svgcanvas.ExtensionInitResponsePlusName|void}
+     */
     /**
- * @event module:svgcanvas.SvgCanvas#event:extensions_added
- * @type {void}
-*/
+     * @event module:svgcanvas.SvgCanvas#event:extensions_added
+     * @type {void}
+     */
     /**
- * @typedef {PlainObject} module:svgcanvas.Message
- * @property {any} data The data
- * @property {string} origin The origin
- */
+     * @typedef {PlainObject} module:svgcanvas.Message
+     * @property {any} data The data
+     * @property {string} origin The origin
+     */
     /**
- * @event module:svgcanvas.SvgCanvas#event:message
- * @type {module:svgcanvas.Message}
- */
+     * @event module:svgcanvas.SvgCanvas#event:message
+     * @type {module:svgcanvas.Message}
+     */
     /**
- * SVG canvas converted to string.
- * @event module:svgcanvas.SvgCanvas#event:saved
- * @type {string}
- */
+     * SVG canvas converted to string.
+     * @event module:svgcanvas.SvgCanvas#event:saved
+     * @type {string}
+     */
     /**
- * @event module:svgcanvas.SvgCanvas#event:setnonce
- * @type {!(string|Integer)}
- */
+     * @event module:svgcanvas.SvgCanvas#event:setnonce
+     * @type {!(string|Integer)}
+     */
     /**
- * @event module:svgcanvas.SvgCanvas#event:unsetnonce
- * @type {void}
- */
+     * @event module:svgcanvas.SvgCanvas#event:unsetnonce
+     * @type {void}
+     */
     /**
- * @event module:svgcanvas.SvgCanvas#event:zoomDone
- * @type {void}
-*/
+     * @event module:svgcanvas.SvgCanvas#event:zoomDone
+     * @type {void}
+     */
     /**
- * @event module:svgcanvas.SvgCanvas#event:cleared
- * @type {void}
-*/
+     * @event module:svgcanvas.SvgCanvas#event:cleared
+     * @type {void}
+     */
 
     /**
- * @event module:svgcanvas.SvgCanvas#event:exported
- * @type {module:svgcanvas.ImageExportedResults}
- */
+     * @event module:svgcanvas.SvgCanvas#event:exported
+     * @type {module:svgcanvas.ImageExportedResults}
+     */
     /**
- * @event module:svgcanvas.SvgCanvas#event:exportedPDF
- * @type {module:svgcanvas.PDFExportedResults}
- */
+     * @event module:svgcanvas.SvgCanvas#event:exportedPDF
+     * @type {module:svgcanvas.PDFExportedResults}
+     */
     /**
- * Creating a cover-all class until {@link https://github.com/jsdoc3/jsdoc/issues/1545} may be supported.
- * `undefined` may be returned by {@link module:svgcanvas.SvgCanvas#event:extension_added} if the extension's `init` returns `undefined` It is also the type for the following events "zoomDone", "unsetnonce", "cleared", and "extensions_added".
- * @event module:svgcanvas.SvgCanvas#event:GenericCanvasEvent
- * @type {module:svgcanvas.SvgCanvas#event:selected|module:svgcanvas.SvgCanvas#event:changed|module:svgcanvas.SvgCanvas#event:contextset|module:svgcanvas.SvgCanvas#event:pointsAdded|module:svgcanvas.SvgCanvas#event:extension_added|module:svgcanvas.SvgCanvas#event:extensions_added|module:svgcanvas.SvgCanvas#event:message|module:svgcanvas.SvgCanvas#event:transition|module:svgcanvas.SvgCanvas#event:zoomed|module:svgcanvas.SvgCanvas#event:updateCanvas|module:svgcanvas.SvgCanvas#event:saved|module:svgcanvas.SvgCanvas#event:exported|module:svgcanvas.SvgCanvas#event:exportedPDF|module:svgcanvas.SvgCanvas#event:setnonce|module:svgcanvas.SvgCanvas#event:unsetnonce|void}
- */
+     * Creating a cover-all class until {@link https://github.com/jsdoc3/jsdoc/issues/1545} may be supported.
+     * `undefined` may be returned by {@link module:svgcanvas.SvgCanvas#event:extension_added} if the extension's `init` returns `undefined` It is also the type for the following events "zoomDone", "unsetnonce", "cleared", and "extensions_added".
+     * @event module:svgcanvas.SvgCanvas#event:GenericCanvasEvent
+     * @type {module:svgcanvas.SvgCanvas#event:selected|module:svgcanvas.SvgCanvas#event:changed|module:svgcanvas.SvgCanvas#event:contextset|module:svgcanvas.SvgCanvas#event:pointsAdded|module:svgcanvas.SvgCanvas#event:extension_added|module:svgcanvas.SvgCanvas#event:extensions_added|module:svgcanvas.SvgCanvas#event:message|module:svgcanvas.SvgCanvas#event:transition|module:svgcanvas.SvgCanvas#event:zoomed|module:svgcanvas.SvgCanvas#event:updateCanvas|module:svgcanvas.SvgCanvas#event:saved|module:svgcanvas.SvgCanvas#event:exported|module:svgcanvas.SvgCanvas#event:exportedPDF|module:svgcanvas.SvgCanvas#event:setnonce|module:svgcanvas.SvgCanvas#event:unsetnonce|void}
+     */
 
     /**
- * The promise return, if present, resolves to `undefined`
- *  (`extension_added`, `exported`, `saved`).
- * @typedef {Promise<void>|void} module:svgcanvas.EventHandlerReturn
-*/
+     * The promise return, if present, resolves to `undefined`
+     *  (`extension_added`, `exported`, `saved`).
+     * @typedef {Promise<void>|void} module:svgcanvas.EventHandlerReturn
+     */
 
     /**
-* @callback module:svgcanvas.EventHandler
-* @param {external:Window} win
-* @param {module:svgcanvas.SvgCanvas#event:GenericCanvasEvent} arg
-* @listens module:svgcanvas.SvgCanvas#event:GenericCanvasEvent
-* @returns {module:svgcanvas.EventHandlerReturn}
-*/
+     * @callback module:svgcanvas.EventHandler
+     * @param {external:Window} win
+     * @param {module:svgcanvas.SvgCanvas#event:GenericCanvasEvent} arg
+     * @listens module:svgcanvas.SvgCanvas#event:GenericCanvasEvent
+     * @returns {module:svgcanvas.EventHandlerReturn}
+     */
 
     /**
-* Attaches a callback function to an event.
-* @function module:svgcanvas.SvgCanvas#bind
-* @param {"changed"|"contextset"|"selected"|"pointsAdded"|"extension_added"|"extensions_added"|"message"|"transition"|"zoomed"|"updateCanvas"|"zoomDone"|"saved"|"exported"|"exportedPDF"|"setnonce"|"unsetnonce"|"cleared"} ev - String indicating the name of the event
-* @param {module:svgcanvas.EventHandler} f - The callback function to bind to the event
-* @returns {module:svgcanvas.EventHandler} The previous event
-*/
-    canvas.bind = function (ev, f) {
+     * Attaches a callback function to an event.
+     * @function module:svgcanvas.SvgCanvas#bind
+     * @param {"changed"|"contextset"|"selected"|"pointsAdded"|"extension_added"|"extensions_added"|"message"|"transition"|"zoomed"|"updateCanvas"|"zoomDone"|"saved"|"exported"|"exportedPDF"|"setnonce"|"unsetnonce"|"cleared"} ev - String indicating the name of the event
+     * @param {module:svgcanvas.EventHandler} f - The callback function to bind to the event
+     * @returns {module:svgcanvas.EventHandler} The previous event
+     */
+    canvas.bind = function(ev, f) {
       const old = events[ev];
       events[ev] = f;
       return old;
     };
 
     /**
-* Runs the SVG Document through the sanitizer and then updates its paths.
-* @function module:svgcanvas.SvgCanvas#prepareSvg
-* @param {XMLDocument} newDoc - The SVG DOM document
-* @returns {void}
-*/
-    this.prepareSvg = function (newDoc) {
+     * Runs the SVG Document through the sanitizer and then updates its paths.
+     * @function module:svgcanvas.SvgCanvas#prepareSvg
+     * @param {XMLDocument} newDoc - The SVG DOM document
+     * @returns {void}
+     */
+    this.prepareSvg = function(newDoc) {
       // xiaoqing 去掉属性过滤
       // this.sanitizeSvg(newDoc.documentElement);
 
       // convert paths into absolute commands
-      const paths = [...newDoc.getElementsByTagNameNS (NS.SVG, 'path')];
-      paths.forEach (path => {
-        path.setAttribute ('d', pathActions.convertPath (path));
-        pathActions.fixEnd (path);
+      const paths = [...newDoc.getElementsByTagNameNS(NS.SVG, 'path')];
+      paths.forEach(path => {
+        path.setAttribute('d', pathActions.convertPath(path));
+        pathActions.fixEnd(path);
       });
     };
 
     /**
-* Hack for Firefox bugs where text element features aren't updated or get
-* messed up. See issue 136 and issue 137.
-* This function clones the element and re-selects it.
-* @function module:svgcanvas~ffClone
-* @todo Test for this bug on load and add it to "support" object instead of
-* browser sniffing
-* @param {Element} elem - The (text) DOM element to clone
-* @returns {Element} Cloned element
-*/
-    const ffClone = function (elem) {
-      if (!isGecko ()) {
+     * Hack for Firefox bugs where text element features aren't updated or get
+     * messed up. See issue 136 and issue 137.
+     * This function clones the element and re-selects it.
+     * @function module:svgcanvas~ffClone
+     * @todo Test for this bug on load and add it to "support" object instead of
+     * browser sniffing
+     * @param {Element} elem - The (text) DOM element to clone
+     * @returns {Element} Cloned element
+     */
+    const ffClone = function(elem) {
+      if (!isGecko()) {
         return elem;
       }
-      const clone = elem.cloneNode (true);
-      elem.before (clone);
-      elem.remove ();
-      selectorManager.releaseSelector (elem);
+      const clone = elem.cloneNode(true);
+      elem.before(clone);
+      elem.remove();
+      selectorManager.releaseSelector(elem);
       selectedElements[0] = clone;
-      selectorManager.requestSelector (clone).showGrips (true);
+      selectorManager.requestSelector(clone).showGrips(true);
       return clone;
     };
 
@@ -1659,136 +1656,137 @@ class SvgCanvas {
     // };
 
     /**
-* Removes any old rotations if present, prepends a new rotation at the
-* transformed center.
-* @function module:svgcanvas.SvgCanvas#setRotationAngle
-* @param {string|Float} val - The new rotation angle in degrees
-* @param {boolean} preventUndo - Indicates whether the action should be undoable or not
-* @fires module:svgcanvas.SvgCanvas#event:changed
-* @returns {void}
-*/
-    this.setRotationAngle = function (val, preventUndo) {
+     * Removes any old rotations if present, prepends a new rotation at the
+     * transformed center.
+     * @function module:svgcanvas.SvgCanvas#setRotationAngle
+     * @param {string|Float} val - The new rotation angle in degrees
+     * @param {boolean} preventUndo - Indicates whether the action should be undoable or not
+     * @fires module:svgcanvas.SvgCanvas#event:changed
+     * @returns {void}
+     */
+    this.setRotationAngle = function(val, preventUndo) {
       // ensure val is the proper type
-      val = parseFloat (val);
+      val = parseFloat(val);
       const elem = selectedElements[0];
-      const oldTransform = elem.getAttribute ('transform');
-      const bbox = utilsGetBBox (elem);
-      const cx = bbox.x + bbox.width / 2, cy = bbox.y + bbox.height / 2;
-      const tlist = getTransformList (elem);
+      const oldTransform = elem.getAttribute('transform');
+      const bbox = utilsGetBBox(elem);
+      const cx = bbox.x + bbox.width / 2,
+        cy = bbox.y + bbox.height / 2;
+      const tlist = getTransformList(elem);
 
       // only remove the real rotational transform if present (i.e. at index=0)
       if (tlist.numberOfItems > 0) {
-        const xform = tlist.getItem (0);
+        const xform = tlist.getItem(0);
         if (xform.type === 4) {
-          tlist.removeItem (0);
+          tlist.removeItem(0);
         }
       }
       // find Rnc and insert it
       if (val !== 0) {
-        const center = transformPoint (
+        const center = transformPoint(
           cx,
           cy,
-          transformListToTransform (tlist).matrix
+          transformListToTransform(tlist).matrix,
         );
-        const Rnc = svgroot.createSVGTransform ();
-        Rnc.setRotate (val, center.x, center.y);
+        const Rnc = svgroot.createSVGTransform();
+        Rnc.setRotate(val, center.x, center.y);
         if (tlist.numberOfItems) {
-          tlist.insertItemBefore (Rnc, 0);
+          tlist.insertItemBefore(Rnc, 0);
         } else {
-          tlist.appendItem (Rnc);
+          tlist.appendItem(Rnc);
         }
       } else if (tlist.numberOfItems === 0) {
-        elem.removeAttribute ('transform');
+        elem.removeAttribute('transform');
       }
 
       if (!preventUndo) {
         // we need to undo it, then redo it so it can be undo-able! :)
         // TODO: figure out how to make changes to transform list undo-able cross-browser?
-        const newTransform = elem.getAttribute ('transform');
-        elem.setAttribute ('transform', oldTransform);
-        changeSelectedAttribute ('transform', newTransform, selectedElements);
-        call ('changed', selectedElements);
+        const newTransform = elem.getAttribute('transform');
+        elem.setAttribute('transform', oldTransform);
+        changeSelectedAttribute('transform', newTransform, selectedElements);
+        call('changed', selectedElements);
       }
       // const pointGripContainer = getElem('pathpointgrip_container');
       // if (elem.nodeName === 'path' && pointGripContainer) {
       //   pathActions.setPointContainerTransform(elem.getAttribute('transform'));
       // }
-      const selector = selectorManager.requestSelector (selectedElements[0]);
-      selector.resize ();
-      Selector.updateGripCursors (val);
+      const selector = selectorManager.requestSelector(selectedElements[0]);
+      selector.resize();
+      Selector.updateGripCursors(val);
     };
 
     /**
-* Runs `recalculateDimensions` on the selected elements,
-* adding the changes to a single batch command.
-* @function module:svgcanvas.SvgCanvas#recalculateAllSelectedDimensions
-* @fires module:svgcanvas.SvgCanvas#event:changed
-* @returns {void}
-*/
-    const recalculateAllSelectedDimensions = (this.recalculateAllSelectedDimensions = function () {
+     * Runs `recalculateDimensions` on the selected elements,
+     * adding the changes to a single batch command.
+     * @function module:svgcanvas.SvgCanvas#recalculateAllSelectedDimensions
+     * @fires module:svgcanvas.SvgCanvas#event:changed
+     * @returns {void}
+     */
+    const recalculateAllSelectedDimensions = (this.recalculateAllSelectedDimensions = function() {
       const text = currentResizeMode === 'none' ? 'position' : 'size';
-      const batchCmd = new BatchCommand (text);
+      const batchCmd = new BatchCommand(text);
 
       let i = selectedElements.length;
       while (i--) {
         const elem = selectedElements[i];
         // if (getRotationAngle(elem) && !hasMatrixTransform(getTransformList(elem))) { continue; }
-        const cmd = recalculateDimensions (elem);
+        const cmd = recalculateDimensions(elem);
         if (cmd) {
-          batchCmd.addSubCommand (cmd);
+          batchCmd.addSubCommand(cmd);
         }
       }
 
-      if (!batchCmd.isEmpty ()) {
-        addCommandToHistory (batchCmd);
-        call ('changed', selectedElements);
+      if (!batchCmd.isEmpty()) {
+        addCommandToHistory(batchCmd);
+        call('changed', selectedElements);
       }
     });
 
     /**
- * Debug tool to easily see the current matrix in the browser's console.
- * @function module:svgcanvas~logMatrix
- * @param {SVGMatrix} m The matrix
- * @returns {void}
- */
-    const logMatrix = function (m) {
-      console.log ([m.a, m.b, m.c, m.d, m.e, m.f]); // eslint-disable-line no-console
+     * Debug tool to easily see the current matrix in the browser's console.
+     * @function module:svgcanvas~logMatrix
+     * @param {SVGMatrix} m The matrix
+     * @returns {void}
+     */
+    const logMatrix = function(m) {
+      console.log([m.a, m.b, m.c, m.d, m.e, m.f]); // eslint-disable-line no-console
     };
 
     // Root Current Transformation Matrix in user units
     let rootSctm = null;
 
     /**
-* Group: Selection.
-*/
+     * Group: Selection.
+     */
 
     // TODO: do we need to worry about selectedBBoxes here?
 
     /**
-* Selects only the given elements, shortcut for `clearSelection(); addToSelection()`.
-* @function module:svgcanvas.SvgCanvas#selectOnly
-* @param {Element[]} elems - an array of DOM elements to be selected
-* @param {boolean} showGrips - Indicates whether the resize grips should be shown
-* @returns {void}
-*/
-    const selectOnly = (this.selectOnly = function (elems, showGrips) {
-      clearSelection (true);
-      addToSelection (elems, showGrips);
+     * Selects only the given elements, shortcut for `clearSelection(); addToSelection()`.
+     * @function module:svgcanvas.SvgCanvas#selectOnly
+     * @param {Element[]} elems - an array of DOM elements to be selected
+     * @param {boolean} showGrips - Indicates whether the resize grips should be shown
+     * @returns {void}
+     */
+    const selectOnly = (this.selectOnly = function(elems, showGrips) {
+      clearSelection(true);
+      addToSelection(elems, showGrips);
     });
 
     // TODO: could use slice here to make this faster?
     // TODO: should the 'selected' handler
 
     /**
-* Removes elements from the selection.
-* @function module:svgcanvas.SvgCanvas#removeFromSelection
-* @param {Element[]} elemsToRemove - An array of elements to remove from selection
-* @returns {void}
-*/
-    /* const removeFromSelection = */ this.removeFromSelection = function (
-      elemsToRemove
+     * Removes elements from the selection.
+     * @function module:svgcanvas.SvgCanvas#removeFromSelection
+     * @param {Element[]} elemsToRemove - An array of elements to remove from selection
+     * @returns {void}
+     */
+    /* const removeFromSelection = */ this.removeFromSelection = function(
+      elemsToRemove,
     ) {
-      if (isNullish (selectedElements[0])) {
+      if (isNullish(selectedElements[0])) {
         return;
       }
       if (!elemsToRemove.length) {
@@ -1796,16 +1794,17 @@ class SvgCanvas {
       }
 
       // find every element and remove it from our array copy
-      const newSelectedItems = [], len = selectedElements.length;
+      const newSelectedItems = [],
+        len = selectedElements.length;
       for (let i = 0; i < len; ++i) {
         const elem = selectedElements[i];
         if (elem) {
           // keep the item
-          if (!elemsToRemove.includes (elem)) {
-            newSelectedItems.push (elem);
+          if (!elemsToRemove.includes(elem)) {
+            newSelectedItems.push(elem);
           } else {
             // remove the item and its selector
-            selectorManager.releaseSelector (elem);
+            selectorManager.releaseSelector(elem);
           }
         }
       }
@@ -1814,29 +1813,30 @@ class SvgCanvas {
     };
 
     /**
-* Clears the selection, then adds all elements in the current layer to the selection.
-* @function module:svgcanvas.SvgCanvas#selectAllInCurrentLayer
-* @returns {void}
-*/
-    this.selectAllInCurrentLayer = function () {
-      const currentLayer = getCurrentDrawing ().getCurrentLayer ();
+     * Clears the selection, then adds all elements in the current layer to the selection.
+     * @function module:svgcanvas.SvgCanvas#selectAllInCurrentLayer
+     * @returns {void}
+     */
+    this.selectAllInCurrentLayer = function() {
+      const currentLayer = getCurrentDrawing().getCurrentLayer();
       if (currentLayer) {
         currentMode = 'select';
-        selectOnly ($ (currentGroup || currentLayer).children ());
+        selectOnly($(currentGroup || currentLayer).children());
       }
     };
 
     let drawnPath = null;
 
     // Mouse events
-    (function () {
+    (function() {
       const freehand = {
         minx: null,
         miny: null,
         maxx: null,
         maxy: null,
       };
-      const THRESHOLD_DIST = 0.8, STEP_COUNT = 10;
+      const THRESHOLD_DIST = 0.8,
+        STEP_COUNT = 10;
       let dAttr = null,
         startX = null,
         startY = null,
@@ -1844,17 +1844,17 @@ class SvgCanvas {
         rStartY = null,
         initBbox = {},
         sumDistance = 0,
-        controllPoint2 = {x: 0, y: 0},
-        controllPoint1 = {x: 0, y: 0},
-        start = {x: 0, y: 0},
-        end = {x: 0, y: 0},
-        bSpline = {x: 0, y: 0},
-        nextPos = {x: 0, y: 0},
+        controllPoint2 = { x: 0, y: 0 },
+        controllPoint1 = { x: 0, y: 0 },
+        start = { x: 0, y: 0 },
+        end = { x: 0, y: 0 },
+        bSpline = { x: 0, y: 0 },
+        nextPos = { x: 0, y: 0 },
         parameter,
         nextParameter;
 
-      const getBsplinePoint = function (t) {
-        const spline = {x: 0, y: 0},
+      const getBsplinePoint = function(t) {
+        const spline = { x: 0, y: 0 },
           p0 = controllPoint2,
           p1 = controllPoint1,
           p2 = start,
@@ -1863,7 +1863,12 @@ class SvgCanvas {
           t2 = t * t,
           t3 = t2 * t;
 
-        const m = [[-1, 3, -3, 1], [3, -6, 3, 0], [-3, 0, 3, 0], [1, 4, 1, 0]];
+        const m = [
+          [-1, 3, -3, 1],
+          [3, -6, 3, 0],
+          [-3, 0, 3, 0],
+          [1, 4, 1, 0],
+        ];
 
         spline.x =
           S *
@@ -1908,16 +1913,16 @@ class SvgCanvas {
         };
       };
       /**
- * Follows these conditions:
- * - When we are in a create mode, the element is added to the canvas but the
- *   action is not recorded until mousing up.
- * - When we are in select mode, select the element, remember the position
- *   and do nothing else.
- * @param {MouseEvent} evt
- * @fires module:svgcanvas.SvgCanvas#event:ext_mouseDown
- * @returns {void}
- */
-      const mouseDown = function (evt) {
+       * Follows these conditions:
+       * - When we are in a create mode, the element is added to the canvas but the
+       *   action is not recorded until mousing up.
+       * - When we are in select mode, select the element, remember the position
+       *   and do nothing else.
+       * @param {MouseEvent} evt
+       * @fires module:svgcanvas.SvgCanvas#event:ext_mouseDown
+       * @returns {void}
+       */
+      const mouseDown = function(evt) {
         if (canvas.spaceKey || evt.button === 1) {
           return;
         }
@@ -1926,16 +1931,18 @@ class SvgCanvas {
 
         if (evt.altKey) {
           // duplicate when dragging
-          canvas.cloneSelectedElements (0, 0);
+          canvas.cloneSelectedElements(0, 0);
         }
 
-        rootSctm = $ ('#svgcontent g')[0].getScreenCTM ().inverse ();
+        rootSctm = $('#svgcontent g')[0]
+          .getScreenCTM()
+          .inverse();
 
-        const pt = transformPoint (evt.pageX, evt.pageY, rootSctm),
+        const pt = transformPoint(evt.pageX, evt.pageY, rootSctm),
           mouseX = pt.x * currentZoom,
           mouseY = pt.y * currentZoom;
 
-        evt.preventDefault ();
+        evt.preventDefault();
 
         if (rightClick) {
           currentMode = 'select';
@@ -1947,8 +1954,9 @@ class SvgCanvas {
         //   setGradient();
         // }
 
-        let x = mouseX / currentZoom, y = mouseY / currentZoom;
-        let mouseTarget = getMouseTarget (evt);
+        let x = mouseX / currentZoom,
+          y = mouseY / currentZoom;
+        let mouseTarget = getMouseTarget(evt);
 
         if (
           mouseTarget.tagName === 'a' &&
@@ -1964,10 +1972,10 @@ class SvgCanvas {
         rStartY = startY = y;
 
         if (curConfig.gridSnapping) {
-          x = snapToGrid (x);
-          y = snapToGrid (y);
-          startX = snapToGrid (startX);
-          startY = snapToGrid (startY);
+          x = snapToGrid(x);
+          y = snapToGrid(y);
+          startX = snapToGrid(startX);
+          startY = snapToGrid(startY);
         }
 
         // if it is a selector grip, then it must be a single element selected,
@@ -1975,24 +1983,24 @@ class SvgCanvas {
 
         if (
           mouseTarget === selectorManager.selectorParentGroup &&
-          !isNullish (selectedElements[0])
+          !isNullish(selectedElements[0])
         ) {
           const grip = evt.target;
-          const griptype = elData (grip, 'type');
+          const griptype = elData(grip, 'type');
           // rotating
           if (griptype === 'rotate') {
             currentMode = 'rotate';
             // resizing
           } else if (griptype === 'resize') {
             currentMode = 'resize';
-            currentResizeMode = elData (grip, 'dir');
+            currentResizeMode = elData(grip, 'dir');
           }
           mouseTarget = selectedElements[0];
         }
 
-        startTransform = mouseTarget.getAttribute ('transform');
+        startTransform = mouseTarget.getAttribute('transform');
 
-        const tlist = getTransformList (mouseTarget);
+        const tlist = getTransformList(mouseTarget);
         switch (currentMode) {
           case 'select':
             started = true;
@@ -2003,16 +2011,16 @@ class SvgCanvas {
 
             if (mouseTarget !== svgroot) {
               // if this element is not yet selected, clear selection and select it
-              if (!selectedElements.includes (mouseTarget)) {
+              if (!selectedElements.includes(mouseTarget)) {
                 // only clear selection if shift is not pressed (otherwise, add
                 // element to selection)
                 if (!evt.shiftKey) {
                   // No need to do the call here as it will be done on addToSelection
-                  clearSelection (true);
+                  clearSelection(true);
                 }
-                addToSelection ([mouseTarget]);
+                addToSelection([mouseTarget]);
                 justSelected = mouseTarget;
-                pathActions.clear ();
+                pathActions.clear();
               }
               // else if it's a path, go into pathedit mode in mouseup
 
@@ -2020,22 +2028,22 @@ class SvgCanvas {
                 // insert a dummy transform so if the element(s) are moved it will have
                 // a transform to use for its translate
                 for (const selectedElement of selectedElements) {
-                  if (isNullish (selectedElement)) {
+                  if (isNullish(selectedElement)) {
                     continue;
                   }
-                  const slist = getTransformList (selectedElement);
+                  const slist = getTransformList(selectedElement);
                   if (slist.numberOfItems) {
-                    slist.insertItemBefore (svgroot.createSVGTransform (), 0);
+                    slist.insertItemBefore(svgroot.createSVGTransform(), 0);
                   } else {
-                    slist.appendItem (svgroot.createSVGTransform ());
+                    slist.appendItem(svgroot.createSVGTransform());
                   }
                 }
               }
             } else if (!rightClick) {
-              clearSelection ();
+              clearSelection();
               currentMode = 'multiselect';
-              if (isNullish (rubberBox)) {
-                rubberBox = selectorManager.getRubberBandBox ();
+              if (isNullish(rubberBox)) {
+                rubberBox = selectorManager.getRubberBandBox();
               }
               rStartX *= currentZoom;
               rStartY *= currentZoom;
@@ -2044,7 +2052,7 @@ class SvgCanvas {
               // console.log('o',[evt.offsetX, evt.offsetY]);
               // console.log('s',[startX, startY]);
 
-              assignAttributes (
+              assignAttributes(
                 rubberBox,
                 {
                   x: rStartX,
@@ -2053,16 +2061,16 @@ class SvgCanvas {
                   height: 0,
                   display: 'inline',
                 },
-                100
+                100,
               );
             }
             break;
           case 'zoom':
             started = true;
-            if (isNullish (rubberBox)) {
-              rubberBox = selectorManager.getRubberBandBox ();
+            if (isNullish(rubberBox)) {
+              rubberBox = selectorManager.getRubberBandBox();
             }
-            assignAttributes (
+            assignAttributes(
               rubberBox,
               {
                 x: realX * currentZoom,
@@ -2071,7 +2079,7 @@ class SvgCanvas {
                 height: 0,
                 display: 'inline',
               },
-              100
+              100,
             );
             break;
           case 'resize': {
@@ -2081,51 +2089,51 @@ class SvgCanvas {
 
             // Getting the BBox from the selection box, since we know we
             // want to orient around it
-            initBbox = utilsGetBBox ($ ('#selectedBox0')[0]);
+            initBbox = utilsGetBBox($('#selectedBox0')[0]);
             const bb = {};
-            $.each (initBbox, function (key, val) {
+            $.each(initBbox, function(key, val) {
               bb[key] = val / currentZoom;
             });
             initBbox = bb;
 
             // append three dummy transforms to the tlist so that
             // we can translate,scale,translate in mousemove
-            const pos = getRotationAngle (mouseTarget) ? 1 : 0;
+            const pos = getRotationAngle(mouseTarget) ? 1 : 0;
 
-            if (hasMatrixTransform (tlist)) {
-              tlist.insertItemBefore (svgroot.createSVGTransform (), pos);
-              tlist.insertItemBefore (svgroot.createSVGTransform (), pos);
-              tlist.insertItemBefore (svgroot.createSVGTransform (), pos);
+            if (hasMatrixTransform(tlist)) {
+              tlist.insertItemBefore(svgroot.createSVGTransform(), pos);
+              tlist.insertItemBefore(svgroot.createSVGTransform(), pos);
+              tlist.insertItemBefore(svgroot.createSVGTransform(), pos);
             } else {
-              tlist.appendItem (svgroot.createSVGTransform ());
-              tlist.appendItem (svgroot.createSVGTransform ());
-              tlist.appendItem (svgroot.createSVGTransform ());
+              tlist.appendItem(svgroot.createSVGTransform());
+              tlist.appendItem(svgroot.createSVGTransform());
+              tlist.appendItem(svgroot.createSVGTransform());
 
-              if (supportsNonScalingStroke ()) {
+              if (supportsNonScalingStroke()) {
                 // Handle crash for newer Chrome and Safari 6 (Mobile and Desktop):
                 // https://code.google.com/p/svg-edit/issues/detail?id=904
                 // Chromium issue: https://code.google.com/p/chromium/issues/detail?id=114625
                 // TODO: Remove this workaround once vendor fixes the issue
-                const iswebkit = isWebkit ();
+                const iswebkit = isWebkit();
 
                 let delayedStroke;
                 if (iswebkit) {
-                  delayedStroke = function (ele) {
-                    const stroke_ = ele.getAttribute ('stroke');
-                    ele.removeAttribute ('stroke');
+                  delayedStroke = function(ele) {
+                    const stroke_ = ele.getAttribute('stroke');
+                    ele.removeAttribute('stroke');
                     // Re-apply stroke after delay. Anything higher than 1 seems to cause flicker
                     if (stroke_ !== null)
-                      setTimeout (function () {
-                        ele.setAttribute ('stroke', stroke_);
+                      setTimeout(function() {
+                        ele.setAttribute('stroke', stroke_);
                       }, 0);
                   };
                 }
                 mouseTarget.style.vectorEffect = 'non-scaling-stroke';
                 if (iswebkit) {
-                  delayedStroke (mouseTarget);
+                  delayedStroke(mouseTarget);
                 }
 
-                const all = mouseTarget.getElementsByTagName ('*'),
+                const all = mouseTarget.getElementsByTagName('*'),
                   len = all.length;
                 for (let i = 0; i < len; i++) {
                   if (!all[i].style) {
@@ -2134,7 +2142,7 @@ class SvgCanvas {
                   }
                   all[i].style.vectorEffect = 'non-scaling-stroke';
                   if (iswebkit) {
-                    delayedStroke (all[i]);
+                    delayedStroke(all[i]);
                   }
                 }
               }
@@ -2146,18 +2154,18 @@ class SvgCanvas {
           case 'fhpath':
             start.x = realX;
             start.y = realY;
-            controllPoint1 = {x: 0, y: 0};
-            controllPoint2 = {x: 0, y: 0};
+            controllPoint1 = { x: 0, y: 0 };
+            controllPoint2 = { x: 0, y: 0 };
             started = true;
             dAttr = realX + ',' + realY + ' ';
             // Commented out as doing nothing now:
             // strokeW = parseFloat(curShape.stroke_width) === 0 ? 1 : curShape.stroke_width;
-            addSVGElementFromJson ({
+            addSVGElementFromJson({
               element: 'polyline',
               curStyles: true,
               attr: {
                 points: dAttr,
-                id: getNextId (),
+                id: getNextId(),
                 fill: 'none',
                 opacity: curShape.opacity / 2,
                 'stroke-linecap': 'round',
@@ -2171,20 +2179,20 @@ class SvgCanvas {
             break;
           case 'image': {
             started = true;
-            const newImage = addSVGElementFromJson ({
+            const newImage = addSVGElementFromJson({
               element: 'image',
               attr: {
                 x,
                 y,
                 width: 0,
                 height: 0,
-                id: getNextId (),
+                id: getNextId(),
                 opacity: curShape.opacity / 2,
                 style: 'pointer-events:inherit',
               },
             });
-            setHref (newImage, lastGoodImgUrl);
-            preventClickDefault (newImage);
+            setHref(newImage, lastGoodImgUrl);
+            preventClickDefault(newImage);
             break;
           }
           case 'square':
@@ -2195,7 +2203,7 @@ class SvgCanvas {
             started = true;
             startX = x;
             startY = y;
-            addSVGElementFromJson ({
+            addSVGElementFromJson({
               element: 'rect',
               curStyles: true,
               attr: {
@@ -2203,17 +2211,16 @@ class SvgCanvas {
                 y,
                 width: 0,
                 height: 0,
-                id: getNextId (),
+                id: getNextId(),
                 opacity: curShape.opacity / 2,
               },
             });
             break;
           case 'line': {
             started = true;
-            const strokeW = Number (curShape.stroke_width) === 0
-              ? 1
-              : curShape.stroke_width;
-            addSVGElementFromJson ({
+            const strokeW =
+              Number(curShape.stroke_width) === 0 ? 1 : curShape.stroke_width;
+            addSVGElementFromJson({
               element: 'line',
               curStyles: true,
               attr: {
@@ -2221,7 +2228,7 @@ class SvgCanvas {
                 y1: y,
                 x2: x,
                 y2: y,
-                id: getNextId (),
+                id: getNextId(),
                 stroke: curShape.stroke,
                 'stroke-width': strokeW,
                 'stroke-dasharray': curShape.stroke_dasharray,
@@ -2237,21 +2244,21 @@ class SvgCanvas {
           }
           case 'circle':
             started = true;
-            addSVGElementFromJson ({
+            addSVGElementFromJson({
               element: 'circle',
               curStyles: true,
               attr: {
                 cx: x,
                 cy: y,
                 r: 0,
-                id: getNextId (),
+                id: getNextId(),
                 opacity: curShape.opacity / 2,
               },
             });
             break;
           case 'ellipse':
             started = true;
-            addSVGElementFromJson ({
+            addSVGElementFromJson({
               element: 'ellipse',
               curStyles: true,
               attr: {
@@ -2259,20 +2266,20 @@ class SvgCanvas {
                 cy: y,
                 rx: 0,
                 ry: 0,
-                id: getNextId (),
+                id: getNextId(),
                 opacity: curShape.opacity / 2,
               },
             });
             break;
           case 'text':
             started = true;
-            /* const newText = */ addSVGElementFromJson ({
+            /* const newText = */ addSVGElementFromJson({
               element: 'text',
               curStyles: true,
               attr: {
                 x,
                 y,
-                id: getNextId (),
+                id: getNextId(),
                 fill: curText.fill,
                 'stroke-width': curText.stroke_width,
                 'font-size': curText.font_size,
@@ -2289,19 +2296,19 @@ class SvgCanvas {
           case 'pathedit':
             startX *= currentZoom;
             startY *= currentZoom;
-            pathActions.mouseDown (evt, mouseTarget, startX, startY);
+            pathActions.mouseDown(evt, mouseTarget, startX, startY);
             started = true;
             break;
           case 'textedit':
             startX *= currentZoom;
             startY *= currentZoom;
-            textActions.mouseDown (evt, mouseTarget, startX, startY);
+            textActions.mouseDown(evt, mouseTarget, startX, startY);
             started = true;
             break;
           case 'rotate':
             started = true;
             // we are starting an undoable change (a drag-rotation)
-            canvas.undoMgr.beginUndoableChange ('transform', selectedElements);
+            canvas.undoMgr.beginUndoableChange('transform', selectedElements);
             break;
           default:
             // This could occur in an extension
@@ -2309,15 +2316,15 @@ class SvgCanvas {
         }
 
         /**
-   * The main (left) mouse button is held down on the canvas area.
-   * @event module:svgcanvas.SvgCanvas#event:ext_mouseDown
-   * @type {PlainObject}
-   * @property {MouseEvent} event The event object
-   * @property {Float} start_x x coordinate on canvas
-   * @property {Float} start_y y coordinate on canvas
-   * @property {Element[]} selectedElements An array of the selected Elements
-  */
-        const extResult = runExtensions (
+         * The main (left) mouse button is held down on the canvas area.
+         * @event module:svgcanvas.SvgCanvas#event:ext_mouseDown
+         * @type {PlainObject}
+         * @property {MouseEvent} event The event object
+         * @property {Float} start_x x coordinate on canvas
+         * @property {Float} start_y y coordinate on canvas
+         * @property {Element[]} selectedElements An array of the selected Elements
+         */
+        const extResult = runExtensions(
           'mouseDown',
           /** @type {module:svgcanvas.SvgCanvas#event:ext_mouseDown} */ {
             event: evt,
@@ -2325,10 +2332,10 @@ class SvgCanvas {
             start_y: startY,
             selectedElements,
           },
-          true
+          true,
         );
 
-        $.each (extResult, function (i, r) {
+        $.each(extResult, function(i, r) {
           if (r && r.started) {
             started = true;
           }
@@ -2338,13 +2345,13 @@ class SvgCanvas {
       // in this function we do not record any state changes yet (but we do update
       // any elements that are still being created, moved or resized on the canvas)
       /**
- *
- * @param {MouseEvent} evt
- * @fires module:svgcanvas.SvgCanvas#event:transition
- * @fires module:svgcanvas.SvgCanvas#event:ext_mouseMove
- * @returns {void}
- */
-      const mouseMove = function (evt) {
+       *
+       * @param {MouseEvent} evt
+       * @fires module:svgcanvas.SvgCanvas#event:transition
+       * @fires module:svgcanvas.SvgCanvas#event:ext_mouseMove
+       * @returns {void}
+       */
+      const mouseMove = function(evt) {
         if (!started) {
           return;
         }
@@ -2363,10 +2370,10 @@ class SvgCanvas {
           angle,
           box,
           selected = selectedElements[0];
-        const pt = transformPoint (evt.pageX, evt.pageY, rootSctm),
+        const pt = transformPoint(evt.pageX, evt.pageY, rootSctm),
           mouseX = pt.x * currentZoom,
           mouseY = pt.y * currentZoom,
-          shape = getElem (getId ());
+          shape = getElem(getId());
 
         let realX = mouseX / currentZoom;
         let x = realX;
@@ -2374,11 +2381,11 @@ class SvgCanvas {
         let y = realY;
 
         if (curConfig.gridSnapping) {
-          x = snapToGrid (x);
-          y = snapToGrid (y);
+          x = snapToGrid(x);
+          y = snapToGrid(y);
         }
 
-        evt.preventDefault ();
+        evt.preventDefault();
         let tlist;
         switch (currentMode) {
           case 'select': {
@@ -2390,8 +2397,8 @@ class SvgCanvas {
               dy = y - startY;
 
               if (curConfig.gridSnapping) {
-                dx = snapToGrid (dx);
-                dy = snapToGrid (dy);
+                dx = snapToGrid(dx);
+                dy = snapToGrid(dy);
               }
 
               /*
@@ -2406,7 +2413,7 @@ class SvgCanvas {
                 len = selectedElements.length;
                 for (i = 0; i < len; ++i) {
                   selected = selectedElements[i];
-                  if (isNullish (selected)) {
+                  if (isNullish(selected)) {
                     break;
                   }
                   // if (i === 0) {
@@ -2417,24 +2424,24 @@ class SvgCanvas {
 
                   // update the dummy transform in our transform list
                   // to be a translate
-                  const xform = svgroot.createSVGTransform ();
-                  tlist = getTransformList (selected);
+                  const xform = svgroot.createSVGTransform();
+                  tlist = getTransformList(selected);
                   // Note that if Webkit and there's no ID for this
                   // element, the dummy transform may have gotten lost.
                   // This results in unexpected behaviour
 
-                  xform.setTranslate (dx, dy);
+                  xform.setTranslate(dx, dy);
                   if (tlist.numberOfItems) {
-                    tlist.replaceItem (xform, 0);
+                    tlist.replaceItem(xform, 0);
                   } else {
-                    tlist.appendItem (xform);
+                    tlist.appendItem(xform);
                   }
 
                   // update our internal bbox that we're tracking while dragging
-                  selectorManager.requestSelector (selected).resize ();
+                  selectorManager.requestSelector(selected).resize();
                 }
 
-                call ('transition', selectedElements);
+                call('transition', selectedElements);
               }
             }
             break;
@@ -2442,46 +2449,46 @@ class SvgCanvas {
           case 'multiselect': {
             realX *= currentZoom;
             realY *= currentZoom;
-            assignAttributes (
+            assignAttributes(
               rubberBox,
               {
-                x: Math.min (rStartX, realX),
-                y: Math.min (rStartY, realY),
-                width: Math.abs (realX - rStartX),
-                height: Math.abs (realY - rStartY),
+                x: Math.min(rStartX, realX),
+                y: Math.min(rStartY, realY),
+                width: Math.abs(realX - rStartX),
+                height: Math.abs(realY - rStartY),
               },
-              100
+              100,
             );
 
             // for each selected:
             // - if newList contains selected, do nothing
             // - if newList doesn't contain selected, remove it from selected
             // - for any newList that was not in selectedElements, add it to selected
-            const elemsToRemove = selectedElements.slice (),
+            const elemsToRemove = selectedElements.slice(),
               elemsToAdd = [],
-              newList = getIntersectionList ();
+              newList = getIntersectionList();
 
             // For every element in the intersection, add if not present in selectedElements.
             len = newList.length;
             for (i = 0; i < len; ++i) {
               const intElem = newList[i];
               // Found an element that was not selected before, so we should add it.
-              if (!selectedElements.includes (intElem)) {
-                elemsToAdd.push (intElem);
+              if (!selectedElements.includes(intElem)) {
+                elemsToAdd.push(intElem);
               }
               // Found an element that was already selected, so we shouldn't remove it.
-              const foundInd = elemsToRemove.indexOf (intElem);
+              const foundInd = elemsToRemove.indexOf(intElem);
               if (foundInd !== -1) {
-                elemsToRemove.splice (foundInd, 1);
+                elemsToRemove.splice(foundInd, 1);
               }
             }
 
             if (elemsToRemove.length > 0) {
-              canvas.removeFromSelection (elemsToRemove);
+              canvas.removeFromSelection(elemsToRemove);
             }
 
             if (elemsToAdd.length > 0) {
-              canvas.addToSelection (elemsToAdd);
+              canvas.addToSelection(elemsToAdd);
             }
 
             break;
@@ -2490,74 +2497,76 @@ class SvgCanvas {
             // we track the resize bounding box and translate/scale the selected element
             // while the mouse is down, when mouse goes up, we use this to recalculate
             // the shape's coordinates
-            tlist = getTransformList (selected);
-            const hasMatrix = hasMatrixTransform (tlist);
-            box = hasMatrix ? initBbox : utilsGetBBox (selected);
-            let left = box.x, top = box.y, {width, height} = box;
+            tlist = getTransformList(selected);
+            const hasMatrix = hasMatrixTransform(tlist);
+            box = hasMatrix ? initBbox : utilsGetBBox(selected);
+            let left = box.x,
+              top = box.y,
+              { width, height } = box;
             dx = x - startX;
             dy = y - startY;
 
             if (curConfig.gridSnapping) {
-              dx = snapToGrid (dx);
-              dy = snapToGrid (dy);
-              height = snapToGrid (height);
-              width = snapToGrid (width);
+              dx = snapToGrid(dx);
+              dy = snapToGrid(dy);
+              height = snapToGrid(height);
+              width = snapToGrid(width);
             }
 
             // if rotated, adjust the dx,dy values
-            angle = getRotationAngle (selected);
+            angle = getRotationAngle(selected);
             if (angle) {
-              const r = Math.sqrt (dx * dx + dy * dy),
-                theta = Math.atan2 (dy, dx) - angle * Math.PI / 180.0;
-              dx = r * Math.cos (theta);
-              dy = r * Math.sin (theta);
+              const r = Math.sqrt(dx * dx + dy * dy),
+                theta = Math.atan2(dy, dx) - (angle * Math.PI) / 180.0;
+              dx = r * Math.cos(theta);
+              dy = r * Math.sin(theta);
             }
 
             // if not stretching in y direction, set dy to 0
             // if not stretching in x direction, set dx to 0
             if (
-              !currentResizeMode.includes ('n') &&
-              !currentResizeMode.includes ('s')
+              !currentResizeMode.includes('n') &&
+              !currentResizeMode.includes('s')
             ) {
               dy = 0;
             }
             if (
-              !currentResizeMode.includes ('e') &&
-              !currentResizeMode.includes ('w')
+              !currentResizeMode.includes('e') &&
+              !currentResizeMode.includes('w')
             ) {
               dx = 0;
             }
 
             let // ts = null,
-            tx = 0,
+              tx = 0,
               ty = 0,
               sy = height ? (height + dy) / height : 1,
               sx = width ? (width + dx) / width : 1;
             // if we are dragging on the north side, then adjust the scale factor and ty
-            if (currentResizeMode.includes ('n')) {
+            if (currentResizeMode.includes('n')) {
               sy = height ? (height - dy) / height : 1;
               ty = height;
             }
 
             // if we dragging on the east side, then adjust the scale factor and tx
-            if (currentResizeMode.includes ('w')) {
+            if (currentResizeMode.includes('w')) {
               sx = width ? (width - dx) / width : 1;
               tx = width;
             }
 
             // update the transform list with translate,scale,translate
-            const translateOrigin = svgroot.createSVGTransform (),
-              scale = svgroot.createSVGTransform (),
-              translateBack = svgroot.createSVGTransform ();
+            const translateOrigin = svgroot.createSVGTransform(),
+              scale = svgroot.createSVGTransform(),
+              translateBack = svgroot.createSVGTransform();
 
             if (curConfig.gridSnapping) {
-              left = snapToGrid (left);
-              tx = snapToGrid (tx);
-              top = snapToGrid (top);
-              ty = snapToGrid (ty);
+              left = snapToGrid(left);
+              tx = snapToGrid(tx);
+              top = snapToGrid(top);
+              ty = snapToGrid(ty);
             }
 
-            translateOrigin.setTranslate (-(left + tx), -(top + ty));
+            translateOrigin.setTranslate(-(left + tx), -(top + ty));
             if (evt.shiftKey) {
               if (sx === 1) {
                 sx = sy;
@@ -2565,70 +2574,70 @@ class SvgCanvas {
                 sy = sx;
               }
             }
-            scale.setScale (sx, sy);
+            scale.setScale(sx, sy);
 
-            translateBack.setTranslate (left + tx, top + ty);
+            translateBack.setTranslate(left + tx, top + ty);
             if (hasMatrix) {
               const diff = angle ? 1 : 0;
-              tlist.replaceItem (translateOrigin, 2 + diff);
-              tlist.replaceItem (scale, 1 + diff);
-              tlist.replaceItem (translateBack, Number (diff));
+              tlist.replaceItem(translateOrigin, 2 + diff);
+              tlist.replaceItem(scale, 1 + diff);
+              tlist.replaceItem(translateBack, Number(diff));
             } else {
               const N = tlist.numberOfItems;
-              tlist.replaceItem (translateBack, N - 3);
-              tlist.replaceItem (scale, N - 2);
-              tlist.replaceItem (translateOrigin, N - 1);
+              tlist.replaceItem(translateBack, N - 3);
+              tlist.replaceItem(scale, N - 2);
+              tlist.replaceItem(translateOrigin, N - 1);
             }
 
-            selectorManager.requestSelector (selected).resize ();
+            selectorManager.requestSelector(selected).resize();
 
-            call ('transition', selectedElements);
+            call('transition', selectedElements);
 
             break;
           }
           case 'zoom': {
             realX *= currentZoom;
             realY *= currentZoom;
-            assignAttributes (
+            assignAttributes(
               rubberBox,
               {
-                x: Math.min (rStartX * currentZoom, realX),
-                y: Math.min (rStartY * currentZoom, realY),
-                width: Math.abs (realX - rStartX * currentZoom),
-                height: Math.abs (realY - rStartY * currentZoom),
+                x: Math.min(rStartX * currentZoom, realX),
+                y: Math.min(rStartY * currentZoom, realY),
+                width: Math.abs(realX - rStartX * currentZoom),
+                height: Math.abs(realY - rStartY * currentZoom),
               },
-              100
+              100,
             );
             break;
           }
           case 'text': {
-            assignAttributes (
+            assignAttributes(
               shape,
               {
                 x,
                 y,
               },
-              1000
+              1000,
             );
             break;
           }
           case 'line': {
             if (curConfig.gridSnapping) {
-              x = snapToGrid (x);
-              y = snapToGrid (y);
+              x = snapToGrid(x);
+              y = snapToGrid(y);
             }
 
             let x2 = x;
             let y2 = y;
 
             if (evt.shiftKey) {
-              xya = snapToAngle (startX, startY, x2, y2);
+              xya = snapToAngle(startX, startY, x2, y2);
               x2 = xya.x;
               y2 = xya.y;
             }
 
-            shape.setAttribute ('x2', x2);
-            shape.setAttribute ('y2', y2);
+            shape.setAttribute('x2', x2);
+            shape.setAttribute('y2', y2);
             break;
           }
           case 'foreignObject':
@@ -2639,25 +2648,26 @@ class SvgCanvas {
           // fall through
           case 'image': {
             const square = currentMode === 'square' || evt.shiftKey;
-            let w = Math.abs (x - startX), h = Math.abs (y - startY);
+            let w = Math.abs(x - startX),
+              h = Math.abs(y - startY);
             let newX, newY;
             if (square) {
-              w = h = Math.max (w, h);
+              w = h = Math.max(w, h);
               newX = startX < x ? startX : startX - w;
               newY = startY < y ? startY : startY - h;
             } else {
-              newX = Math.min (startX, x);
-              newY = Math.min (startY, y);
+              newX = Math.min(startX, x);
+              newY = Math.min(startY, y);
             }
 
             if (curConfig.gridSnapping) {
-              w = snapToGrid (w);
-              h = snapToGrid (h);
-              newX = snapToGrid (newX);
-              newY = snapToGrid (newY);
+              w = snapToGrid(w);
+              h = snapToGrid(h);
+              newX = snapToGrid(newX);
+              newY = snapToGrid(newY);
             }
 
-            assignAttributes (
+            assignAttributes(
               shape,
               {
                 width: w,
@@ -2665,41 +2675,41 @@ class SvgCanvas {
                 x: newX,
                 y: newY,
               },
-              1000
+              1000,
             );
 
             break;
           }
           case 'circle': {
-            c = $ (shape).attr (['cx', 'cy']);
-            ({cx, cy} = c);
-            let rad = Math.sqrt ((x - cx) * (x - cx) + (y - cy) * (y - cy));
+            c = $(shape).attr(['cx', 'cy']);
+            ({ cx, cy } = c);
+            let rad = Math.sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy));
             if (curConfig.gridSnapping) {
-              rad = snapToGrid (rad);
+              rad = snapToGrid(rad);
             }
-            shape.setAttribute ('r', rad);
+            shape.setAttribute('r', rad);
             break;
           }
           case 'ellipse': {
-            c = $ (shape).attr (['cx', 'cy']);
-            ({cx, cy} = c);
+            c = $(shape).attr(['cx', 'cy']);
+            ({ cx, cy } = c);
             if (curConfig.gridSnapping) {
-              x = snapToGrid (x);
-              cx = snapToGrid (cx);
-              y = snapToGrid (y);
-              cy = snapToGrid (cy);
+              x = snapToGrid(x);
+              cx = snapToGrid(cx);
+              y = snapToGrid(y);
+              cy = snapToGrid(cy);
             }
-            shape.setAttribute ('rx', Math.abs (x - cx));
-            const ry = Math.abs (evt.shiftKey ? x - cx : y - cy);
-            shape.setAttribute ('ry', ry);
+            shape.setAttribute('rx', Math.abs(x - cx));
+            const ry = Math.abs(evt.shiftKey ? x - cx : y - cy);
+            shape.setAttribute('ry', ry);
             break;
           }
           case 'fhellipse':
           case 'fhrect': {
-            freehand.minx = Math.min (realX, freehand.minx);
-            freehand.maxx = Math.max (realX, freehand.maxx);
-            freehand.miny = Math.min (realY, freehand.miny);
-            freehand.maxy = Math.max (realY, freehand.maxy);
+            freehand.minx = Math.min(realX, freehand.minx);
+            freehand.maxx = Math.max(realX, freehand.maxx);
+            freehand.miny = Math.min(realY, freehand.miny);
+            freehand.maxy = Math.max(realY, freehand.maxy);
           }
           // Fallthrough
           case 'fhpath': {
@@ -2711,27 +2721,27 @@ class SvgCanvas {
               for (i = 0; i < STEP_COUNT - 1; i++) {
                 parameter = i / STEP_COUNT;
                 nextParameter = (i + 1) / STEP_COUNT;
-                bSpline = getBsplinePoint (nextParameter);
+                bSpline = getBsplinePoint(nextParameter);
                 nextPos = bSpline;
-                bSpline = getBsplinePoint (parameter);
-                sumDistance += Math.sqrt (
+                bSpline = getBsplinePoint(parameter);
+                sumDistance += Math.sqrt(
                   (nextPos.x - bSpline.x) * (nextPos.x - bSpline.x) +
-                    (nextPos.y - bSpline.y) * (nextPos.y - bSpline.y)
+                    (nextPos.y - bSpline.y) * (nextPos.y - bSpline.y),
                 );
                 if (sumDistance > THRESHOLD_DIST) {
                   sumDistance -= THRESHOLD_DIST;
 
                   // Faster than completely re-writing the points attribute.
-                  const point = svgcontent.createSVGPoint ();
+                  const point = svgcontent.createSVGPoint();
                   point.x = bSpline.x;
                   point.y = bSpline.y;
-                  shape.points.appendItem (point);
+                  shape.points.appendItem(point);
                 }
               }
             }
-            controllPoint2 = {x: controllPoint1.x, y: controllPoint1.y};
-            controllPoint1 = {x: start.x, y: start.y};
-            start = {x: end.x, y: end.y};
+            controllPoint2 = { x: controllPoint1.x, y: controllPoint1.y };
+            controllPoint1 = { x: start.x, y: start.y };
+            start = { x: end.x, y: end.y };
             break;
             // update path stretch line coordinates
           }
@@ -2742,13 +2752,13 @@ class SvgCanvas {
             y *= currentZoom;
 
             if (curConfig.gridSnapping) {
-              x = snapToGrid (x);
-              y = snapToGrid (y);
-              startX = snapToGrid (startX);
-              startY = snapToGrid (startY);
+              x = snapToGrid(x);
+              y = snapToGrid(y);
+              startX = snapToGrid(startX);
+              startY = snapToGrid(startY);
             }
             if (evt.shiftKey) {
-              const {path} = pathModule;
+              const { path } = pathModule;
               let x1, y1;
               if (path) {
                 x1 = path.dragging ? path.dragging[0] : startX;
@@ -2757,25 +2767,25 @@ class SvgCanvas {
                 x1 = startX;
                 y1 = startY;
               }
-              xya = snapToAngle (x1, y1, x, y);
-              ({x, y} = xya);
+              xya = snapToAngle(x1, y1, x, y);
+              ({ x, y } = xya);
             }
 
-            if (rubberBox && rubberBox.getAttribute ('display') !== 'none') {
+            if (rubberBox && rubberBox.getAttribute('display') !== 'none') {
               realX *= currentZoom;
               realY *= currentZoom;
-              assignAttributes (
+              assignAttributes(
                 rubberBox,
                 {
-                  x: Math.min (rStartX * currentZoom, realX),
-                  y: Math.min (rStartY * currentZoom, realY),
-                  width: Math.abs (realX - rStartX * currentZoom),
-                  height: Math.abs (realY - rStartY * currentZoom),
+                  x: Math.min(rStartX * currentZoom, realX),
+                  y: Math.min(rStartY * currentZoom, realY),
+                  width: Math.abs(realX - rStartX * currentZoom),
+                  height: Math.abs(realY - rStartY * currentZoom),
                 },
-                100
+                100,
               );
             }
-            pathActions.mouseMove (x, y);
+            pathActions.mouseMove(x, y);
 
             break;
           }
@@ -2791,29 +2801,30 @@ class SvgCanvas {
             //   }, 100);
             // }
 
-            textActions.mouseMove (mouseX, mouseY);
+            textActions.mouseMove(mouseX, mouseY);
 
             break;
           }
           case 'rotate': {
-            box = utilsGetBBox (selected);
+            box = utilsGetBBox(selected);
             cx = box.x + box.width / 2;
             cy = box.y + box.height / 2;
-            const m = getMatrix (selected), center = transformPoint (cx, cy, m);
+            const m = getMatrix(selected),
+              center = transformPoint(cx, cy, m);
             cx = center.x;
             cy = center.y;
-            angle = (Math.atan2 (cy - y, cx - x) * (180 / Math.PI) - 90) % 360;
+            angle = (Math.atan2(cy - y, cx - x) * (180 / Math.PI) - 90) % 360;
             if (curConfig.gridSnapping) {
-              angle = snapToGrid (angle);
+              angle = snapToGrid(angle);
             }
             if (evt.shiftKey) {
               // restrict rotations to nice angles (WRS)
               const snap = 45;
-              angle = Math.round (angle / snap) * snap;
+              angle = Math.round(angle / snap) * snap;
             }
 
-            canvas.setRotationAngle (angle < -180 ? 360 + angle : angle, true);
-            call ('transition', selectedElements);
+            canvas.setRotationAngle(angle < -180 ? 360 + angle : angle, true);
+            call('transition', selectedElements);
             break;
           }
           default:
@@ -2821,22 +2832,22 @@ class SvgCanvas {
         }
 
         /**
-  * The mouse has moved on the canvas area.
-  * @event module:svgcanvas.SvgCanvas#event:ext_mouseMove
-  * @type {PlainObject}
-  * @property {MouseEvent} event The event object
-  * @property {Float} mouse_x x coordinate on canvas
-  * @property {Float} mouse_y y coordinate on canvas
-  * @property {Element} selected Refers to the first selected element
-  */
-        runExtensions (
+         * The mouse has moved on the canvas area.
+         * @event module:svgcanvas.SvgCanvas#event:ext_mouseMove
+         * @type {PlainObject}
+         * @property {MouseEvent} event The event object
+         * @property {Float} mouse_x x coordinate on canvas
+         * @property {Float} mouse_y y coordinate on canvas
+         * @property {Element} selected Refers to the first selected element
+         */
+        runExtensions(
           'mouseMove',
           /** @type {module:svgcanvas.SvgCanvas#event:ext_mouseMove} */ {
             event: evt,
             mouse_x: mouseX,
             mouse_y: mouseY,
             selected,
-          }
+          },
         );
       }; // mouseMove()
 
@@ -2846,14 +2857,14 @@ class SvgCanvas {
       // identified, a ChangeElementCommand is created and stored on the stack for those attrs
       // this is done in when we recalculate the selected dimensions()
       /**
- *
- * @param {MouseEvent} evt
- * @fires module:svgcanvas.SvgCanvas#event:zoomed
- * @fires module:svgcanvas.SvgCanvas#event:changed
- * @fires module:svgcanvas.SvgCanvas#event:ext_mouseUp
- * @returns {void}
- */
-      const mouseUp = function (evt) {
+       *
+       * @param {MouseEvent} evt
+       * @fires module:svgcanvas.SvgCanvas#event:zoomed
+       * @fires module:svgcanvas.SvgCanvas#event:changed
+       * @fires module:svgcanvas.SvgCanvas#event:ext_mouseUp
+       * @returns {void}
+       */
+      const mouseUp = function(evt) {
         if (evt.button === 2) {
           return;
         }
@@ -2862,13 +2873,13 @@ class SvgCanvas {
         if (!started) {
           return;
         }
-        const pt = transformPoint (evt.pageX, evt.pageY, rootSctm),
+        const pt = transformPoint(evt.pageX, evt.pageY, rootSctm),
           mouseX = pt.x * currentZoom,
           mouseY = pt.y * currentZoom,
           x = mouseX / currentZoom,
           y = mouseY / currentZoom;
 
-        let element = getElem (getId ());
+        let element = getElem(getId());
         let keep = false;
 
         const realX = x;
@@ -2882,16 +2893,16 @@ class SvgCanvas {
           // intentionally fall-through to select here
           case 'resize':
           case 'multiselect':
-            if (!isNullish (rubberBox)) {
-              rubberBox.setAttribute ('display', 'none');
+            if (!isNullish(rubberBox)) {
+              rubberBox.setAttribute('display', 'none');
               curBBoxes = [];
             }
             currentMode = 'select';
           // Fallthrough
           case 'select':
-            if (!isNullish (selectedElements[0])) {
+            if (!isNullish(selectedElements[0])) {
               // if we only have one selected element
-              if (isNullish (selectedElements[1])) {
+              if (isNullish(selectedElements[1])) {
                 // set our current stroke/fill properties to the element's
                 const selected = selectedElements[0];
                 switch (selected.tagName) {
@@ -2901,51 +2912,51 @@ class SvgCanvas {
                   case 'foreignObject':
                     break;
                   default:
-                    curProperties.fill = selected.getAttribute ('fill');
-                    curProperties.fill_opacity = selected.getAttribute (
-                      'fill-opacity'
+                    curProperties.fill = selected.getAttribute('fill');
+                    curProperties.fill_opacity = selected.getAttribute(
+                      'fill-opacity',
                     );
-                    curProperties.stroke = selected.getAttribute ('stroke');
-                    curProperties.stroke_opacity = selected.getAttribute (
-                      'stroke-opacity'
+                    curProperties.stroke = selected.getAttribute('stroke');
+                    curProperties.stroke_opacity = selected.getAttribute(
+                      'stroke-opacity',
                     );
-                    curProperties.stroke_width = selected.getAttribute (
-                      'stroke-width'
+                    curProperties.stroke_width = selected.getAttribute(
+                      'stroke-width',
                     );
-                    curProperties.stroke_dasharray = selected.getAttribute (
-                      'stroke-dasharray'
+                    curProperties.stroke_dasharray = selected.getAttribute(
+                      'stroke-dasharray',
                     );
-                    curProperties.stroke_linejoin = selected.getAttribute (
-                      'stroke-linejoin'
+                    curProperties.stroke_linejoin = selected.getAttribute(
+                      'stroke-linejoin',
                     );
-                    curProperties.stroke_linecap = selected.getAttribute (
-                      'stroke-linecap'
+                    curProperties.stroke_linecap = selected.getAttribute(
+                      'stroke-linecap',
                     );
                 }
 
                 if (selected.tagName === 'text') {
-                  curText.font_size = selected.getAttribute ('font-size');
-                  curText.font_family = selected.getAttribute ('font-family');
+                  curText.font_size = selected.getAttribute('font-size');
+                  curText.font_family = selected.getAttribute('font-family');
                 }
-                selectorManager.requestSelector (selected).showGrips (true);
+                selectorManager.requestSelector(selected).showGrips(true);
 
                 // This shouldn't be necessary as it was done on mouseDown...
                 // call('selected', [selected]);
               }
               // always recalculate dimensions to strip off stray identity transforms
-              recalculateAllSelectedDimensions ();
+              recalculateAllSelectedDimensions();
               // if it was being dragged/resized
               if (realX !== rStartX || realY !== rStartY) {
                 const len = selectedElements.length;
                 for (let i = 0; i < len; ++i) {
-                  if (isNullish (selectedElements[i])) {
+                  if (isNullish(selectedElements[i])) {
                     break;
                   }
                   if (!selectedElements[i].firstChild) {
                     // Not needed for groups (incorrectly resizes elems), possibly not needed at all?
                     selectorManager
-                      .requestSelector (selectedElements[i])
-                      .resize ();
+                      .requestSelector(selectedElements[i])
+                      .resize();
                   }
                 }
                 // no change in position/size, so maybe we should move to pathedit
@@ -2953,40 +2964,40 @@ class SvgCanvas {
                 t = evt.target;
                 if (
                   selectedElements[0].nodeName === 'path' &&
-                  isNullish (selectedElements[1])
+                  isNullish(selectedElements[1])
                 ) {
-                  pathActions.select (selectedElements[0]);
+                  pathActions.select(selectedElements[0]);
                   // if it was a path
                   // else, if it was selected and this is a shift-click, remove it from selection
                 } else if (evt.shiftKey) {
                   if (tempJustSelected !== t) {
-                    canvas.removeFromSelection ([t]);
+                    canvas.removeFromSelection([t]);
                   }
                 }
               } // no change in mouse position
 
               // Remove non-scaling stroke
-              if (supportsNonScalingStroke ()) {
+              if (supportsNonScalingStroke()) {
                 const elem = selectedElements[0];
                 if (elem) {
-                  elem.removeAttribute ('style');
-                  walkTree (elem, function (el) {
-                    el.removeAttribute ('style');
+                  elem.removeAttribute('style');
+                  walkTree(elem, function(el) {
+                    el.removeAttribute('style');
                   });
                 }
               }
             }
             return;
           case 'zoom': {
-            if (!isNullish (rubberBox)) {
-              rubberBox.setAttribute ('display', 'none');
+            if (!isNullish(rubberBox)) {
+              rubberBox.setAttribute('display', 'none');
             }
             const factor = evt.shiftKey ? 0.5 : 2;
-            call ('zoomed', {
-              x: Math.min (rStartX, realX),
-              y: Math.min (rStartY, realY),
-              width: Math.abs (realX - rStartX),
-              height: Math.abs (realY - rStartY),
+            call('zoomed', {
+              x: Math.min(rStartX, realX),
+              y: Math.min(rStartY, realY),
+              width: Math.abs(realX - rStartX),
+              height: Math.abs(realY - rStartY),
               factor,
             });
             return;
@@ -2997,39 +3008,39 @@ class SvgCanvas {
             // Webkit ignores how we set the points attribute with commas and uses space
             // to separate all coordinates, see https://bugs.webkit.org/show_bug.cgi?id=29870
             sumDistance = 0;
-            controllPoint2 = {x: 0, y: 0};
-            controllPoint1 = {x: 0, y: 0};
-            start = {x: 0, y: 0};
-            end = {x: 0, y: 0};
-            const coords = element.getAttribute ('points');
-            const commaIndex = coords.indexOf (',');
+            controllPoint2 = { x: 0, y: 0 };
+            controllPoint1 = { x: 0, y: 0 };
+            start = { x: 0, y: 0 };
+            end = { x: 0, y: 0 };
+            const coords = element.getAttribute('points');
+            const commaIndex = coords.indexOf(',');
             if (commaIndex >= 0) {
-              keep = coords.includes (',', commaIndex + 1);
+              keep = coords.includes(',', commaIndex + 1);
             } else {
-              keep = coords.includes (' ', coords.indexOf (' ') + 1);
+              keep = coords.includes(' ', coords.indexOf(' ') + 1);
             }
             if (keep) {
-              element = pathActions.smoothPolylineIntoPath (element);
+              element = pathActions.smoothPolylineIntoPath(element);
             }
             break;
           }
           case 'line':
-            attrs = $ (element).attr (['x1', 'x2', 'y1', 'y2']);
+            attrs = $(element).attr(['x1', 'x2', 'y1', 'y2']);
             keep = attrs.x1 !== attrs.x2 || attrs.y1 !== attrs.y2;
             break;
           case 'foreignObject':
           case 'square':
           case 'rect':
           case 'image':
-            attrs = $ (element).attr (['width', 'height']);
+            attrs = $(element).attr(['width', 'height']);
             // Image should be kept regardless of size (use inherit dimensions later)
             keep = attrs.width || attrs.height || currentMode === 'image';
             break;
           case 'circle':
-            keep = element.getAttribute ('r') !== '0';
+            keep = element.getAttribute('r') !== '0';
             break;
           case 'ellipse':
-            attrs = $ (element).attr (['rx', 'ry']);
+            attrs = $(element).attr(['rx', 'ry']);
             keep = attrs.rx || attrs.ry;
             break;
           case 'fhellipse':
@@ -3037,7 +3048,7 @@ class SvgCanvas {
               freehand.maxx - freehand.minx > 0 &&
               freehand.maxy - freehand.miny > 0
             ) {
-              element = addSVGElementFromJson ({
+              element = addSVGElementFromJson({
                 element: 'ellipse',
                 curStyles: true,
                 attr: {
@@ -3045,10 +3056,10 @@ class SvgCanvas {
                   cy: (freehand.miny + freehand.maxy) / 2,
                   rx: (freehand.maxx - freehand.minx) / 2,
                   ry: (freehand.maxy - freehand.miny) / 2,
-                  id: getId (),
+                  id: getId(),
                 },
               });
-              call ('changed', [element]);
+              call('changed', [element]);
               keep = true;
             }
             break;
@@ -3057,7 +3068,7 @@ class SvgCanvas {
               freehand.maxx - freehand.minx > 0 &&
               freehand.maxy - freehand.miny > 0
             ) {
-              element = addSVGElementFromJson ({
+              element = addSVGElementFromJson({
                 element: 'rect',
                 curStyles: true,
                 attr: {
@@ -3065,17 +3076,17 @@ class SvgCanvas {
                   y: freehand.miny,
                   width: freehand.maxx - freehand.minx,
                   height: freehand.maxy - freehand.miny,
-                  id: getId (),
+                  id: getId(),
                 },
               });
-              call ('changed', [element]);
+              call('changed', [element]);
               keep = true;
             }
             break;
           case 'text':
             keep = true;
-            selectOnly ([element]);
-            textActions.start (element);
+            selectOnly([element]);
+            textActions.start(element);
             break;
           case 'path': {
             // set element to null here so that it is not removed nor finalized
@@ -3083,32 +3094,32 @@ class SvgCanvas {
             // continue to be set to true so that mouseMove happens
             started = true;
 
-            const res = pathActions.mouseUp (evt, element, mouseX, mouseY);
-            ({element} = res);
-            ({keep} = res);
+            const res = pathActions.mouseUp(evt, element, mouseX, mouseY);
+            ({ element } = res);
+            ({ keep } = res);
             break;
           }
           case 'pathedit':
             keep = true;
             element = null;
-            pathActions.mouseUp (evt);
+            pathActions.mouseUp(evt);
             break;
           case 'textedit':
             keep = false;
             element = null;
-            textActions.mouseUp (evt, mouseX, mouseY);
+            textActions.mouseUp(evt, mouseX, mouseY);
             break;
           case 'rotate': {
             keep = true;
             element = null;
             currentMode = 'select';
-            const batchCmd = canvas.undoMgr.finishUndoableChange ();
-            if (!batchCmd.isEmpty ()) {
-              addCommandToHistory (batchCmd);
+            const batchCmd = canvas.undoMgr.finishUndoableChange();
+            if (!batchCmd.isEmpty()) {
+              addCommandToHistory(batchCmd);
             }
             // perform recalculation to weed out any stray identity transforms that might get stuck
-            recalculateAllSelectedDimensions ();
-            call ('changed', selectedElements);
+            recalculateAllSelectedDimensions();
+            call('changed', selectedElements);
             break;
           }
           default:
@@ -3117,34 +3128,34 @@ class SvgCanvas {
         }
 
         /**
-  * The main (left) mouse button is released (anywhere).
-  * @event module:svgcanvas.SvgCanvas#event:ext_mouseUp
-  * @type {PlainObject}
-  * @property {MouseEvent} event The event object
-  * @property {Float} mouse_x x coordinate on canvas
-  * @property {Float} mouse_y y coordinate on canvas
-  */
-        const extResult = runExtensions (
+         * The main (left) mouse button is released (anywhere).
+         * @event module:svgcanvas.SvgCanvas#event:ext_mouseUp
+         * @type {PlainObject}
+         * @property {MouseEvent} event The event object
+         * @property {Float} mouse_x x coordinate on canvas
+         * @property {Float} mouse_y y coordinate on canvas
+         */
+        const extResult = runExtensions(
           'mouseUp',
           /** @type {module:svgcanvas.SvgCanvas#event:ext_mouseUp} */ {
             event: evt,
             mouse_x: mouseX,
             mouse_y: mouseY,
           },
-          true
+          true,
         );
 
-        $.each (extResult, function (i, r) {
+        $.each(extResult, function(i, r) {
           if (r) {
             keep = r.keep || keep;
-            ({element} = r);
+            ({ element } = r);
             started = r.started || started;
           }
         });
 
-        if (!keep && !isNullish (element)) {
-          getCurrentDrawing ().releaseId (getId ());
-          element.remove ();
+        if (!keep && !isNullish(element)) {
+          getCurrentDrawing().releaseId(getId());
+          element.remove();
           element = null;
 
           t = evt.target;
@@ -3172,36 +3183,36 @@ class SvgCanvas {
             t.id !== 'svgroot'
           ) {
             // switch into "select" mode if we've clicked on an element
-            canvas.setMode ('select');
-            selectOnly ([t], true);
+            canvas.setMode('select');
+            selectOnly([t], true);
           }
-        } else if (!isNullish (element)) {
+        } else if (!isNullish(element)) {
           /**
-    * @name module:svgcanvas.SvgCanvas#addedNew
-    * @type {boolean}
-    */
+           * @name module:svgcanvas.SvgCanvas#addedNew
+           * @type {boolean}
+           */
           canvas.addedNew = true;
 
           if (useUnit) {
-            convertAttrs (element);
+            convertAttrs(element);
           }
 
           let aniDur = 0.2;
           let cAni;
           if (
             opacAni.beginElement &&
-            parseFloat (element.getAttribute ('opacity')) !== curShape.opacity
+            parseFloat(element.getAttribute('opacity')) !== curShape.opacity
           ) {
-            cAni = $ (opacAni)
-              .clone ()
-              .attr ({
+            cAni = $(opacAni)
+              .clone()
+              .attr({
                 to: curShape.opacity,
                 dur: aniDur,
               })
-              .appendTo (element);
+              .appendTo(element);
             try {
               // Fails in FF4 on foreignObject
-              cAni[0].beginElement ();
+              cAni[0].beginElement();
             } catch (e) {}
           } else {
             aniDur = 0;
@@ -3209,30 +3220,30 @@ class SvgCanvas {
 
           // Ideally this would be done on the endEvent of the animation,
           // but that doesn't seem to be supported in Webkit
-          setTimeout (function () {
+          setTimeout(function() {
             if (cAni) {
-              cAni.remove ();
+              cAni.remove();
             }
-            element.setAttribute ('opacity', curShape.opacity);
-            element.setAttribute ('style', 'pointer-events:inherit');
-            cleanupElement (element);
+            element.setAttribute('opacity', curShape.opacity);
+            element.setAttribute('style', 'pointer-events:inherit');
+            cleanupElement(element);
             if (currentMode === 'path') {
-              pathActions.toEditMode (element);
+              pathActions.toEditMode(element);
             } else if (curConfig.selectNew) {
-              selectOnly ([element], true);
+              selectOnly([element], true);
             }
             // we create the insert command that is stored on the stack
             // undo means to call cmd.unapply(), redo means to call cmd.apply()
-            addCommandToHistory (new InsertElementCommand (element));
+            addCommandToHistory(new InsertElementCommand(element));
 
-            call ('changed', [element]);
+            call('changed', [element]);
           }, aniDur * 1000);
         }
 
         startTransform = null;
       };
 
-      const dblClick = function (evt) {
+      const dblClick = function(evt) {
         const evtTarget = evt.target;
         const parent = evtTarget.parentNode;
 
@@ -3241,34 +3252,34 @@ class SvgCanvas {
           return;
         }
 
-        let mouseTarget = getMouseTarget (evt);
-        const {tagName} = mouseTarget;
+        let mouseTarget = getMouseTarget(evt);
+        const { tagName } = mouseTarget;
 
         if (tagName === 'text' && currentMode !== 'textedit') {
-          const pt = transformPoint (evt.pageX, evt.pageY, rootSctm);
-          textActions.select (mouseTarget, pt.x, pt.y);
+          const pt = transformPoint(evt.pageX, evt.pageY, rootSctm);
+          textActions.select(mouseTarget, pt.x, pt.y);
         }
 
         if (
           (tagName === 'g' || tagName === 'a') &&
-          getRotationAngle (mouseTarget)
+          getRotationAngle(mouseTarget)
         ) {
           // TODO: Allow method of in-group editing without having to do
           // this (similar to editing rotated paths)
 
           // Ungroup and regroup
-          pushGroupProperties (mouseTarget);
+          pushGroupProperties(mouseTarget);
           mouseTarget = selectedElements[0];
-          clearSelection (true);
+          clearSelection(true);
         }
         // Reset context
         if (currentGroup) {
-          draw.leaveContext ();
+          draw.leaveContext();
         }
 
         if (
           (parent.tagName !== 'g' && parent.tagName !== 'a') ||
-          parent === getCurrentDrawing ().getCurrentLayer () ||
+          parent === getCurrentDrawing().getCurrentLayer() ||
           mouseTarget === selectorManager.selectorParentGroup
         ) {
           // Escape from in-group edit
@@ -3277,55 +3288,57 @@ class SvgCanvas {
         }
 
         // xiaoqing
-        call ('dblClick', mouseTarget);
+        call('dblClick', mouseTarget);
         // draw.setContext(mouseTarget);
       };
 
       // prevent links from being followed in the canvas
-      const handleLinkInCanvas = function (e) {
-        e.preventDefault ();
+      const handleLinkInCanvas = function(e) {
+        e.preventDefault();
         return false;
       };
 
       // Added mouseup to the container here.
       // TODO(codedread): Figure out why after the Closure compiler, the window mouseup is ignored.
-      $ (container)
-        .mousedown (mouseDown)
-        .mousemove (mouseMove)
-        .click (handleLinkInCanvas)
-        .dblclick (dblClick)
-        .mouseup (mouseUp);
+      $(container)
+        .mousedown(mouseDown)
+        .mousemove(mouseMove)
+        .click(handleLinkInCanvas)
+        .dblclick(dblClick)
+        .mouseup(mouseUp);
       // $(window).mouseup(mouseUp);
 
       // TODO(rafaelcastrocouto): User preference for shift key and zoom factor
-      $ (container).bind (
+      $(container).bind(
         'mousewheel DOMMouseScroll',
         /**
-   * @param {Event} e
-   * @fires module:svgcanvas.SvgCanvas#event:updateCanvas
-   * @fires module:svgcanvas.SvgCanvas#event:zoomDone
-   * @returns {void}
-   */
-        function (e) {
+         * @param {Event} e
+         * @fires module:svgcanvas.SvgCanvas#event:updateCanvas
+         * @fires module:svgcanvas.SvgCanvas#event:zoomDone
+         * @returns {void}
+         */
+        function(e) {
           if (!e.shiftKey) {
             return;
           }
 
-          e.preventDefault ();
+          e.preventDefault();
           const evt = e.originalEvent;
 
-          rootSctm = $ ('#svgcontent g')[0].getScreenCTM ().inverse ();
+          rootSctm = $('#svgcontent g')[0]
+            .getScreenCTM()
+            .inverse();
 
-          const workarea = $ ('#workarea');
+          const workarea = $('#workarea');
           const scrbar = 15;
           const rulerwidth = curConfig.showRulers ? 16 : 0;
 
           // mouse relative to content area in content pixels
-          const pt = transformPoint (evt.pageX, evt.pageY, rootSctm);
+          const pt = transformPoint(evt.pageX, evt.pageY, rootSctm);
 
           // full work area width in screen pixels
-          const editorFullW = workarea.width ();
-          const editorFullH = workarea.height ();
+          const editorFullW = workarea.width();
+          const editorFullH = workarea.height();
 
           // work area width minus scroll and ruler in screen pixels
           const editorW = editorFullW - scrbar - rulerwidth;
@@ -3336,36 +3349,38 @@ class SvgCanvas {
           const workareaViewH = editorH * rootSctm.d;
 
           // content offset from canvas in screen pixels
-          const wOffset = workarea.offset ();
+          const wOffset = workarea.offset();
           const wOffsetLeft = wOffset.left + rulerwidth;
           const wOffsetTop = wOffset.top + rulerwidth;
 
           const delta = evt.wheelDelta
             ? evt.wheelDelta
-            : evt.detail ? -evt.detail : 0;
+            : evt.detail
+            ? -evt.detail
+            : 0;
           if (!delta) {
             return;
           }
 
-          let factor = Math.max (3 / 4, Math.min (4 / 3, delta));
+          let factor = Math.max(3 / 4, Math.min(4 / 3, delta));
 
           let wZoom, hZoom;
           if (factor > 1) {
-            wZoom = Math.ceil (editorW / workareaViewW * factor * 100) / 100;
-            hZoom = Math.ceil (editorH / workareaViewH * factor * 100) / 100;
+            wZoom = Math.ceil((editorW / workareaViewW) * factor * 100) / 100;
+            hZoom = Math.ceil((editorH / workareaViewH) * factor * 100) / 100;
           } else {
-            wZoom = Math.floor (editorW / workareaViewW * factor * 100) / 100;
-            hZoom = Math.floor (editorH / workareaViewH * factor * 100) / 100;
+            wZoom = Math.floor((editorW / workareaViewW) * factor * 100) / 100;
+            hZoom = Math.floor((editorH / workareaViewH) * factor * 100) / 100;
           }
-          let zoomlevel = Math.min (wZoom, hZoom);
-          zoomlevel = Math.min (10, Math.max (0.01, zoomlevel));
+          let zoomlevel = Math.min(wZoom, hZoom);
+          zoomlevel = Math.min(10, Math.max(0.01, zoomlevel));
           if (zoomlevel === currentZoom) {
             return;
           }
           factor = zoomlevel / currentZoom;
 
           // top left of workarea in content pixels before zoom
-          const topLeftOld = transformPoint (wOffsetLeft, wOffsetTop, rootSctm);
+          const topLeftOld = transformPoint(wOffsetLeft, wOffsetTop, rootSctm);
 
           // top left of workarea in content pixels after zoom
           const topLeftNew = {
@@ -3385,23 +3400,23 @@ class SvgCanvas {
             y: topLeftNewCanvas.y - rulerwidth + editorFullH / 2,
           };
 
-          canvas.setZoom (zoomlevel);
-          $ ('#zoom').val ((zoomlevel * 100).toFixed (1));
+          canvas.setZoom(zoomlevel);
+          $('#zoom').val((zoomlevel * 100).toFixed(1));
 
-          call ('updateCanvas', {center: false, newCtr});
-          call ('zoomDone');
-        }
+          call('updateCanvas', { center: false, newCtr });
+          call('zoomDone');
+        },
       );
-    }) ();
+    })();
 
     /* eslint-disable jsdoc/require-property */
     /**
-* Group: Text edit functions
-* Functions relating to editing text elements.
-* @namespace {PlainObject} textActions
-* @memberof module:svgcanvas.SvgCanvas#
-*/
-    const textActions = (canvas.textActions = (function () {
+     * Group: Text edit functions
+     * Functions relating to editing text elements.
+     * @namespace {PlainObject} textActions
+     * @memberof module:svgcanvas.SvgCanvas#
+     */
+    const textActions = (canvas.textActions = (function() {
       /* eslint-enable jsdoc/require-property */
       let curtext;
       let textinput;
@@ -3415,13 +3430,13 @@ class SvgCanvas {
       let allowDbl;
 
       /**
- *
- * @param {Integer} index
- * @returns {void}
- */
-      function setCursor (index) {
+       *
+       * @param {Integer} index
+       * @returns {void}
+       */
+      function setCursor(index) {
         const empty = textinput.value === '';
-        $ (textinput).focus ();
+        $(textinput).focus();
 
         if (!arguments.length) {
           if (empty) {
@@ -3436,30 +3451,30 @@ class SvgCanvas {
 
         const charbb = chardata[index];
         if (!empty) {
-          textinput.setSelectionRange (index, index);
+          textinput.setSelectionRange(index, index);
         }
-        cursor = getElem ('text_cursor');
+        cursor = getElem('text_cursor');
         if (!cursor) {
-          cursor = document.createElementNS (NS.SVG, 'line');
-          assignAttributes (cursor, {
+          cursor = document.createElementNS(NS.SVG, 'line');
+          assignAttributes(cursor, {
             id: 'text_cursor',
             stroke: '#333',
             'stroke-width': 1,
           });
-          cursor = getElem ('selectorParentGroup').appendChild (cursor);
+          cursor = getElem('selectorParentGroup').appendChild(cursor);
         }
 
         if (!blinker) {
-          blinker = setInterval (function () {
-            const show = cursor.getAttribute ('display') === 'none';
-            cursor.setAttribute ('display', show ? 'inline' : 'none');
+          blinker = setInterval(function() {
+            const show = cursor.getAttribute('display') === 'none';
+            cursor.setAttribute('display', show ? 'inline' : 'none');
           }, 600);
         }
 
-        const startPt = ptToScreen (charbb.x, textbb.y);
-        const endPt = ptToScreen (charbb.x, textbb.y + textbb.height);
+        const startPt = ptToScreen(charbb.x, textbb.y);
+        const endPt = ptToScreen(charbb.x, textbb.y + textbb.height);
 
-        assignAttributes (cursor, {
+        assignAttributes(cursor, {
           x1: startPt.x,
           y1: startPt.y,
           x2: endPt.x,
@@ -3469,50 +3484,50 @@ class SvgCanvas {
         });
 
         if (selblock) {
-          selblock.setAttribute ('d', '');
+          selblock.setAttribute('d', '');
         }
       }
 
       /**
- *
- * @param {Integer} start
- * @param {Integer} end
- * @param {boolean} skipInput
- * @returns {void}
- */
-      function setSelection (start, end, skipInput) {
+       *
+       * @param {Integer} start
+       * @param {Integer} end
+       * @param {boolean} skipInput
+       * @returns {void}
+       */
+      function setSelection(start, end, skipInput) {
         if (start === end) {
-          setCursor (end);
+          setCursor(end);
           return;
         }
 
         if (!skipInput) {
-          textinput.setSelectionRange (start, end);
+          textinput.setSelectionRange(start, end);
         }
 
-        selblock = getElem ('text_selectblock');
+        selblock = getElem('text_selectblock');
         if (!selblock) {
-          selblock = document.createElementNS (NS.SVG, 'path');
-          assignAttributes (selblock, {
+          selblock = document.createElementNS(NS.SVG, 'path');
+          assignAttributes(selblock, {
             id: 'text_selectblock',
             fill: 'green',
             opacity: 0.5,
             style: 'pointer-events:none',
           });
-          getElem ('selectorParentGroup').append (selblock);
+          getElem('selectorParentGroup').append(selblock);
         }
 
         const startbb = chardata[start];
         const endbb = chardata[end];
 
-        cursor.setAttribute ('visibility', 'hidden');
+        cursor.setAttribute('visibility', 'hidden');
 
-        const tl = ptToScreen (startbb.x, textbb.y),
-          tr = ptToScreen (startbb.x + (endbb.x - startbb.x), textbb.y),
-          bl = ptToScreen (startbb.x, textbb.y + textbb.height),
-          br = ptToScreen (
+        const tl = ptToScreen(startbb.x, textbb.y),
+          tr = ptToScreen(startbb.x + (endbb.x - startbb.x), textbb.y),
+          bl = ptToScreen(startbb.x, textbb.y + textbb.height),
+          br = ptToScreen(
             startbb.x + (endbb.x - startbb.x),
-            textbb.y + textbb.height
+            textbb.y + textbb.height,
           );
 
         const dstr =
@@ -3534,21 +3549,21 @@ class SvgCanvas {
           bl.y +
           'z';
 
-        assignAttributes (selblock, {
+        assignAttributes(selblock, {
           d: dstr,
           display: 'inline',
         });
       }
 
       /**
- *
- * @param {Float} mouseX
- * @param {Float} mouseY
- * @returns {Integer}
- */
-      function getIndexFromPoint (mouseX, mouseY) {
+       *
+       * @param {Float} mouseX
+       * @param {Float} mouseY
+       * @returns {Integer}
+       */
+      function getIndexFromPoint(mouseX, mouseY) {
         // Position cursor here
-        const pt = svgroot.createSVGPoint ();
+        const pt = svgroot.createSVGPoint();
         pt.x = mouseX;
         pt.y = mouseY;
 
@@ -3557,7 +3572,7 @@ class SvgCanvas {
           return 0;
         }
         // Determine if cursor should be on left or right of character
-        let charpos = curtext.getCharNumAtPosition (pt);
+        let charpos = curtext.getCharNumAtPosition(pt);
         if (charpos < 0) {
           // Out of text range, look at mouse coords
           charpos = chardata.length - 2;
@@ -3576,38 +3591,38 @@ class SvgCanvas {
       }
 
       /**
- *
- * @param {Float} mouseX
- * @param {Float} mouseY
- * @returns {void}
- */
-      function setCursorFromPoint (mouseX, mouseY) {
-        setCursor (getIndexFromPoint (mouseX, mouseY));
+       *
+       * @param {Float} mouseX
+       * @param {Float} mouseY
+       * @returns {void}
+       */
+      function setCursorFromPoint(mouseX, mouseY) {
+        setCursor(getIndexFromPoint(mouseX, mouseY));
       }
 
       /**
- *
- * @param {Float} x
- * @param {Float} y
- * @param {boolean} apply
- * @returns {void}
- */
-      function setEndSelectionFromPoint (x, y, apply) {
+       *
+       * @param {Float} x
+       * @param {Float} y
+       * @param {boolean} apply
+       * @returns {void}
+       */
+      function setEndSelectionFromPoint(x, y, apply) {
         const i1 = textinput.selectionStart;
-        const i2 = getIndexFromPoint (x, y);
+        const i2 = getIndexFromPoint(x, y);
 
-        const start = Math.min (i1, i2);
-        const end = Math.max (i1, i2);
-        setSelection (start, end, !apply);
+        const start = Math.min(i1, i2);
+        const end = Math.max(i1, i2);
+        setSelection(start, end, !apply);
       }
 
       /**
- *
- * @param {Float} xIn
- * @param {Float} yIn
- * @returns {module:math.XYObject}
- */
-      function screenToPt (xIn, yIn) {
+       *
+       * @param {Float} xIn
+       * @param {Float} yIn
+       * @returns {module:math.XYObject}
+       */
+      function screenToPt(xIn, yIn) {
         const out = {
           x: xIn,
           y: yIn,
@@ -3617,7 +3632,7 @@ class SvgCanvas {
         out.y /= currentZoom;
 
         if (matrix) {
-          const pt = transformPoint (out.x, out.y, matrix.inverse ());
+          const pt = transformPoint(out.x, out.y, matrix.inverse());
           out.x = pt.x;
           out.y = pt.y;
         }
@@ -3626,19 +3641,19 @@ class SvgCanvas {
       }
 
       /**
- *
- * @param {Float} xIn
- * @param {Float} yIn
- * @returns {module:math.XYObject}
- */
-      function ptToScreen (xIn, yIn) {
+       *
+       * @param {Float} xIn
+       * @param {Float} yIn
+       * @returns {module:math.XYObject}
+       */
+      function ptToScreen(xIn, yIn) {
         const out = {
           x: xIn,
           y: yIn,
         };
 
         if (matrix) {
-          const pt = transformPoint (out.x, out.y, matrix);
+          const pt = transformPoint(out.x, out.y, matrix);
           out.x = pt.x;
           out.y = pt.y;
         }
@@ -3659,99 +3674,99 @@ function hideCursor () {
 */
 
       /**
- *
- * @param {Event} evt
- * @returns {void}
- */
-      function selectAll (evt) {
-        setSelection (0, curtext.textContent.length);
-        $ (this).unbind (evt);
+       *
+       * @param {Event} evt
+       * @returns {void}
+       */
+      function selectAll(evt) {
+        setSelection(0, curtext.textContent.length);
+        $(this).unbind(evt);
       }
 
       /**
- *
- * @param {Event} evt
- * @returns {void}
- */
-      function selectWord (evt) {
+       *
+       * @param {Event} evt
+       * @returns {void}
+       */
+      function selectWord(evt) {
         if (!allowDbl || !curtext) {
           return;
         }
 
-        const ept = transformPoint (evt.pageX, evt.pageY, rootSctm),
+        const ept = transformPoint(evt.pageX, evt.pageY, rootSctm),
           mouseX = ept.x * currentZoom,
           mouseY = ept.y * currentZoom;
-        const pt = screenToPt (mouseX, mouseY);
+        const pt = screenToPt(mouseX, mouseY);
 
-        const index = getIndexFromPoint (pt.x, pt.y);
+        const index = getIndexFromPoint(pt.x, pt.y);
         const str = curtext.textContent;
-        const first = str.substr (0, index).replace (/[a-z\d]+$/i, '').length;
-        const m = str.substr (index).match (/^[a-z\d]+/i);
+        const first = str.substr(0, index).replace(/[a-z\d]+$/i, '').length;
+        const m = str.substr(index).match(/^[a-z\d]+/i);
         const last = (m ? m[0].length : 0) + index;
-        setSelection (first, last);
+        setSelection(first, last);
 
         // Set tripleclick
-        $ (evt.target).click (selectAll);
-        setTimeout (function () {
-          $ (evt.target).unbind ('click', selectAll);
+        $(evt.target).click(selectAll);
+        setTimeout(function() {
+          $(evt.target).unbind('click', selectAll);
         }, 300);
       }
 
       return /** @lends module:svgcanvas.SvgCanvas#textActions */ {
         /**
-  * @param {Element} target
-  * @param {Float} x
-  * @param {Float} y
-  * @returns {void}
-  */
-        select (target, x, y) {
+         * @param {Element} target
+         * @param {Float} x
+         * @param {Float} y
+         * @returns {void}
+         */
+        select(target, x, y) {
           curtext = target;
-          textActions.toEditMode (x, y);
+          textActions.toEditMode(x, y);
         },
         /**
-  * @param {Element} elem
-  * @returns {void}
-  */
-        start (elem) {
+         * @param {Element} elem
+         * @returns {void}
+         */
+        start(elem) {
           curtext = elem;
-          textActions.toEditMode ();
+          textActions.toEditMode();
         },
         /**
-  * @param {external:MouseEvent} evt
-  * @param {Element} mouseTarget
-  * @param {Float} startX
-  * @param {Float} startY
-  * @returns {void}
-  */
-        mouseDown (evt, mouseTarget, startX, startY) {
-          const pt = screenToPt (startX, startY);
+         * @param {external:MouseEvent} evt
+         * @param {Element} mouseTarget
+         * @param {Float} startX
+         * @param {Float} startY
+         * @returns {void}
+         */
+        mouseDown(evt, mouseTarget, startX, startY) {
+          const pt = screenToPt(startX, startY);
 
-          textinput.focus ();
-          setCursorFromPoint (pt.x, pt.y);
+          textinput.focus();
+          setCursorFromPoint(pt.x, pt.y);
           lastX = startX;
           lastY = startY;
 
           // TODO: Find way to block native selection
         },
         /**
-  * @param {Float} mouseX
-  * @param {Float} mouseY
-  * @returns {void}
-  */
-        mouseMove (mouseX, mouseY) {
-          const pt = screenToPt (mouseX, mouseY);
-          setEndSelectionFromPoint (pt.x, pt.y);
+         * @param {Float} mouseX
+         * @param {Float} mouseY
+         * @returns {void}
+         */
+        mouseMove(mouseX, mouseY) {
+          const pt = screenToPt(mouseX, mouseY);
+          setEndSelectionFromPoint(pt.x, pt.y);
         },
         /**
-  * @param {external:MouseEvent} evt
-  * @param {Float} mouseX
-  * @param {Float} mouseY
-  * @returns {void}
-  */
-        mouseUp (evt, mouseX, mouseY) {
-          const pt = screenToPt (mouseX, mouseY);
+         * @param {external:MouseEvent} evt
+         * @param {Float} mouseX
+         * @param {Float} mouseY
+         * @returns {void}
+         */
+        mouseUp(evt, mouseX, mouseY) {
+          const pt = screenToPt(mouseX, mouseY);
 
-          setEndSelectionFromPoint (pt.x, pt.y, true);
+          setEndSelectionFromPoint(pt.x, pt.y, true);
 
           // TODO: Find a way to make this work: Use transformed BBox instead of evt.target
           // if (lastX === mouseX && lastY === mouseY
@@ -3766,31 +3781,31 @@ function hideCursor () {
             mouseY < lastY + 2 &&
             mouseY > lastY - 2
           ) {
-            textActions.toSelectMode (true);
+            textActions.toSelectMode(true);
           }
         },
         /**
-  * @function
-  * @param {Integer} index
-  * @returns {void}
-  */
+         * @function
+         * @param {Integer} index
+         * @returns {void}
+         */
         setCursor,
         /**
-  * @param {Float} x
-  * @param {Float} y
-  * @returns {void}
-  */
-        toEditMode (x, y) {
+         * @param {Float} x
+         * @param {Float} y
+         * @returns {void}
+         */
+        toEditMode(x, y) {
           allowDbl = false;
           currentMode = 'textedit';
-          selectorManager.requestSelector (curtext).showGrips (false);
+          selectorManager.requestSelector(curtext).showGrips(false);
           // Make selector group accept clicks
-          /* const selector = */ selectorManager.requestSelector (curtext); // Do we need this? Has side effect of setting lock, so keeping for now, but next line wasn't being used
+          /* const selector = */ selectorManager.requestSelector(curtext); // Do we need this? Has side effect of setting lock, so keeping for now, but next line wasn't being used
           // const sel = selector.selectorRect;
 
-          textActions.init ();
+          textActions.init();
 
-          $ (curtext).css ('cursor', 'text');
+          $(curtext).css('cursor', 'text');
 
           // if (supportsEditableText()) {
           //   curtext.setAttribute('editable', 'simple');
@@ -3798,46 +3813,46 @@ function hideCursor () {
           // }
 
           if (!arguments.length) {
-            setCursor ();
+            setCursor();
           } else {
-            const pt = screenToPt (x, y);
-            setCursorFromPoint (pt.x, pt.y);
+            const pt = screenToPt(x, y);
+            setCursorFromPoint(pt.x, pt.y);
           }
 
-          setTimeout (function () {
+          setTimeout(function() {
             allowDbl = true;
           }, 300);
         },
         /**
-  * @param {boolean|Element} selectElem
-  * @fires module:svgcanvas.SvgCanvas#event:selected
-  * @returns {void}
-  */
-        toSelectMode (selectElem) {
+         * @param {boolean|Element} selectElem
+         * @fires module:svgcanvas.SvgCanvas#event:selected
+         * @returns {void}
+         */
+        toSelectMode(selectElem) {
           currentMode = 'select';
-          clearInterval (blinker);
+          clearInterval(blinker);
           blinker = null;
           if (selblock) {
-            $ (selblock).attr ('display', 'none');
+            $(selblock).attr('display', 'none');
           }
           if (cursor) {
-            $ (cursor).attr ('visibility', 'hidden');
+            $(cursor).attr('visibility', 'hidden');
           }
-          $ (curtext).css ('cursor', 'move');
+          $(curtext).css('cursor', 'move');
 
           if (selectElem) {
-            clearSelection ();
-            $ (curtext).css ('cursor', 'move');
+            clearSelection();
+            $(curtext).css('cursor', 'move');
 
-            call ('selected', [curtext]);
-            addToSelection ([curtext], true);
+            call('selected', [curtext]);
+            addToSelection([curtext], true);
           }
           if (curtext && !curtext.textContent.length) {
             // No content, so delete
-            canvas.deleteSelectedElements ();
+            canvas.deleteSelectedElements();
           }
 
-          $ (textinput).blur ();
+          $(textinput).blur();
 
           curtext = false;
 
@@ -3846,26 +3861,26 @@ function hideCursor () {
           // }
         },
         /**
-  * @param {Element} elem
-  * @returns {void}
-  */
-        setInputElem (elem) {
+         * @param {Element} elem
+         * @returns {void}
+         */
+        setInputElem(elem) {
           textinput = elem;
           // $(textinput).blur(hideCursor);
         },
         /**
-  * @returns {void}
-  */
-        clear () {
+         * @returns {void}
+         */
+        clear() {
           if (currentMode === 'textedit') {
-            textActions.toSelectMode ();
+            textActions.toSelectMode();
           }
         },
         /**
-  * @param {Element} inputElem Not in use
-  * @returns {void}
-  */
-        init (inputElem) {
+         * @param {Element} inputElem Not in use
+         * @returns {void}
+         */
+        init(inputElem) {
           if (!curtext) {
             return;
           }
@@ -3878,33 +3893,35 @@ function hideCursor () {
           if (!curtext.parentNode) {
             // Result of the ffClone, need to get correct element
             curtext = selectedElements[0];
-            selectorManager.requestSelector (curtext).showGrips (false);
+            selectorManager.requestSelector(curtext).showGrips(false);
           }
 
           const str = curtext.textContent;
           const len = str.length;
 
-          const xform = curtext.getAttribute ('transform');
+          const xform = curtext.getAttribute('transform');
 
-          textbb = utilsGetBBox (curtext);
+          textbb = utilsGetBBox(curtext);
 
-          matrix = xform ? getMatrix (curtext) : null;
+          matrix = xform ? getMatrix(curtext) : null;
 
           chardata = [];
           chardata.length = len;
-          textinput.focus ();
+          textinput.focus();
 
-          $ (curtext).unbind ('dblclick', selectWord).dblclick (selectWord);
+          $(curtext)
+            .unbind('dblclick', selectWord)
+            .dblclick(selectWord);
 
           if (!len) {
-            end = {x: textbb.x + textbb.width / 2, width: 0};
+            end = { x: textbb.x + textbb.width / 2, width: 0 };
           }
 
           for (i = 0; i < len; i++) {
-            const start = curtext.getStartPositionOfChar (i);
-            end = curtext.getEndPositionOfChar (i);
+            const start = curtext.getStartPositionOfChar(i);
+            end = curtext.getEndPositionOfChar(i);
 
-            if (!supportsGoodTextCharPos ()) {
+            if (!supportsGoodTextCharPos()) {
               const offset = canvas.contentW * currentZoom;
               start.x -= offset;
               end.x -= offset;
@@ -3926,27 +3943,27 @@ function hideCursor () {
           }
 
           // Add a last bbox for cursor at end of text
-          chardata.push ({
+          chardata.push({
             x: end.x,
             width: 0,
           });
-          setSelection (textinput.selectionStart, textinput.selectionEnd, true);
+          setSelection(textinput.selectionStart, textinput.selectionEnd, true);
         },
       };
-    }) ());
+    })());
 
     /**
-* Group: Serialization.
-*/
+     * Group: Serialization.
+     */
 
     /**
-* Looks at DOM elements inside the `<defs>` to see if they are referred to,
-* removes them from the DOM if they are not.
-* @function module:svgcanvas.SvgCanvas#removeUnusedDefElems
-* @returns {Integer} The number of elements that were removed
-*/
-    const removeUnusedDefElems = (this.removeUnusedDefElems = function () {
-      const defs = svgcontent.getElementsByTagNameNS (NS.SVG, 'defs');
+     * Looks at DOM elements inside the `<defs>` to see if they are referred to,
+     * removes them from the DOM if they are not.
+     * @function module:svgcanvas.SvgCanvas#removeUnusedDefElems
+     * @returns {Integer} The number of elements that were removed
+     */
+    const removeUnusedDefElems = (this.removeUnusedDefElems = function() {
+      const defs = svgcontent.getElementsByTagNameNS(NS.SVG, 'defs');
       if (!defs || !defs.length) {
         return 0;
       }
@@ -3965,37 +3982,37 @@ function hideCursor () {
       ];
       const alen = attrs.length;
 
-      const allEls = svgcontent.getElementsByTagNameNS (NS.SVG, '*');
+      const allEls = svgcontent.getElementsByTagNameNS(NS.SVG, '*');
       const allLen = allEls.length;
 
       let i, j;
       for (i = 0; i < allLen; i++) {
         const el = allEls[i];
         for (j = 0; j < alen; j++) {
-          const ref = getUrlFromAttr (el.getAttribute (attrs[j]));
+          const ref = getUrlFromAttr(el.getAttribute(attrs[j]));
           if (ref) {
-            defelemUses.push (ref.substr (1));
+            defelemUses.push(ref.substr(1));
           }
         }
 
         // gradients can refer to other gradients
-        const href = getHref (el);
-        if (href && href.startsWith ('#')) {
-          defelemUses.push (href.substr (1));
+        const href = getHref(el);
+        if (href && href.startsWith('#')) {
+          defelemUses.push(href.substr(1));
         }
       }
 
-      const defelems = $ (defs).find (
-        'linearGradient, radialGradient, filter, marker, svg, symbol'
+      const defelems = $(defs).find(
+        'linearGradient, radialGradient, filter, marker, svg, symbol',
       );
       i = defelems.length;
       while (i--) {
         const defelem = defelems[i];
-        const {id} = defelem;
-        if (!defelemUses.includes (id)) {
+        const { id } = defelem;
+        if (!defelemUses.includes(id)) {
           // Not found, so remove (but remember)
           removedElements[id] = defelem;
-          defelem.remove ();
+          defelem.remove();
           numRemoved++;
         }
       }
@@ -4004,54 +4021,55 @@ function hideCursor () {
     });
 
     /**
-* Main function to set up the SVG content for output.
-* @function module:svgcanvas.SvgCanvas#svgCanvasToString
-* @returns {string} The SVG image for output
-*/
-    this.svgCanvasToString = function () {
+     * Main function to set up the SVG content for output.
+     * @function module:svgcanvas.SvgCanvas#svgCanvasToString
+     * @returns {string} The SVG image for output
+     */
+    this.svgCanvasToString = function() {
       // keep calling it until there are none to remove
-      while (removeUnusedDefElems () > 0) {
-      } // eslint-disable-line no-empty
+      while (removeUnusedDefElems() > 0) {} // eslint-disable-line no-empty
 
-      pathActions.clear (true);
+      pathActions.clear(true);
 
       // Keep SVG-Edit comment on top
-      $.each (svgcontent.childNodes, function (i, node) {
-        if (i && node.nodeType === 8 && node.data.includes ('Created with')) {
-          svgcontent.firstChild.before (node);
+      $.each(svgcontent.childNodes, function(i, node) {
+        if (i && node.nodeType === 8 && node.data.includes('Created with')) {
+          svgcontent.firstChild.before(node);
         }
       });
 
       // Move out of in-group editing mode
       if (currentGroup) {
-        draw.leaveContext ();
-        selectOnly ([currentGroup]);
+        draw.leaveContext();
+        selectOnly([currentGroup]);
       }
 
       const nakedSvgs = [];
 
       // Unwrap gsvg if it has no special attributes (only id and style)
-      $ (svgcontent).find ('g:data(gsvg)').each (function () {
-        const attrs = this.attributes;
-        let len = attrs.length;
-        for (let i = 0; i < len; i++) {
-          if (attrs[i].nodeName === 'id' || attrs[i].nodeName === 'style') {
-            len--;
+      $(svgcontent)
+        .find('g:data(gsvg)')
+        .each(function() {
+          const attrs = this.attributes;
+          let len = attrs.length;
+          for (let i = 0; i < len; i++) {
+            if (attrs[i].nodeName === 'id' || attrs[i].nodeName === 'style') {
+              len--;
+            }
           }
-        }
-        // No significant attributes, so ungroup
-        if (len <= 0) {
-          const svg = this.firstChild;
-          nakedSvgs.push (svg);
-          $ (this).replaceWith (svg);
-        }
-      });
-      const output = this.svgToString (svgcontent, 0);
+          // No significant attributes, so ungroup
+          if (len <= 0) {
+            const svg = this.firstChild;
+            nakedSvgs.push(svg);
+            $(this).replaceWith(svg);
+          }
+        });
+      const output = this.svgToString(svgcontent, 0);
 
       // Rewrap gsvg
       if (nakedSvgs.length) {
-        $ (nakedSvgs).each (function () {
-          groupSvgElem (this);
+        $(nakedSvgs).each(function() {
+          groupSvgElem(this);
         });
       }
 
@@ -4059,33 +4077,33 @@ function hideCursor () {
     };
 
     /**
-* Sub function ran on each SVG element to convert it to a string as desired.
-* @function module:svgcanvas.SvgCanvas#svgToString
-* @param {Element} elem - The SVG element to convert
-* @param {Integer} indent - Number of spaces to indent this tag
-* @returns {string} The given element as an SVG tag
-*/
-    this.svgToString = function (elem, indent) {
+     * Sub function ran on each SVG element to convert it to a string as desired.
+     * @function module:svgcanvas.SvgCanvas#svgToString
+     * @param {Element} elem - The SVG element to convert
+     * @param {Integer} indent - Number of spaces to indent this tag
+     * @returns {string} The given element as an SVG tag
+     */
+    this.svgToString = function(elem, indent) {
       const out = [];
       const unit = curConfig.baseUnit;
-      const unitRe = new RegExp ('^-?[\\d\\.]+' + unit + '$');
+      const unitRe = new RegExp('^-?[\\d\\.]+' + unit + '$');
 
       if (elem) {
-        cleanupElement (elem);
+        cleanupElement(elem);
         const attrs = [...elem.attributes];
         const childs = elem.childNodes;
-        attrs.sort ((a, b) => {
+        attrs.sort((a, b) => {
           return a.name > b.name ? -1 : 1;
         });
 
         for (let i = 0; i < indent; i++) {
-          out.push (' ');
+          out.push(' ');
         }
-        out.push ('<');
-        out.push (elem.nodeName);
+        out.push('<');
+        out.push(elem.nodeName);
         if (elem.id === 'svgcontent') {
           // Process root element separately
-          const res = getResolution ();
+          const res = getResolution();
 
           const vb = '';
           // TODO: Allow this by dividing all values by current baseVal
@@ -4101,11 +4119,11 @@ function hideCursor () {
           // }
 
           if (unit !== 'px') {
-            res.w = convertUnit (res.w, unit) + unit;
-            res.h = convertUnit (res.h, unit) + unit;
+            res.w = convertUnit(res.w, unit) + unit;
+            res.h = convertUnit(res.h, unit) + unit;
           }
 
-          out.push (
+          out.push(
             ' width="' +
               res.w +
               '" height="' +
@@ -4114,40 +4132,43 @@ function hideCursor () {
               vb +
               ' xmlns="' +
               NS.SVG +
-              '"'
+              '"',
           );
 
           const nsuris = {};
 
           // Check elements for namespaces, add if found
-          $ (elem).find ('*').andSelf ().each (function () {
-            // const el = this;
-            // for some elements have no attribute
-            const uri = this.namespaceURI;
-            if (
-              uri &&
-              !nsuris[uri] &&
-              nsMap[uri] &&
-              nsMap[uri] !== 'xmlns' &&
-              nsMap[uri] !== 'xml'
-            ) {
-              nsuris[uri] = true;
-              out.push (' xmlns:' + nsMap[uri] + '="' + uri + '"');
-            }
-
-            $.each (this.attributes, function (i, attr) {
-              const u = attr.namespaceURI;
+          $(elem)
+            .find('*')
+            .andSelf()
+            .each(function() {
+              // const el = this;
+              // for some elements have no attribute
+              const uri = this.namespaceURI;
               if (
-                u &&
-                !nsuris[u] &&
-                nsMap[u] !== 'xmlns' &&
-                nsMap[u] !== 'xml'
+                uri &&
+                !nsuris[uri] &&
+                nsMap[uri] &&
+                nsMap[uri] !== 'xmlns' &&
+                nsMap[uri] !== 'xml'
               ) {
-                nsuris[u] = true;
-                out.push (' xmlns:' + nsMap[u] + '="' + u + '"');
+                nsuris[uri] = true;
+                out.push(' xmlns:' + nsMap[uri] + '="' + uri + '"');
               }
+
+              $.each(this.attributes, function(i, attr) {
+                const u = attr.namespaceURI;
+                if (
+                  u &&
+                  !nsuris[u] &&
+                  nsMap[u] !== 'xmlns' &&
+                  nsMap[u] !== 'xml'
+                ) {
+                  nsuris[u] = true;
+                  out.push(' xmlns:' + nsMap[u] + '="' + u + '"');
+                }
+              });
             });
-          });
 
           let i = attrs.length;
           const attrNames = [
@@ -4162,21 +4183,21 @@ function hideCursor () {
           ];
           while (i--) {
             const attr = attrs[i];
-            const attrVal = toXml (attr.value);
+            const attrVal = toXml(attr.value);
 
             // Namespaces have already been dealt with, so skip
-            if (attr.nodeName.startsWith ('xmlns:')) {
+            if (attr.nodeName.startsWith('xmlns:')) {
               continue;
             }
 
             // only serialize attributes we don't use internally
-            if (attrVal !== '' && !attrNames.includes (attr.localName)) {
+            if (attrVal !== '' && !attrNames.includes(attr.localName)) {
               if (!attr.namespaceURI || nsMap[attr.namespaceURI]) {
-                out.push (' ');
-                out.push (attr.nodeName);
-                out.push ('="');
-                out.push (attrVal);
-                out.push ('"');
+                out.push(' ');
+                out.push(attr.nodeName);
+                out.push('="');
+                out.push(attrVal);
+                out.push('"');
               }
             }
           }
@@ -4189,36 +4210,34 @@ function hideCursor () {
           const mozAttrs = ['-moz-math-font-style', '_moz-math-font-style'];
           for (let i = attrs.length - 1; i >= 0; i--) {
             const attr = attrs[i];
-            let attrVal = toXml (attr.value);
+            let attrVal = toXml(attr.value);
             // remove bogus attributes added by Gecko
-            if (mozAttrs.includes (attr.localName)) {
+            if (mozAttrs.includes(attr.localName)) {
               continue;
             }
             if (attrVal === 'null') {
-              const styleName = attr.localName.replace (/-[a-z]/g, s =>
-                s[1].toUpperCase ()
+              const styleName = attr.localName.replace(/-[a-z]/g, s =>
+                s[1].toUpperCase(),
               );
-              if (
-                Object.prototype.hasOwnProperty.call (elem.style, styleName)
-              ) {
+              if (Object.prototype.hasOwnProperty.call(elem.style, styleName)) {
                 continue;
               }
             }
             if (attrVal !== '') {
-              if (attrVal.startsWith ('pointer-events')) {
+              if (attrVal.startsWith('pointer-events')) {
                 continue;
               }
-              if (attr.localName === 'class' && attrVal.startsWith ('se_')) {
+              if (attr.localName === 'class' && attrVal.startsWith('se_')) {
                 continue;
               }
-              out.push (' ');
+              out.push(' ');
               if (attr.localName === 'd') {
-                attrVal = pathActions.convertPath (elem, true);
+                attrVal = pathActions.convertPath(elem, true);
               }
-              if (!isNaN (attrVal)) {
-                attrVal = shortFloat (attrVal);
-              } else if (unitRe.test (attrVal)) {
-                attrVal = shortFloat (attrVal) + unit;
+              if (!isNaN(attrVal)) {
+                attrVal = shortFloat(attrVal);
+              } else if (unitRe.test(attrVal)) {
+                attrVal = shortFloat(attrVal) + unit;
               }
 
               // Embed images when saving
@@ -4242,174 +4261,172 @@ function hideCursor () {
                 attr.namespaceURI === NS.SVG ||
                 nsMap[attr.namespaceURI]
               ) {
-                out.push (attr.nodeName);
-                out.push ('="');
-                out.push (attrVal);
-                out.push ('"');
+                out.push(attr.nodeName);
+                out.push('="');
+                out.push(attrVal);
+                out.push('"');
               }
             }
           }
         }
 
-        if (elem.hasChildNodes ()) {
-          out.push ('>');
+        if (elem.hasChildNodes()) {
+          out.push('>');
           indent++;
           let bOneLine = false;
 
           for (let i = 0; i < childs.length; i++) {
-            const child = childs.item (i);
+            const child = childs.item(i);
             switch (child.nodeType) {
               case 1: // element node
-                out.push ('\n');
-                out.push (this.svgToString (child, indent));
+                out.push('\n');
+                out.push(this.svgToString(child, indent));
                 break;
               case 3: {
                 // text node
-                const str = child.nodeValue.replace (/^\s+|\s+$/g, '');
+                const str = child.nodeValue.replace(/^\s+|\s+$/g, '');
                 if (str !== '') {
                   bOneLine = true;
-                  out.push (String (toXml (str)));
+                  out.push(String(toXml(str)));
                 }
                 break;
               }
               case 4: // cdata node
-                out.push ('\n');
-                out.push (new Array (indent + 1).join (' '));
-                out.push ('<![CDATA[');
-                out.push (child.nodeValue);
-                out.push (']]>');
+                out.push('\n');
+                out.push(new Array(indent + 1).join(' '));
+                out.push('<![CDATA[');
+                out.push(child.nodeValue);
+                out.push(']]>');
                 break;
               case 8: // comment
-                out.push ('\n');
-                out.push (new Array (indent + 1).join (' '));
-                out.push ('<!--');
-                out.push (child.data);
-                out.push ('-->');
+                out.push('\n');
+                out.push(new Array(indent + 1).join(' '));
+                out.push('<!--');
+                out.push(child.data);
+                out.push('-->');
                 break;
             } // switch on node type
           }
           indent--;
           if (!bOneLine) {
-            out.push ('\n');
+            out.push('\n');
             for (let i = 0; i < indent; i++) {
-              out.push (' ');
+              out.push(' ');
             }
           }
-          out.push ('</');
-          out.push (elem.nodeName);
-          out.push ('>');
+          out.push('</');
+          out.push(elem.nodeName);
+          out.push('>');
         } else {
-          out.push ('/>');
+          out.push('/>');
         }
       }
-      return out.join ('');
+      return out.join('');
     }; // end svgToString()
 
     /**
- * Function to run when image data is found.
- * @callback module:svgcanvas.ImageEmbeddedCallback
- * @param {string|false} result Data URL
- * @returns {void}
- */
+     * Function to run when image data is found.
+     * @callback module:svgcanvas.ImageEmbeddedCallback
+     * @param {string|false} result Data URL
+     * @returns {void}
+     */
     /**
-* Converts a given image file to a data URL when possible, then runs a given callback.
-* @function module:svgcanvas.SvgCanvas#embedImage
-* @param {string} src - The path/URL of the image
-* @returns {Promise<string|false>} Resolves to a Data URL (string|false)
-*/
-    this.embedImage = function (src) {
+     * Converts a given image file to a data URL when possible, then runs a given callback.
+     * @function module:svgcanvas.SvgCanvas#embedImage
+     * @param {string} src - The path/URL of the image
+     * @returns {Promise<string|false>} Resolves to a Data URL (string|false)
+     */
+    this.embedImage = function(src) {
       // Todo: Remove this Promise in favor of making an async/await `Image.load` utility
-      return new Promise (function (resolve, reject) {
+      return new Promise(function(resolve, reject) {
         // eslint-disable-line promise/avoid-new
         // load in the image and once it's loaded, get the dimensions
-        $ (new Image ())
-          .load (function (response, status, xhr) {
+        $(new Image())
+          .load(function(response, status, xhr) {
             if (status === 'error') {
-              reject (
-                new Error (
-                  'Error loading image: ' + xhr.status + ' ' + xhr.statusText
-                )
+              reject(
+                new Error(
+                  'Error loading image: ' + xhr.status + ' ' + xhr.statusText,
+                ),
               );
               return;
             }
             // create a canvas the same size as the raster image
-            const cvs = document.createElement ('canvas');
+            const cvs = document.createElement('canvas');
             cvs.width = this.width;
             cvs.height = this.height;
             // load the raster image into the canvas
-            cvs.getContext ('2d').drawImage (this, 0, 0);
+            cvs.getContext('2d').drawImage(this, 0, 0);
             // retrieve the data: URL
             try {
-              let urldata = ';svgedit_url=' + encodeURIComponent (src);
-              urldata = cvs
-                .toDataURL ()
-                .replace (';base64', urldata + ';base64');
+              let urldata = ';svgedit_url=' + encodeURIComponent(src);
+              urldata = cvs.toDataURL().replace(';base64', urldata + ';base64');
               encodableImages[src] = urldata;
             } catch (e) {
               encodableImages[src] = false;
             }
             lastGoodImgUrl = src;
-            resolve (encodableImages[src]);
+            resolve(encodableImages[src]);
           })
-          .attr ('src', src);
+          .attr('src', src);
       });
     };
 
     /**
-* Sets a given URL to be a "last good image" URL.
-* @function module:svgcanvas.SvgCanvas#setGoodImage
-* @param {string} val
-* @returns {void}
-*/
-    this.setGoodImage = function (val) {
+     * Sets a given URL to be a "last good image" URL.
+     * @function module:svgcanvas.SvgCanvas#setGoodImage
+     * @param {string} val
+     * @returns {void}
+     */
+    this.setGoodImage = function(val) {
       lastGoodImgUrl = val;
     };
 
     /**
-* Does nothing by default, handled by optional widget/extension.
-* @function module:svgcanvas.SvgCanvas#open
-* @returns {void}
-*/
-    this.open = function () {
+     * Does nothing by default, handled by optional widget/extension.
+     * @function module:svgcanvas.SvgCanvas#open
+     * @returns {void}
+     */
+    this.open = function() {
       /* */
     };
 
     /**
-* Serializes the current drawing into SVG XML text and passes it to the 'saved' handler.
-* This function also includes the XML prolog. Clients of the `SvgCanvas` bind their save
-* function to the 'saved' event.
-* @function module:svgcanvas.SvgCanvas#save
-* @param {module:svgcanvas.SaveOptions} opts
-* @fires module:svgcanvas.SvgCanvas#event:saved
-* @returns {void}
-*/
-    this.save = function (opts) {
+     * Serializes the current drawing into SVG XML text and passes it to the 'saved' handler.
+     * This function also includes the XML prolog. Clients of the `SvgCanvas` bind their save
+     * function to the 'saved' event.
+     * @function module:svgcanvas.SvgCanvas#save
+     * @param {module:svgcanvas.SaveOptions} opts
+     * @fires module:svgcanvas.SvgCanvas#event:saved
+     * @returns {void}
+     */
+    this.save = function(opts) {
       // remove the selected outline before serializing
-      clearSelection ();
+      clearSelection();
       // Update save options if provided
       if (opts) {
-        $.extend (saveOptions, opts);
+        $.extend(saveOptions, opts);
       }
       saveOptions.apply = true;
 
       // no need for doctype, see https://jwatt.org/svg/authoring/#doctype-declaration
-      const str = this.svgCanvasToString ();
-      call ('saved', str);
+      const str = this.svgCanvasToString();
+      call('saved', str);
     };
 
     /**
-* @typedef {PlainObject} module:svgcanvas.IssuesAndCodes
-* @property {string[]} issueCodes The locale-independent code names
-* @property {string[]} issues The localized descriptions
-*/
+     * @typedef {PlainObject} module:svgcanvas.IssuesAndCodes
+     * @property {string[]} issueCodes The locale-independent code names
+     * @property {string[]} issues The localized descriptions
+     */
 
     /**
-* Codes only is useful for locale-independent detection.
-* @returns {module:svgcanvas.IssuesAndCodes}
-*/
-    function getIssues () {
+     * Codes only is useful for locale-independent detection.
+     * @returns {module:svgcanvas.IssuesAndCodes}
+     */
+    function getIssues() {
       // remove the selected outline before serializing
-      clearSelection ();
+      clearSelection();
 
       // Check for known CanVG issues
       const issues = [];
@@ -4421,90 +4438,92 @@ function hideCursor () {
         foreignObject: uiStrings.exportNoforeignObject,
         '[stroke-dasharray]': uiStrings.exportNoDashArray,
       };
-      const content = $ (svgcontent);
+      const content = $(svgcontent);
 
       // Add font/text check if Canvas Text API is not implemented
-      if (!('font' in $ ('<canvas>')[0].getContext ('2d'))) {
+      if (!('font' in $('<canvas>')[0].getContext('2d'))) {
         issueList.text = uiStrings.exportNoText;
       }
 
-      $.each (issueList, function (sel, descr) {
-        if (content.find (sel).length) {
-          issueCodes.push (sel);
-          issues.push (descr);
+      $.each(issueList, function(sel, descr) {
+        if (content.find(sel).length) {
+          issueCodes.push(sel);
+          issues.push(descr);
         }
       });
-      return {issues, issueCodes};
+      return { issues, issueCodes };
     }
 
     let canvg;
     /**
-* @typedef {"feGaussianBlur"|"foreignObject"|"[stroke-dasharray]"|"text"} module:svgcanvas.IssueCode
-*/
+     * @typedef {"feGaussianBlur"|"foreignObject"|"[stroke-dasharray]"|"text"} module:svgcanvas.IssueCode
+     */
     /**
-* @typedef {PlainObject} module:svgcanvas.ImageExportedResults
-* @property {string} datauri Contents as a Data URL
-* @property {string} bloburl May be the empty string
-* @property {string} svg The SVG contents as a string
-* @property {string[]} issues The localization messages of `issueCodes`
-* @property {module:svgcanvas.IssueCode[]} issueCodes CanVG issues found with the SVG
-* @property {"PNG"|"JPEG"|"BMP"|"WEBP"|"ICO"} type The chosen image type
-* @property {"image/png"|"image/jpeg"|"image/bmp"|"image/webp"} mimeType The image MIME type
-* @property {Float} quality A decimal between 0 and 1 (for use with JPEG or WEBP)
-* @property {string} exportWindowName A convenience for passing along a `window.name` to target a window on which the export could be added
-*/
+     * @typedef {PlainObject} module:svgcanvas.ImageExportedResults
+     * @property {string} datauri Contents as a Data URL
+     * @property {string} bloburl May be the empty string
+     * @property {string} svg The SVG contents as a string
+     * @property {string[]} issues The localization messages of `issueCodes`
+     * @property {module:svgcanvas.IssueCode[]} issueCodes CanVG issues found with the SVG
+     * @property {"PNG"|"JPEG"|"BMP"|"WEBP"|"ICO"} type The chosen image type
+     * @property {"image/png"|"image/jpeg"|"image/bmp"|"image/webp"} mimeType The image MIME type
+     * @property {Float} quality A decimal between 0 and 1 (for use with JPEG or WEBP)
+     * @property {string} exportWindowName A convenience for passing along a `window.name` to target a window on which the export could be added
+     */
 
     /**
-* Generates a PNG (or JPG, BMP, WEBP) Data URL based on the current image,
-* then calls "exported" with an object including the string, image
-* information, and any issues found.
-* @function module:svgcanvas.SvgCanvas#rasterExport
-* @param {"PNG"|"JPEG"|"BMP"|"WEBP"|"ICO"} [imgType="PNG"]
-* @param {Float} [quality] Between 0 and 1
-* @param {string} [exportWindowName]
-* @param {PlainObject} [opts]
-* @param {boolean} [opts.avoidEvent]
-* @fires module:svgcanvas.SvgCanvas#event:exported
-* @todo Confirm/fix ICO type
-* @returns {Promise<module:svgcanvas.ImageExportedResults>} Resolves to {@link module:svgcanvas.ImageExportedResults}
-*/
-    this.rasterExport = async function (
+     * Generates a PNG (or JPG, BMP, WEBP) Data URL based on the current image,
+     * then calls "exported" with an object including the string, image
+     * information, and any issues found.
+     * @function module:svgcanvas.SvgCanvas#rasterExport
+     * @param {"PNG"|"JPEG"|"BMP"|"WEBP"|"ICO"} [imgType="PNG"]
+     * @param {Float} [quality] Between 0 and 1
+     * @param {string} [exportWindowName]
+     * @param {PlainObject} [opts]
+     * @param {boolean} [opts.avoidEvent]
+     * @fires module:svgcanvas.SvgCanvas#event:exported
+     * @todo Confirm/fix ICO type
+     * @returns {Promise<module:svgcanvas.ImageExportedResults>} Resolves to {@link module:svgcanvas.ImageExportedResults}
+     */
+    this.rasterExport = async function(
       imgType,
       quality,
       exportWindowName,
-      opts = {}
+      opts = {},
     ) {
       const type = imgType === 'ICO' ? 'BMP' : imgType || 'PNG';
-      const mimeType = 'image/' + type.toLowerCase ();
-      const {issues, issueCodes} = getIssues ();
-      const svg = this.svgCanvasToString ();
+      const mimeType = 'image/' + type.toLowerCase();
+      const { issues, issueCodes } = getIssues();
+      const svg = this.svgCanvasToString();
 
       if (!canvg) {
-        ({canvg} = await importSetGlobal (curConfig.canvgPath + 'canvg.js', {
+        ({ canvg } = await importSetGlobal(curConfig.canvgPath + 'canvg.js', {
           global: 'canvg',
         }));
       }
-      if (!$ ('#export_canvas').length) {
-        $ ('<canvas>', {id: 'export_canvas'}).hide ().appendTo ('body');
+      if (!$('#export_canvas').length) {
+        $('<canvas>', { id: 'export_canvas' })
+          .hide()
+          .appendTo('body');
       }
-      const c = $ ('#export_canvas')[0];
+      const c = $('#export_canvas')[0];
       c.width = canvas.contentW;
       c.height = canvas.contentH;
 
-      await canvg (c, svg);
+      await canvg(c, svg);
       // Todo: Make async/await utility in place of `toBlob`, so we can remove this constructor
-      return new Promise ((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         // eslint-disable-line promise/avoid-new
-        const dataURLType = type.toLowerCase ();
+        const dataURLType = type.toLowerCase();
         const datauri = quality
-          ? c.toDataURL ('image/' + dataURLType, quality)
-          : c.toDataURL ('image/' + dataURLType);
+          ? c.toDataURL('image/' + dataURLType, quality)
+          : c.toDataURL('image/' + dataURLType);
         let bloburl;
         /**
-     * Called when `bloburl` is available for export.
-     * @returns {void}
-     */
-        function done () {
+         * Called when `bloburl` is available for export.
+         * @returns {void}
+         */
+        function done() {
           const obj = {
             datauri,
             bloburl,
@@ -4517,67 +4536,67 @@ function hideCursor () {
             exportWindowName,
           };
           if (!opts.avoidEvent) {
-            call ('exported', obj);
+            call('exported', obj);
           }
-          resolve (obj);
+          resolve(obj);
         }
         if (c.toBlob) {
-          c.toBlob (
+          c.toBlob(
             blob => {
-              bloburl = createObjectURL (blob);
-              done ();
+              bloburl = createObjectURL(blob);
+              done();
             },
             mimeType,
-            quality
+            quality,
           );
           return;
         }
-        bloburl = dataURLToObjectURL (datauri);
-        done ();
+        bloburl = dataURLToObjectURL(datauri);
+        done();
       });
     };
     /**
- * @external jsPDF
- */
+     * @external jsPDF
+     */
     /**
- * @typedef {void|"save"|"arraybuffer"|"blob"|"datauristring"|"dataurlstring"|"dataurlnewwindow"|"datauri"|"dataurl"} external:jsPDF.OutputType
- * @todo Newer version to add also allows these `outputType` values "bloburi"|"bloburl" which return strings, so document here and for `outputType` of `module:svgcanvas.PDFExportedResults` below if added
-*/
+     * @typedef {void|"save"|"arraybuffer"|"blob"|"datauristring"|"dataurlstring"|"dataurlnewwindow"|"datauri"|"dataurl"} external:jsPDF.OutputType
+     * @todo Newer version to add also allows these `outputType` values "bloburi"|"bloburl" which return strings, so document here and for `outputType` of `module:svgcanvas.PDFExportedResults` below if added
+     */
     /**
-* @typedef {PlainObject} module:svgcanvas.PDFExportedResults
-* @property {string} svg The SVG PDF output
-* @property {string|ArrayBuffer|Blob|window} output The output based on the `outputType`;
-* if `undefined`, "datauristring", "dataurlstring", "datauri",
-* or "dataurl", will be a string (`undefined` gives a document, while the others
-* build as Data URLs; "datauri" and "dataurl" change the location of the current page); if
-* "arraybuffer", will return `ArrayBuffer`; if "blob", returns a `Blob`;
-* if "dataurlnewwindow", will change the current page's location and return a string
-* if in Safari and no window object is found; otherwise opens in, and returns, a new `window`
-* object; if "save", will have the same return as "dataurlnewwindow" if
-* `navigator.getUserMedia` support is found without `URL.createObjectURL` support; otherwise
-* returns `undefined` but attempts to save
-* @property {external:jsPDF.OutputType} outputType
-* @property {string[]} issues The human-readable localization messages of corresponding `issueCodes`
-* @property {module:svgcanvas.IssueCode[]} issueCodes
-* @property {string} exportWindowName
-*/
+     * @typedef {PlainObject} module:svgcanvas.PDFExportedResults
+     * @property {string} svg The SVG PDF output
+     * @property {string|ArrayBuffer|Blob|window} output The output based on the `outputType`;
+     * if `undefined`, "datauristring", "dataurlstring", "datauri",
+     * or "dataurl", will be a string (`undefined` gives a document, while the others
+     * build as Data URLs; "datauri" and "dataurl" change the location of the current page); if
+     * "arraybuffer", will return `ArrayBuffer`; if "blob", returns a `Blob`;
+     * if "dataurlnewwindow", will change the current page's location and return a string
+     * if in Safari and no window object is found; otherwise opens in, and returns, a new `window`
+     * object; if "save", will have the same return as "dataurlnewwindow" if
+     * `navigator.getUserMedia` support is found without `URL.createObjectURL` support; otherwise
+     * returns `undefined` but attempts to save
+     * @property {external:jsPDF.OutputType} outputType
+     * @property {string[]} issues The human-readable localization messages of corresponding `issueCodes`
+     * @property {module:svgcanvas.IssueCode[]} issueCodes
+     * @property {string} exportWindowName
+     */
 
     /**
-* Generates a PDF based on the current image, then calls "exportedPDF" with
-* an object including the string, the data URL, and any issues found.
-* @function module:svgcanvas.SvgCanvas#exportPDF
-* @param {string} [exportWindowName] Will also be used for the download file name here
-* @param {external:jsPDF.OutputType} [outputType="dataurlstring"]
-* @fires module:svgcanvas.SvgCanvas#event:exportedPDF
-* @returns {Promise<module:svgcanvas.PDFExportedResults>} Resolves to {@link module:svgcanvas.PDFExportedResults}
-*/
-    this.exportPDF = async function (
+     * Generates a PDF based on the current image, then calls "exportedPDF" with
+     * an object including the string, the data URL, and any issues found.
+     * @function module:svgcanvas.SvgCanvas#exportPDF
+     * @param {string} [exportWindowName] Will also be used for the download file name here
+     * @param {external:jsPDF.OutputType} [outputType="dataurlstring"]
+     * @fires module:svgcanvas.SvgCanvas#event:exportedPDF
+     * @returns {Promise<module:svgcanvas.PDFExportedResults>} Resolves to {@link module:svgcanvas.PDFExportedResults}
+     */
+    this.exportPDF = async function(
       exportWindowName,
-      outputType = isChrome () ? 'save' : undefined
+      outputType = isChrome() ? 'save' : undefined,
     ) {
       if (!window.jsPDF) {
         // Todo: Switch to `import()` when widely supported and available (also allow customization of path)
-        await importScript ([
+        await importScript([
           // We do not currently have these paths configurable as they are
           //   currently global-only, so not Rolled-up
           'jspdf/underscore-min.js',
@@ -4590,84 +4609,84 @@ function hideCursor () {
           !window.svgEditor ||
           window.svgEditor.modules !== false;
         // Todo: Switch to `import()` when widely supported and available (also allow customization of path)
-        await importScript (curConfig.jspdfPath + 'jspdf.plugin.svgToPdf.js', {
+        await importScript(curConfig.jspdfPath + 'jspdf.plugin.svgToPdf.js', {
           type: modularVersion ? 'module' : 'text/javascript',
         });
         // await importModule('jspdf/jspdf.plugin.svgToPdf.js');
       }
 
-      const res = getResolution ();
+      const res = getResolution();
       const orientation = res.w > res.h ? 'landscape' : 'portrait';
       const unit = 'pt'; // curConfig.baseUnit; // We could use baseUnit, but that is presumably not intended for export purposes
 
       // Todo: Give options to use predefined jsPDF formats like "a4", etc. from pull-down (with option to keep customizable)
-      const doc = jsPDF ({
+      const doc = jsPDF({
         orientation,
         unit,
         format: [res.w, res.h],
         // , compressPdf: true
       });
-      const docTitle = getDocumentTitle ();
-      doc.setProperties ({
+      const docTitle = getDocumentTitle();
+      doc.setProperties({
         title: docTitle /* ,
     subject: '',
     author: '',
     keywords: '',
     creator: '' */,
       });
-      const {issues, issueCodes} = getIssues ();
-      const svg = this.svgCanvasToString ();
-      doc.addSVG (svg, 0, 0);
+      const { issues, issueCodes } = getIssues();
+      const svg = this.svgCanvasToString();
+      doc.addSVG(svg, 0, 0);
 
       // doc.output('save'); // Works to open in a new
       //  window; todo: configure this and other export
       //  options to optionally work in this manner as
       //  opposed to opening a new tab
       outputType = outputType || 'dataurlstring';
-      const obj = {svg, issues, issueCodes, exportWindowName, outputType};
-      obj.output = doc.output (
+      const obj = { svg, issues, issueCodes, exportWindowName, outputType };
+      obj.output = doc.output(
         outputType,
-        outputType === 'save' ? exportWindowName || 'svg.pdf' : undefined
+        outputType === 'save' ? exportWindowName || 'svg.pdf' : undefined,
       );
-      call ('exportedPDF', obj);
+      call('exportedPDF', obj);
       return obj;
     };
 
     /**
-* Returns the current drawing as raw SVG XML text.
-* @function module:svgcanvas.SvgCanvas#getSvgString
-* @returns {string} The current drawing as raw SVG XML text.
-*/
-    this.getSvgString = function () {
+     * Returns the current drawing as raw SVG XML text.
+     * @function module:svgcanvas.SvgCanvas#getSvgString
+     * @returns {string} The current drawing as raw SVG XML text.
+     */
+    this.getSvgString = function() {
       saveOptions.apply = false;
-      return this.svgCanvasToString ();
+      return this.svgCanvasToString();
     };
 
     /**
-* This function determines whether to use a nonce in the prefix, when
-* generating IDs for future documents in SVG-Edit.
-* If you're controlling SVG-Edit externally, and want randomized IDs, call
-* this BEFORE calling `svgCanvas.setSvgString`.
-* @function module:svgcanvas.SvgCanvas#randomizeIds
-* @param {boolean} [enableRandomization] If true, adds a nonce to the prefix. Thus
-* `svgCanvas.randomizeIds() <==> svgCanvas.randomizeIds(true)`
-* @returns {void}
-*/
-    this.randomizeIds = function (enableRandomization) {
+     * This function determines whether to use a nonce in the prefix, when
+     * generating IDs for future documents in SVG-Edit.
+     * If you're controlling SVG-Edit externally, and want randomized IDs, call
+     * this BEFORE calling `svgCanvas.setSvgString`.
+     * @function module:svgcanvas.SvgCanvas#randomizeIds
+     * @param {boolean} [enableRandomization] If true, adds a nonce to the prefix. Thus
+     * `svgCanvas.randomizeIds() <==> svgCanvas.randomizeIds(true)`
+     * @returns {void}
+     */
+    this.randomizeIds = function(enableRandomization) {
       if (arguments.length > 0 && enableRandomization === false) {
-        draw.randomizeIds (false, getCurrentDrawing ());
+        draw.randomizeIds(false, getCurrentDrawing());
       } else {
-        draw.randomizeIds (true, getCurrentDrawing ());
+        draw.randomizeIds(true, getCurrentDrawing());
       }
     };
 
     /**
-* Ensure each element has a unique ID.
-* @function module:svgcanvas.SvgCanvas#uniquifyElems
-* @param {Element} g - The parent element of the tree to give unique IDs
-* @returns {void}
-*/
-    const uniquifyElems = (this.uniquifyElems = function (g) {
+     * Ensure each element has a unique ID.
+     * @function module:svgcanvas.SvgCanvas#uniquifyElems
+     * @param {Element} g - The parent element of the tree to give unique IDs
+     * @returns {void}
+     */
+    const uniquifyElems = (this.uniquifyElems = function(g) {
       const ids = {};
       // TODO: Handle markers and connectors. These are not yet re-identified properly
       // as their referring elements do not get remapped.
@@ -4687,7 +4706,7 @@ function hideCursor () {
         'use',
       ];
 
-      walkTree (g, function (n) {
+      walkTree(g, function(n) {
         // if it's an element node
         if (n.nodeType === 1) {
           // and the element has an ID
@@ -4695,40 +4714,40 @@ function hideCursor () {
             // and we haven't tracked this ID yet
             if (!(n.id in ids)) {
               // add this id to our map
-              ids[n.id] = {elem: null, attrs: [], hrefs: []};
+              ids[n.id] = { elem: null, attrs: [], hrefs: [] };
             }
             ids[n.id].elem = n;
           }
 
           // now search for all attributes on this element that might refer
           // to other elements
-          $.each (refAttrs, function (i, attr) {
-            const attrnode = n.getAttributeNode (attr);
+          $.each(refAttrs, function(i, attr) {
+            const attrnode = n.getAttributeNode(attr);
             if (attrnode) {
               // the incoming file has been sanitized, so we should be able to safely just strip off the leading #
-              const url = getUrlFromAttr (attrnode.value),
-                refid = url ? url.substr (1) : null;
+              const url = getUrlFromAttr(attrnode.value),
+                refid = url ? url.substr(1) : null;
               if (refid) {
                 if (!(refid in ids)) {
                   // add this id to our map
-                  ids[refid] = {elem: null, attrs: [], hrefs: []};
+                  ids[refid] = { elem: null, attrs: [], hrefs: [] };
                 }
-                ids[refid].attrs.push (attrnode);
+                ids[refid].attrs.push(attrnode);
               }
             }
           });
 
           // check xlink:href now
-          const href = getHref (n);
+          const href = getHref(n);
           // TODO: what if an <image> or <a> element refers to an element internally?
-          if (href && refElems.includes (n.nodeName)) {
-            const refid = href.substr (1);
+          if (href && refElems.includes(n.nodeName)) {
+            const refid = href.substr(1);
             if (refid) {
               if (!(refid in ids)) {
                 // add this id to our map
-                ids[refid] = {elem: null, attrs: [], hrefs: []};
+                ids[refid] = { elem: null, attrs: [], hrefs: [] };
               }
-              ids[refid].hrefs.push (n);
+              ids[refid].hrefs.push(n);
             }
           }
         }
@@ -4739,19 +4758,19 @@ function hideCursor () {
         if (!oldid) {
           continue;
         }
-        const {elem} = ids[oldid];
+        const { elem } = ids[oldid];
         if (elem) {
-          const newid = getNextId ();
+          const newid = getNextId();
 
           // assign element its new id
           elem.id = newid;
 
           // remap all url() attributes
-          const {attrs} = ids[oldid];
+          const { attrs } = ids[oldid];
           let j = attrs.length;
           while (j--) {
             const attr = attrs[j];
-            attr.ownerElement.setAttribute (attr.name, 'url(#' + newid + ')');
+            attr.ownerElement.setAttribute(attr.name, 'url(#' + newid + ')');
           }
 
           // remap all href attributes
@@ -4759,66 +4778,70 @@ function hideCursor () {
           let k = hreffers.length;
           while (k--) {
             const hreffer = hreffers[k];
-            setHref (hreffer, '#' + newid);
+            setHref(hreffer, '#' + newid);
           }
         }
       }
     });
 
     /**
-* Assigns reference data for each use element.
-* @function module:svgcanvas.SvgCanvas#setUseData
-* @param {Element} parent
-* @returns {void}
-*/
-    const setUseData = (this.setUseData = function (parent) {
-      let elems = $ (parent);
+     * Assigns reference data for each use element.
+     * @function module:svgcanvas.SvgCanvas#setUseData
+     * @param {Element} parent
+     * @returns {void}
+     */
+    const setUseData = (this.setUseData = function(parent) {
+      let elems = $(parent);
 
       if (parent.tagName !== 'use') {
-        elems = elems.find ('use');
+        elems = elems.find('use');
       }
 
-      elems.each (function () {
-        const id = getHref (this).substr (1);
-        const refElem = getElem (id);
+      elems.each(function() {
+        const id = getHref(this).substr(1);
+        const refElem = getElem(id);
         if (!refElem) {
           return;
         }
-        $ (this).data ('ref', refElem);
+        $(this).data('ref', refElem);
         if (refElem.tagName === 'symbol' || refElem.tagName === 'svg') {
-          $ (this).data ('symbol', refElem).data ('ref', refElem);
+          $(this)
+            .data('symbol', refElem)
+            .data('ref', refElem);
         }
       });
     });
 
     /**
-* Converts gradients from userSpaceOnUse to objectBoundingBox.
-* @function module:svgcanvas.SvgCanvas#convertGradients
-* @param {Element} elem
-* @returns {void}
-*/
-    const convertGradients = (this.convertGradients = function (elem) {
-      let elems = $ (elem).find ('linearGradient, radialGradient');
-      if (!elems.length && isWebkit ()) {
+     * Converts gradients from userSpaceOnUse to objectBoundingBox.
+     * @function module:svgcanvas.SvgCanvas#convertGradients
+     * @param {Element} elem
+     * @returns {void}
+     */
+    const convertGradients = (this.convertGradients = function(elem) {
+      let elems = $(elem).find('linearGradient, radialGradient');
+      if (!elems.length && isWebkit()) {
         // Bug in webkit prevents regular *Gradient selector search
-        elems = $ (elem).find ('*').filter (function () {
-          return this.tagName.includes ('Gradient');
-        });
+        elems = $(elem)
+          .find('*')
+          .filter(function() {
+            return this.tagName.includes('Gradient');
+          });
       }
 
-      elems.each (function () {
+      elems.each(function() {
         const grad = this; // eslint-disable-line consistent-this
-        if ($ (grad).attr ('gradientUnits') === 'userSpaceOnUse') {
+        if ($(grad).attr('gradientUnits') === 'userSpaceOnUse') {
           // TODO: Support more than one element with this ref by duplicating parent grad
-          const fillStrokeElems = $ (svgcontent).find (
-            '[fill="url(#' + grad.id + ')"],[stroke="url(#' + grad.id + ')"]'
+          const fillStrokeElems = $(svgcontent).find(
+            '[fill="url(#' + grad.id + ')"],[stroke="url(#' + grad.id + ')"]',
           );
           if (!fillStrokeElems.length) {
             return;
           }
 
           // get object's bounding box
-          const bb = utilsGetBBox (fillStrokeElems[0]);
+          const bb = utilsGetBBox(fillStrokeElems[0]);
 
           // This will occur if the element is inside a <defs> or a <symbol>,
           // in which we shouldn't need to convert anyway.
@@ -4827,29 +4850,29 @@ function hideCursor () {
           }
 
           if (grad.tagName === 'linearGradient') {
-            const gCoords = $ (grad).attr (['x1', 'y1', 'x2', 'y2']);
+            const gCoords = $(grad).attr(['x1', 'y1', 'x2', 'y2']);
 
             // If has transform, convert
             const tlist = grad.gradientTransform.baseVal;
             if (tlist && tlist.numberOfItems > 0) {
-              const m = transformListToTransform (tlist).matrix;
-              const pt1 = transformPoint (gCoords.x1, gCoords.y1, m);
-              const pt2 = transformPoint (gCoords.x2, gCoords.y2, m);
+              const m = transformListToTransform(tlist).matrix;
+              const pt1 = transformPoint(gCoords.x1, gCoords.y1, m);
+              const pt2 = transformPoint(gCoords.x2, gCoords.y2, m);
 
               gCoords.x1 = pt1.x;
               gCoords.y1 = pt1.y;
               gCoords.x2 = pt2.x;
               gCoords.y2 = pt2.y;
-              grad.removeAttribute ('gradientTransform');
+              grad.removeAttribute('gradientTransform');
             }
 
-            $ (grad).attr ({
+            $(grad).attr({
               x1: (gCoords.x1 - bb.x) / bb.width,
               y1: (gCoords.y1 - bb.y) / bb.height,
               x2: (gCoords.x2 - bb.x) / bb.width,
               y2: (gCoords.y2 - bb.y) / bb.height,
             });
-            grad.removeAttribute ('gradientUnits');
+            grad.removeAttribute('gradientUnits');
           }
           // else {
           //   Note: radialGradient elements cannot be easily converted
@@ -4876,169 +4899,171 @@ function hideCursor () {
     });
 
     /**
-* Converts selected/given `<use>` or child SVG element to a group.
-* @function module:svgcanvas.SvgCanvas#convertToGroup
-* @param {Element} elem
-* @fires module:svgcanvas.SvgCanvas#event:selected
-* @returns {void}
-*/
-    const convertToGroup = (this.convertToGroup = function (elem) {
+     * Converts selected/given `<use>` or child SVG element to a group.
+     * @function module:svgcanvas.SvgCanvas#convertToGroup
+     * @param {Element} elem
+     * @fires module:svgcanvas.SvgCanvas#event:selected
+     * @returns {void}
+     */
+    const convertToGroup = (this.convertToGroup = function(elem) {
       if (!elem) {
         elem = selectedElements[0];
       }
-      const $elem = $ (elem);
-      const batchCmd = new BatchCommand ();
+      const $elem = $(elem);
+      const batchCmd = new BatchCommand();
       let ts;
 
-      if ($elem.data ('gsvg')) {
+      if ($elem.data('gsvg')) {
         // Use the gsvg as the new group
         const svg = elem.firstChild;
-        const pt = $ (svg).attr (['x', 'y']);
+        const pt = $(svg).attr(['x', 'y']);
 
-        $ (elem.firstChild.firstChild).unwrap ();
-        $ (elem).removeData ('gsvg');
+        $(elem.firstChild.firstChild).unwrap();
+        $(elem).removeData('gsvg');
 
-        const tlist = getTransformList (elem);
-        const xform = svgroot.createSVGTransform ();
-        xform.setTranslate (pt.x, pt.y);
-        tlist.appendItem (xform);
-        recalculateDimensions (elem);
-        call ('selected', [elem]);
-      } else if ($elem.data ('symbol')) {
-        elem = $elem.data ('symbol');
+        const tlist = getTransformList(elem);
+        const xform = svgroot.createSVGTransform();
+        xform.setTranslate(pt.x, pt.y);
+        tlist.appendItem(xform);
+        recalculateDimensions(elem);
+        call('selected', [elem]);
+      } else if ($elem.data('symbol')) {
+        elem = $elem.data('symbol');
 
-        ts = $elem.attr ('transform');
-        const pos = $elem.attr (['x', 'y']);
+        ts = $elem.attr('transform');
+        const pos = $elem.attr(['x', 'y']);
 
-        const vb = elem.getAttribute ('viewBox');
+        const vb = elem.getAttribute('viewBox');
 
         if (vb) {
-          const nums = vb.split (' ');
-          pos.x -= Number (nums[0]);
-          pos.y -= Number (nums[1]);
+          const nums = vb.split(' ');
+          pos.x -= Number(nums[0]);
+          pos.y -= Number(nums[1]);
         }
 
         // Not ideal, but works
         ts += ' translate(' + (pos.x || 0) + ',' + (pos.y || 0) + ')';
 
-        const prev = $elem.prev ();
+        const prev = $elem.prev();
 
         // Remove <use> element
-        batchCmd.addSubCommand (
-          new RemoveElementCommand (
+        batchCmd.addSubCommand(
+          new RemoveElementCommand(
             $elem[0],
             $elem[0].nextSibling,
-            $elem[0].parentNode
-          )
+            $elem[0].parentNode,
+          ),
         );
-        $elem.remove ();
+        $elem.remove();
 
         // See if other elements reference this symbol
-        const hasMore = $ (svgcontent).find ('use:data(symbol)').length;
+        const hasMore = $(svgcontent).find('use:data(symbol)').length;
 
-        const g = svgdoc.createElementNS (NS.SVG, 'g');
+        const g = svgdoc.createElementNS(NS.SVG, 'g');
         const childs = elem.childNodes;
 
         let i;
         for (i = 0; i < childs.length; i++) {
-          g.append (childs[i].cloneNode (true));
+          g.append(childs[i].cloneNode(true));
         }
 
         // Duplicate the gradients for Gecko, since they weren't included in the <symbol>
-        if (isGecko ()) {
-          const dupeGrads = $ (findDefs ())
-            .children ('linearGradient,radialGradient,pattern')
-            .clone ();
-          $ (g).append (dupeGrads);
+        if (isGecko()) {
+          const dupeGrads = $(findDefs())
+            .children('linearGradient,radialGradient,pattern')
+            .clone();
+          $(g).append(dupeGrads);
         }
 
         if (ts) {
-          g.setAttribute ('transform', ts);
+          g.setAttribute('transform', ts);
         }
 
         const parent = elem.parentNode;
 
-        uniquifyElems (g);
+        uniquifyElems(g);
 
         // Put the dupe gradients back into <defs> (after uniquifying them)
-        if (isGecko ()) {
-          $ (findDefs ()).append (
-            $ (g).find ('linearGradient,radialGradient,pattern')
+        if (isGecko()) {
+          $(findDefs()).append(
+            $(g).find('linearGradient,radialGradient,pattern'),
           );
         }
 
         // now give the g itself a new id
-        g.id = getNextId ();
+        g.id = getNextId();
 
-        prev.after (g);
+        prev.after(g);
 
         if (parent) {
           if (!hasMore) {
             // remove symbol/svg element
-            const {nextSibling} = elem;
-            elem.remove ();
-            batchCmd.addSubCommand (
-              new RemoveElementCommand (elem, nextSibling, parent)
+            const { nextSibling } = elem;
+            elem.remove();
+            batchCmd.addSubCommand(
+              new RemoveElementCommand(elem, nextSibling, parent),
             );
           }
-          batchCmd.addSubCommand (new InsertElementCommand (g));
+          batchCmd.addSubCommand(new InsertElementCommand(g));
         }
 
-        setUseData (g);
+        setUseData(g);
 
-        if (isGecko ()) {
-          convertGradients (findDefs ());
+        if (isGecko()) {
+          convertGradients(findDefs());
         } else {
-          convertGradients (g);
+          convertGradients(g);
         }
 
         // recalculate dimensions on the top-level children so that unnecessary transforms
         // are removed
-        walkTreePost (g, function (n) {
+        walkTreePost(g, function(n) {
           try {
-            recalculateDimensions (n);
+            recalculateDimensions(n);
           } catch (e) {
-            console.log (e); // eslint-disable-line no-console
+            console.log(e); // eslint-disable-line no-console
           }
         });
 
         // Give ID for any visible element missing one
-        $ (g).find (visElems).each (function () {
-          if (!this.id) {
-            this.id = getNextId ();
-          }
-        });
+        $(g)
+          .find(visElems)
+          .each(function() {
+            if (!this.id) {
+              this.id = getNextId();
+            }
+          });
 
-        selectOnly ([g]);
+        selectOnly([g]);
 
-        const cm = pushGroupProperties (g, true);
+        const cm = pushGroupProperties(g, true);
         if (cm) {
-          batchCmd.addSubCommand (cm);
+          batchCmd.addSubCommand(cm);
         }
 
-        addCommandToHistory (batchCmd);
+        addCommandToHistory(batchCmd);
       } else {
-        console.log ('Unexpected element to ungroup:', elem); // eslint-disable-line no-console
+        console.log('Unexpected element to ungroup:', elem); // eslint-disable-line no-console
       }
     });
 
     /**
-* This function sets the current drawing as the input SVG XML.
-* @function module:svgcanvas.SvgCanvas#setSvgString
-* @param {string} xmlString - The SVG as XML text.
-* @param {boolean} [preventUndo=false] - Indicates if we want to do the
-* changes without adding them to the undo stack - e.g. for initializing a
-* drawing on page load.
-* @fires module:svgcanvas.SvgCanvas#event:setnonce
-* @fires module:svgcanvas.SvgCanvas#event:unsetnonce
-* @fires module:svgcanvas.SvgCanvas#event:changed
-* @returns {boolean} This function returns `false` if the set was
-*     unsuccessful, `true` otherwise.
-*/
-    this.setSvgString = function (xmlString, preventUndo) {
+     * This function sets the current drawing as the input SVG XML.
+     * @function module:svgcanvas.SvgCanvas#setSvgString
+     * @param {string} xmlString - The SVG as XML text.
+     * @param {boolean} [preventUndo=false] - Indicates if we want to do the
+     * changes without adding them to the undo stack - e.g. for initializing a
+     * drawing on page load.
+     * @fires module:svgcanvas.SvgCanvas#event:setnonce
+     * @fires module:svgcanvas.SvgCanvas#event:unsetnonce
+     * @fires module:svgcanvas.SvgCanvas#event:changed
+     * @returns {boolean} This function returns `false` if the set was
+     *     unsuccessful, `true` otherwise.
+     */
+    this.setSvgString = function(xmlString, preventUndo) {
       try {
         // convert string into XML document
-        const newDoc = text2xml (xmlString);
+        const newDoc = text2xml(xmlString);
         if (
           newDoc.firstElementChild &&
           newDoc.firstElementChild.namespaceURI !== NS.SVG
@@ -5046,95 +5071,95 @@ function hideCursor () {
           return false;
         }
 
-        this.prepareSvg (newDoc);
+        this.prepareSvg(newDoc);
 
-        const batchCmd = new BatchCommand ('Change Source');
+        const batchCmd = new BatchCommand('Change Source');
 
         // remove old svg document
-        const {nextSibling} = svgcontent;
-        const oldzoom = svgroot.removeChild (svgcontent);
-        batchCmd.addSubCommand (
-          new RemoveElementCommand (oldzoom, nextSibling, svgroot)
+        const { nextSibling } = svgcontent;
+        const oldzoom = svgroot.removeChild(svgcontent);
+        batchCmd.addSubCommand(
+          new RemoveElementCommand(oldzoom, nextSibling, svgroot),
         );
 
         // set new svg document
         // If DOM3 adoptNode() available, use it. Otherwise fall back to DOM2 importNode()
         if (svgdoc.adoptNode) {
-          svgcontent = svgdoc.adoptNode (newDoc.documentElement);
+          svgcontent = svgdoc.adoptNode(newDoc.documentElement);
         } else {
-          svgcontent = svgdoc.importNode (newDoc.documentElement, true);
+          svgcontent = svgdoc.importNode(newDoc.documentElement, true);
         }
 
-        svgroot.append (svgcontent);
-        const content = $ (svgcontent);
+        svgroot.append(svgcontent);
+        const content = $(svgcontent);
 
-        canvas.current_drawing_ = new draw.Drawing (svgcontent, idprefix);
+        canvas.current_drawing_ = new draw.Drawing(svgcontent, idprefix);
 
         // retrieve or set the nonce
-        const nonce = getCurrentDrawing ().getNonce ();
+        const nonce = getCurrentDrawing().getNonce();
         if (nonce) {
-          call ('setnonce', nonce);
+          call('setnonce', nonce);
         } else {
-          call ('unsetnonce');
+          call('unsetnonce');
         }
 
         // change image href vals if possible
-        content.find ('image').each (function () {
+        content.find('image').each(function() {
           const image = this; // eslint-disable-line consistent-this
-          preventClickDefault (image);
-          const val = getHref (this);
+          preventClickDefault(image);
+          const val = getHref(this);
           if (val) {
-            if (val.startsWith ('data:')) {
+            if (val.startsWith('data:')) {
               // Check if an SVG-edit data URI
-              const m = val.match (/svgedit_url=(.*?);/);
+              const m = val.match(/svgedit_url=(.*?);/);
               // const m = val.match(/svgedit_url=(?<url>.*?);/);
               if (m) {
-                const url = decodeURIComponent (m[1]);
+                const url = decodeURIComponent(m[1]);
                 // const url = decodeURIComponent(m.groups.url);
-                $ (new Image ())
-                  .load (function () {
-                    image.setAttributeNS (NS.XLINK, 'xlink:href', url);
+                $(new Image())
+                  .load(function() {
+                    image.setAttributeNS(NS.XLINK, 'xlink:href', url);
                   })
-                  .attr ('src', url);
+                  .attr('src', url);
               }
             }
             // Add to encodableImages if it loads
-            canvas.embedImage (val);
+            canvas.embedImage(val);
           }
         });
 
         // Wrap child SVGs in group elements
-        content.find ('svg').each (function () {
+        content.find('svg').each(function() {
           // Skip if it's in a <defs>
-          if ($ (this).closest ('defs').length) {
+          if ($(this).closest('defs').length) {
             return;
           }
 
-          uniquifyElems (this);
+          uniquifyElems(this);
 
           // Check if it already has a gsvg group
           const pa = this.parentNode;
           if (pa.childNodes.length === 1 && pa.nodeName === 'g') {
-            $ (pa).data ('gsvg', this);
-            pa.id = pa.id || getNextId ();
+            $(pa).data('gsvg', this);
+            pa.id = pa.id || getNextId();
           } else {
-            groupSvgElem (this);
+            groupSvgElem(this);
           }
         });
 
         // For Firefox: Put all paint elems in defs
-        if (isGecko ()) {
+        if (isGecko()) {
           content
-            .find ('linearGradient, radialGradient, pattern')
-            .appendTo (findDefs ());
+            .find('linearGradient, radialGradient, pattern')
+            .appendTo(findDefs());
         }
 
         // Set ref element for <use> elements
 
         // TODO: This should also be done if the object is re-added through "redo"
-        setUseData (content);
+        setUseData(content);
 
-        convertGradients (content[0]);
+        convertGradients(content[0]);
 
         const attrs = {
           id: 'svgcontent',
@@ -5144,38 +5169,41 @@ function hideCursor () {
         let percs = false;
 
         // determine proper size
-        if (content.attr ('viewBox')) {
-          const vb = content.attr ('viewBox').split (' ');
+        if (content.attr('viewBox')) {
+          const vb = content.attr('viewBox').split(' ');
           attrs.width = vb[2];
           attrs.height = vb[3];
           // handle content that doesn't have a viewBox
         } else {
-          $.each (['width', 'height'], function (i, dim) {
+          $.each(['width', 'height'], function(i, dim) {
             // Set to 100 if not given
-            const val = content.attr (dim) || '100%';
+            const val = content.attr(dim) || '100%';
 
-            if (String (val).substr (-1) === '%') {
+            if (String(val).substr(-1) === '%') {
               // Use user units if percentage given
               percs = true;
             } else {
-              attrs[dim] = convertToNum (dim, val);
+              attrs[dim] = convertToNum(dim, val);
             }
           });
         }
 
         // identify layers
-        draw.identifyLayers ();
+        draw.identifyLayers();
 
         // Give ID for any visible layer children missing one
-        content.children ().find (visElems).each (function () {
-          if (!this.id) {
-            this.id = getNextId ();
-          }
-        });
+        content
+          .children()
+          .find(visElems)
+          .each(function() {
+            if (!this.id) {
+              this.id = getNextId();
+            }
+          });
 
         // Percentage width/height, so let's base it on visible elements
         if (percs) {
-          const bb = getStrokedBBoxDefaultVisible ();
+          const bb = getStrokedBBoxDefaultVisible();
           attrs.width = bb.width + bb.x;
           attrs.height = bb.height + bb.y;
         }
@@ -5189,28 +5217,28 @@ function hideCursor () {
           attrs.height = 100;
         }
 
-        content.attr (attrs);
+        content.attr(attrs);
         this.contentW = attrs.width;
         this.contentH = attrs.height;
 
-        batchCmd.addSubCommand (new InsertElementCommand (svgcontent));
+        batchCmd.addSubCommand(new InsertElementCommand(svgcontent));
         // update root to the correct size
-        const changes = content.attr (['width', 'height']);
-        batchCmd.addSubCommand (new ChangeElementCommand (svgroot, changes));
+        const changes = content.attr(['width', 'height']);
+        batchCmd.addSubCommand(new ChangeElementCommand(svgroot, changes));
 
         // reset zoom
         currentZoom = 1;
 
         // reset transform lists
-        resetListMap ();
-        clearSelection ();
-        pathModule.clearData ();
-        svgroot.append (selectorManager.selectorParentGroup);
+        resetListMap();
+        clearSelection();
+        pathModule.clearData();
+        svgroot.append(selectorManager.selectorParentGroup);
 
-        if (!preventUndo) addCommandToHistory (batchCmd);
-        call ('changed', [svgcontent]);
+        if (!preventUndo) addCommandToHistory(batchCmd);
+        call('changed', [svgcontent]);
       } catch (e) {
-        console.log (e); // eslint-disable-line no-console
+        console.log(e); // eslint-disable-line no-console
         return false;
       }
 
@@ -5218,67 +5246,67 @@ function hideCursor () {
     };
 
     /**
-* This function imports the input SVG XML as a `<symbol>` in the `<defs>`, then adds a
-* `<use>` to the current layer.
-* @function module:svgcanvas.SvgCanvas#importSvgString
-* @param {string} xmlString - The SVG as XML text.
-* @fires module:svgcanvas.SvgCanvas#event:changed
-* @returns {null|Element} This function returns null if the import was unsuccessful, or the element otherwise.
-* @todo
-* - properly handle if namespace is introduced by imported content (must add to svgcontent
-* and update all prefixes in the imported node)
-* - properly handle recalculating dimensions, `recalculateDimensions()` doesn't handle
-* arbitrary transform lists, but makes some assumptions about how the transform list
-* was obtained
-*/
-    this.importSvgString = function (xmlString) {
+     * This function imports the input SVG XML as a `<symbol>` in the `<defs>`, then adds a
+     * `<use>` to the current layer.
+     * @function module:svgcanvas.SvgCanvas#importSvgString
+     * @param {string} xmlString - The SVG as XML text.
+     * @fires module:svgcanvas.SvgCanvas#event:changed
+     * @returns {null|Element} This function returns null if the import was unsuccessful, or the element otherwise.
+     * @todo
+     * - properly handle if namespace is introduced by imported content (must add to svgcontent
+     * and update all prefixes in the imported node)
+     * - properly handle recalculating dimensions, `recalculateDimensions()` doesn't handle
+     * arbitrary transform lists, but makes some assumptions about how the transform list
+     * was obtained
+     */
+    this.importSvgString = function(xmlString) {
       let j, ts, useEl;
       try {
         // Get unique ID
-        const uid = encode64 (xmlString.length + xmlString).substr (0, 32);
+        const uid = encode64(xmlString.length + xmlString).substr(0, 32);
 
         let useExisting = false;
         // Look for symbol and make sure symbol exists in image
         if (importIds[uid]) {
-          if ($ (importIds[uid].symbol).parents ('#svgroot').length) {
+          if ($(importIds[uid].symbol).parents('#svgroot').length) {
             useExisting = true;
           }
         }
 
-        const batchCmd = new BatchCommand ('Import Image');
+        const batchCmd = new BatchCommand('Import Image');
         let symbol;
         if (useExisting) {
-          ({symbol} = importIds[uid]);
+          ({ symbol } = importIds[uid]);
           ts = importIds[uid].xform;
         } else {
           // convert string into XML document
-          const newDoc = text2xml (xmlString);
+          const newDoc = text2xml(xmlString);
 
-          this.prepareSvg (newDoc);
+          this.prepareSvg(newDoc);
 
           // import new svg document into our document
           let svg;
           // If DOM3 adoptNode() available, use it. Otherwise fall back to DOM2 importNode()
           if (svgdoc.adoptNode) {
-            svg = svgdoc.adoptNode (newDoc.documentElement);
+            svg = svgdoc.adoptNode(newDoc.documentElement);
           } else {
-            svg = svgdoc.importNode (newDoc.documentElement, true);
+            svg = svgdoc.importNode(newDoc.documentElement, true);
           }
 
-          uniquifyElems (svg);
+          uniquifyElems(svg);
 
-          const innerw = convertToNum ('width', svg.getAttribute ('width')),
-            innerh = convertToNum ('height', svg.getAttribute ('height')),
-            innervb = svg.getAttribute ('viewBox'),
+          const innerw = convertToNum('width', svg.getAttribute('width')),
+            innerh = convertToNum('height', svg.getAttribute('height')),
+            innervb = svg.getAttribute('viewBox'),
             // if no explicit viewbox, create one out of the width and height
-            vb = innervb ? innervb.split (' ') : [0, 0, innerw, innerh];
+            vb = innervb ? innervb.split(' ') : [0, 0, innerw, innerh];
           for (j = 0; j < 4; ++j) {
-            vb[j] = Number (vb[j]);
+            vb[j] = Number(vb[j]);
           }
 
           // TODO: properly handle preserveAspectRatio
           const // canvasw = +svgcontent.getAttribute('width'),
-          canvash = Number (svgcontent.getAttribute ('height'));
+            canvash = Number(svgcontent.getAttribute('height'));
           // imported content should be 1/3 of the canvas on its largest dimension
 
           if (innerh > innerw) {
@@ -5290,28 +5318,28 @@ function hideCursor () {
           // Hack to make recalculateDimensions understand how to scale
           ts = 'translate(0) ' + ts + ' translate(0)';
 
-          symbol = svgdoc.createElementNS (NS.SVG, 'symbol');
-          const defs = findDefs ();
+          symbol = svgdoc.createElementNS(NS.SVG, 'symbol');
+          const defs = findDefs();
 
-          if (isGecko ()) {
+          if (isGecko()) {
             // Move all gradients into root for Firefox, workaround for this bug:
             // https://bugzilla.mozilla.org/show_bug.cgi?id=353575
             // TODO: Make this properly undo-able.
-            $ (svg)
-              .find ('linearGradient, radialGradient, pattern')
-              .appendTo (defs);
+            $(svg)
+              .find('linearGradient, radialGradient, pattern')
+              .appendTo(defs);
           }
 
           while (svg.firstChild) {
             const first = svg.firstChild;
-            symbol.append (first);
+            symbol.append(first);
           }
           const attrs = svg.attributes;
           for (const attr of attrs) {
             // Ok for `NamedNodeMap`
-            symbol.setAttribute (attr.nodeName, attr.value);
+            symbol.setAttribute(attr.nodeName, attr.value);
           }
-          symbol.id = getNextId ();
+          symbol.id = getNextId();
 
           // Store data
           importIds[uid] = {
@@ -5319,32 +5347,33 @@ function hideCursor () {
             xform: ts,
           };
 
-          findDefs ().append (symbol);
-          batchCmd.addSubCommand (new InsertElementCommand (symbol));
+          findDefs().append(symbol);
+          batchCmd.addSubCommand(new InsertElementCommand(symbol));
         }
 
-        useEl = svgdoc.createElementNS (NS.SVG, 'use');
-        useEl.id = getNextId ();
-        setHref (useEl, '#' + symbol.id);
+        useEl = svgdoc.createElementNS(NS.SVG, 'use');
+        useEl.id = getNextId();
+        setHref(useEl, '#' + symbol.id);
 
-        (currentGroup || getCurrentDrawing ().getCurrentLayer ())
-          .append (useEl);
-        batchCmd.addSubCommand (new InsertElementCommand (useEl));
-        clearSelection ();
+        (currentGroup || getCurrentDrawing().getCurrentLayer()).append(useEl);
+        batchCmd.addSubCommand(new InsertElementCommand(useEl));
+        clearSelection();
 
-        useEl.setAttribute ('transform', ts);
-        recalculateDimensions (useEl);
-        $ (useEl).data ('symbol', symbol).data ('ref', symbol);
-        addToSelection ([useEl]);
+        useEl.setAttribute('transform', ts);
+        recalculateDimensions(useEl);
+        $(useEl)
+          .data('symbol', symbol)
+          .data('ref', symbol);
+        addToSelection([useEl]);
 
         // TODO: Find way to add this in a recalculateDimensions-parsable way
         // if (vb[0] !== 0 || vb[1] !== 0) {
         //   ts = 'translate(' + (-vb[0]) + ',' + (-vb[1]) + ') ' + ts;
         // }
-        addCommandToHistory (batchCmd);
-        call ('changed', [svgcontent]);
+        addCommandToHistory(batchCmd);
+        call('changed', [svgcontent]);
       } catch (e) {
-        console.log (e); // eslint-disable-line no-console
+        console.log(e); // eslint-disable-line no-console
         return null;
       }
 
@@ -5369,19 +5398,19 @@ function hideCursor () {
       leaveContext,
       setContext,
     };
-    Object.entries (dr).forEach (([prop, propVal]) => {
+    Object.entries(dr).forEach(([prop, propVal]) => {
       canvas[prop] = propVal;
     });
-    draw.init (
+    draw.init(
       /**
-  * @implements {module:draw.DrawCanvasInit}
-  */
+       * @implements {module:draw.DrawCanvasInit}
+       */
       {
         pathActions,
-        getCurrentGroup () {
+        getCurrentGroup() {
           return currentGroup;
         },
-        setCurrentGroup (cg) {
+        setCurrentGroup(cg) {
           currentGroup = cg;
         },
         getSelectedElements,
@@ -5393,87 +5422,87 @@ function hideCursor () {
         call,
         addCommandToHistory,
         /**
-     * @fires module:svgcanvas.SvgCanvas#event:changed
-     * @returns {void}
-     */
-        changeSVGContent () {
-          call ('changed', [svgcontent]);
+         * @fires module:svgcanvas.SvgCanvas#event:changed
+         * @returns {void}
+         */
+        changeSVGContent() {
+          call('changed', [svgcontent]);
         },
-      }
+      },
     );
 
     /**
-* Group: Document functions.
-*/
+     * Group: Document functions.
+     */
 
     /**
-* Clears the current document. This is not an undoable action.
-* @function module:svgcanvas.SvgCanvas#clear
-* @fires module:svgcanvas.SvgCanvas#event:cleared
-* @returns {void}
-*/
-    this.clear = function () {
-      pathActions.clear ();
+     * Clears the current document. This is not an undoable action.
+     * @function module:svgcanvas.SvgCanvas#clear
+     * @fires module:svgcanvas.SvgCanvas#event:cleared
+     * @returns {void}
+     */
+    this.clear = function() {
+      pathActions.clear();
 
-      clearSelection ();
+      clearSelection();
 
       // clear the svgcontent node
-      canvas.clearSvgContentElement ();
+      canvas.clearSvgContentElement();
 
       // create new document
-      canvas.current_drawing_ = new draw.Drawing (svgcontent);
+      canvas.current_drawing_ = new draw.Drawing(svgcontent);
 
       // create empty first layer
-      canvas.createLayer ('Layer 1');
+      canvas.createLayer('Layer 1');
 
       // clear the undo stack
-      canvas.undoMgr.resetUndoStack ();
+      canvas.undoMgr.resetUndoStack();
 
       // reset the selector manager
-      selectorManager.initGroup ();
+      selectorManager.initGroup();
 
       // reset the rubber band box
-      rubberBox = selectorManager.getRubberBandBox ();
+      rubberBox = selectorManager.getRubberBandBox();
 
-      call ('cleared');
+      call('cleared');
     };
 
     // Alias function
     this.linkControlPoints = pathActions.linkControlPoints;
 
     /**
-* @function module:svgcanvas.SvgCanvas#getContentElem
-* @returns {Element} The content DOM element
-*/
-    this.getContentElem = function () {
+     * @function module:svgcanvas.SvgCanvas#getContentElem
+     * @returns {Element} The content DOM element
+     */
+    this.getContentElem = function() {
       return svgcontent;
     };
 
     /**
-* @function module:svgcanvas.SvgCanvas#getRootElem
-* @returns {SVGSVGElement} The root DOM element
-*/
-    this.getRootElem = function () {
+     * @function module:svgcanvas.SvgCanvas#getRootElem
+     * @returns {SVGSVGElement} The root DOM element
+     */
+    this.getRootElem = function() {
       return svgroot;
     };
 
     /**
-* @typedef {PlainObject} DimensionsAndZoom
-* @property {Float} w Width
-* @property {Float} h Height
-* @property {Float} zoom Zoom
-*/
+     * @typedef {PlainObject} DimensionsAndZoom
+     * @property {Float} w Width
+     * @property {Float} h Height
+     * @property {Float} zoom Zoom
+     */
 
     /**
-* @function module:svgcanvas.SvgCanvas#getResolution
-* @returns {DimensionsAndZoom} The current dimensions and zoom level in an object
-*/
-    const getResolution = (this.getResolution = function () {
+     * @function module:svgcanvas.SvgCanvas#getResolution
+     * @returns {DimensionsAndZoom} The current dimensions and zoom level in an object
+     */
+    const getResolution = (this.getResolution = function() {
       //    const vb = svgcontent.getAttribute('viewBox').split(' ');
       //    return {w:vb[2], h:vb[3], zoom: currentZoom};
 
-      const w = svgcontent.getAttribute ('width') / currentZoom;
-      const h = svgcontent.getAttribute ('height') / currentZoom;
+      const w = svgcontent.getAttribute('width') / currentZoom;
+      const h = svgcontent.getAttribute('height') / currentZoom;
 
       return {
         w,
@@ -5483,55 +5512,55 @@ function hideCursor () {
     });
 
     /**
-* @function module:svgcanvas.SvgCanvas#getSnapToGrid
-* @returns {boolean} The current snap to grid setting
-*/
-    this.getSnapToGrid = function () {
+     * @function module:svgcanvas.SvgCanvas#getSnapToGrid
+     * @returns {boolean} The current snap to grid setting
+     */
+    this.getSnapToGrid = function() {
       return curConfig.gridSnapping;
     };
 
     /**
-* @function module:svgcanvas.SvgCanvas#getVersion
-* @returns {string} A string which describes the revision number of SvgCanvas.
-*/
-    this.getVersion = function () {
+     * @function module:svgcanvas.SvgCanvas#getVersion
+     * @returns {string} A string which describes the revision number of SvgCanvas.
+     */
+    this.getVersion = function() {
       return 'svgcanvas.js ($Rev$)';
     };
 
     /**
-* Update interface strings with given values.
-* @function module:svgcanvas.SvgCanvas#setUiStrings
-* @param {module:path.uiStrings} strs - Object with strings (see the [locales API]{@link module:locale.LocaleStrings} and the [tutorial]{@tutorial LocaleDocs})
-* @returns {void}
-*/
-    this.setUiStrings = function (strs) {
-      Object.assign (uiStrings, strs.notification);
-      $ = jQueryPluginDBox ($, strs.common);
-      pathModule.setUiStrings (strs);
+     * Update interface strings with given values.
+     * @function module:svgcanvas.SvgCanvas#setUiStrings
+     * @param {module:path.uiStrings} strs - Object with strings (see the [locales API]{@link module:locale.LocaleStrings} and the [tutorial]{@tutorial LocaleDocs})
+     * @returns {void}
+     */
+    this.setUiStrings = function(strs) {
+      Object.assign(uiStrings, strs.notification);
+      $ = jQueryPluginDBox($, strs.common);
+      pathModule.setUiStrings(strs);
     };
 
     /**
-* Update configuration options with given values.
-* @function module:svgcanvas.SvgCanvas#setConfig
-* @param {module:SVGEditor.Config} opts - Object with options
-* @returns {void}
-*/
-    this.setConfig = function (opts) {
-      Object.assign (curConfig, opts);
+     * Update configuration options with given values.
+     * @function module:svgcanvas.SvgCanvas#setConfig
+     * @param {module:SVGEditor.Config} opts - Object with options
+     * @returns {void}
+     */
+    this.setConfig = function(opts) {
+      Object.assign(curConfig, opts);
     };
 
     /**
-* @function module:svgcanvas.SvgCanvas#getTitle
-* @param {Element} [elem]
-* @returns {string|void} the current group/SVG's title contents or
-* `undefined` if no element is passed nd there are no selected elements.
-*/
-    this.getTitle = function (elem) {
+     * @function module:svgcanvas.SvgCanvas#getTitle
+     * @param {Element} [elem]
+     * @returns {string|void} the current group/SVG's title contents or
+     * `undefined` if no element is passed nd there are no selected elements.
+     */
+    this.getTitle = function(elem) {
       elem = elem || selectedElements[0];
       if (!elem) {
         return undefined;
       }
-      elem = $ (elem).data ('gsvg') || $ (elem).data ('symbol') || elem;
+      elem = $(elem).data('gsvg') || $(elem).data('symbol') || elem;
       const childs = elem.childNodes;
       for (const child of childs) {
         if (child.nodeName === 'title') {
@@ -5542,66 +5571,67 @@ function hideCursor () {
     };
 
     /**
-* Sets the group/SVG's title content.
-* @function module:svgcanvas.SvgCanvas#setGroupTitle
-* @param {string} val
-* @todo Combine this with `setDocumentTitle`
-* @returns {void}
-*/
-    this.setGroupTitle = function (val) {
+     * Sets the group/SVG's title content.
+     * @function module:svgcanvas.SvgCanvas#setGroupTitle
+     * @param {string} val
+     * @todo Combine this with `setDocumentTitle`
+     * @returns {void}
+     */
+    this.setGroupTitle = function(val) {
       let elem = selectedElements[0];
-      elem = $ (elem).data ('gsvg') || elem;
+      elem = $(elem).data('gsvg') || elem;
 
-      const ts = $ (elem).children ('title');
+      const ts = $(elem).children('title');
 
-      const batchCmd = new BatchCommand ('Set Label');
+      const batchCmd = new BatchCommand('Set Label');
 
       let title;
       if (!val.length) {
         // Remove title element
         const tsNextSibling = ts.nextSibling;
-        batchCmd.addSubCommand (
-          new RemoveElementCommand (ts[0], tsNextSibling, elem)
+        batchCmd.addSubCommand(
+          new RemoveElementCommand(ts[0], tsNextSibling, elem),
         );
-        ts.remove ();
+        ts.remove();
       } else if (ts.length) {
         // Change title contents
         title = ts[0];
-        batchCmd.addSubCommand (
-          new ChangeElementCommand (title, {'#text': title.textContent})
+        batchCmd.addSubCommand(
+          new ChangeElementCommand(title, { '#text': title.textContent }),
         );
         title.textContent = val;
       } else {
         // Add title element
-        title = svgdoc.createElementNS (NS.SVG, 'title');
+        title = svgdoc.createElementNS(NS.SVG, 'title');
         title.textContent = val;
-        $ (elem).prepend (title);
-        batchCmd.addSubCommand (new InsertElementCommand (title));
+        $(elem).prepend(title);
+        batchCmd.addSubCommand(new InsertElementCommand(title));
       }
 
-      addCommandToHistory (batchCmd);
+      addCommandToHistory(batchCmd);
     };
 
     /**
-* @function module:svgcanvas.SvgCanvas#getDocumentTitle
-* @returns {string|void} The current document title or an empty string if not found
-*/
-    const getDocumentTitle = (this.getDocumentTitle = function () {
-      return canvas.getTitle (svgcontent);
+     * @function module:svgcanvas.SvgCanvas#getDocumentTitle
+     * @returns {string|void} The current document title or an empty string if not found
+     */
+    const getDocumentTitle = (this.getDocumentTitle = function() {
+      return canvas.getTitle(svgcontent);
     });
 
     /**
-* Adds/updates a title element for the document with the given name.
-* This is an undoable action.
-* @function module:svgcanvas.SvgCanvas#setDocumentTitle
-* @param {string} newTitle - String with the new title
-* @returns {void}
-*/
-    this.setDocumentTitle = function (newTitle) {
+     * Adds/updates a title element for the document with the given name.
+     * This is an undoable action.
+     * @function module:svgcanvas.SvgCanvas#setDocumentTitle
+     * @param {string} newTitle - String with the new title
+     * @returns {void}
+     */
+    this.setDocumentTitle = function(newTitle) {
       const childs = svgcontent.childNodes;
-      let docTitle = false, oldTitle = '';
+      let docTitle = false,
+        oldTitle = '';
 
-      const batchCmd = new BatchCommand ('Change Image Title');
+      const batchCmd = new BatchCommand('Change Image Title');
 
       for (const child of childs) {
         if (child.nodeName === 'title') {
@@ -5611,8 +5641,8 @@ function hideCursor () {
         }
       }
       if (!docTitle) {
-        docTitle = svgdoc.createElementNS (NS.SVG, 'title');
-        svgcontent.insertBefore (docTitle, svgcontent.firstChild);
+        docTitle = svgdoc.createElementNS(NS.SVG, 'title');
+        svgcontent.insertBefore(docTitle, svgcontent.firstChild);
         // svgcontent.firstChild.before(docTitle); // Ok to replace above with this?
       }
 
@@ -5620,150 +5650,151 @@ function hideCursor () {
         docTitle.textContent = newTitle;
       } else {
         // No title given, so element is not necessary
-        docTitle.remove ();
+        docTitle.remove();
       }
-      batchCmd.addSubCommand (
-        new ChangeElementCommand (docTitle, {'#text': oldTitle})
+      batchCmd.addSubCommand(
+        new ChangeElementCommand(docTitle, { '#text': oldTitle }),
       );
-      addCommandToHistory (batchCmd);
+      addCommandToHistory(batchCmd);
     };
 
     /**
-* Returns the editor's namespace URL, optionally adding it to the root element.
-* @function module:svgcanvas.SvgCanvas#getEditorNS
-* @param {boolean} [add] - Indicates whether or not to add the namespace value
-* @returns {string} The editor's namespace URL
-*/
-    this.getEditorNS = function (add) {
+     * Returns the editor's namespace URL, optionally adding it to the root element.
+     * @function module:svgcanvas.SvgCanvas#getEditorNS
+     * @param {boolean} [add] - Indicates whether or not to add the namespace value
+     * @returns {string} The editor's namespace URL
+     */
+    this.getEditorNS = function(add) {
       if (add) {
-        svgcontent.setAttribute ('xmlns:se', NS.SE);
+        svgcontent.setAttribute('xmlns:se', NS.SE);
       }
       return NS.SE;
     };
 
     /**
-* Changes the document's dimensions to the given size.
-* @function module:svgcanvas.SvgCanvas#setResolution
-* @param {Float|"fit"} x - Number with the width of the new dimensions in user units.
-* Can also be the string "fit" to indicate "fit to content".
-* @param {Float} y - Number with the height of the new dimensions in user units.
-* @fires module:svgcanvas.SvgCanvas#event:changed
-* @returns {boolean} Indicates if resolution change was successful.
-* It will fail on "fit to content" option with no content to fit to.
-*/
-    this.setResolution = function (x, y) {
-      const res = getResolution ();
-      const {w, h} = res;
+     * Changes the document's dimensions to the given size.
+     * @function module:svgcanvas.SvgCanvas#setResolution
+     * @param {Float|"fit"} x - Number with the width of the new dimensions in user units.
+     * Can also be the string "fit" to indicate "fit to content".
+     * @param {Float} y - Number with the height of the new dimensions in user units.
+     * @fires module:svgcanvas.SvgCanvas#event:changed
+     * @returns {boolean} Indicates if resolution change was successful.
+     * It will fail on "fit to content" option with no content to fit to.
+     */
+    this.setResolution = function(x, y) {
+      const res = getResolution();
+      const { w, h } = res;
       let batchCmd;
 
       if (x === 'fit') {
         // Get bounding box
-        const bbox = getStrokedBBoxDefaultVisible ();
+        const bbox = getStrokedBBoxDefaultVisible();
 
         if (bbox) {
-          batchCmd = new BatchCommand ('Fit Canvas to Content');
-          const visEls = getVisibleElements ();
-          addToSelection (visEls);
-          const dx = [], dy = [];
-          $.each (visEls, function (i, item) {
-            dx.push (bbox.x * -1);
-            dy.push (bbox.y * -1);
+          batchCmd = new BatchCommand('Fit Canvas to Content');
+          const visEls = getVisibleElements();
+          addToSelection(visEls);
+          const dx = [],
+            dy = [];
+          $.each(visEls, function(i, item) {
+            dx.push(bbox.x * -1);
+            dy.push(bbox.y * -1);
           });
 
-          const cmd = canvas.moveSelectedElements (dx, dy, true);
-          batchCmd.addSubCommand (cmd);
-          clearSelection ();
+          const cmd = canvas.moveSelectedElements(dx, dy, true);
+          batchCmd.addSubCommand(cmd);
+          clearSelection();
 
-          x = Math.round (bbox.width);
-          y = Math.round (bbox.height);
+          x = Math.round(bbox.width);
+          y = Math.round(bbox.height);
         } else {
           return false;
         }
       }
       if (x !== w || y !== h) {
         if (!batchCmd) {
-          batchCmd = new BatchCommand ('Change Image Dimensions');
+          batchCmd = new BatchCommand('Change Image Dimensions');
         }
 
-        x = convertToNum ('width', x);
-        y = convertToNum ('height', y);
+        x = convertToNum('width', x);
+        y = convertToNum('height', y);
 
-        svgcontent.setAttribute ('width', x);
-        svgcontent.setAttribute ('height', y);
+        svgcontent.setAttribute('width', x);
+        svgcontent.setAttribute('height', y);
 
         this.contentW = x;
         this.contentH = y;
-        batchCmd.addSubCommand (
-          new ChangeElementCommand (svgcontent, {width: w, height: h})
+        batchCmd.addSubCommand(
+          new ChangeElementCommand(svgcontent, { width: w, height: h }),
         );
 
-        svgcontent.setAttribute (
+        svgcontent.setAttribute(
           'viewBox',
-          [0, 0, x / currentZoom, y / currentZoom].join (' ')
+          [0, 0, x / currentZoom, y / currentZoom].join(' '),
         );
-        batchCmd.addSubCommand (
-          new ChangeElementCommand (svgcontent, {
-            viewBox: ['0 0', w, h].join (' '),
-          })
+        batchCmd.addSubCommand(
+          new ChangeElementCommand(svgcontent, {
+            viewBox: ['0 0', w, h].join(' '),
+          }),
         );
 
-        addCommandToHistory (batchCmd);
-        call ('changed', [svgcontent]);
+        addCommandToHistory(batchCmd);
+        call('changed', [svgcontent]);
       }
       return true;
     };
 
     /**
-* @typedef {module:jQueryAttr.Attributes} module:svgcanvas.ElementPositionInCanvas
-* @property {Float} x
-* @property {Float} y
-*/
+     * @typedef {module:jQueryAttr.Attributes} module:svgcanvas.ElementPositionInCanvas
+     * @property {Float} x
+     * @property {Float} y
+     */
 
     /**
-* @function module:svgcanvas.SvgCanvas#getOffset
-* @returns {module:svgcanvas.ElementPositionInCanvas} An object with `x`, `y` values indicating the svgcontent element's
-* position in the editor's canvas.
-*/
-    this.getOffset = function () {
-      return $ (svgcontent).attr (['x', 'y']);
+     * @function module:svgcanvas.SvgCanvas#getOffset
+     * @returns {module:svgcanvas.ElementPositionInCanvas} An object with `x`, `y` values indicating the svgcontent element's
+     * position in the editor's canvas.
+     */
+    this.getOffset = function() {
+      return $(svgcontent).attr(['x', 'y']);
     };
 
     /**
- * @typedef {PlainObject} module:svgcanvas.ZoomAndBBox
- * @property {Float} zoom
- * @property {module:utilities.BBoxObject} bbox
- */
+     * @typedef {PlainObject} module:svgcanvas.ZoomAndBBox
+     * @property {Float} zoom
+     * @property {module:utilities.BBoxObject} bbox
+     */
     /**
-* Sets the zoom level on the canvas-side based on the given value.
-* @function module:svgcanvas.SvgCanvas#setBBoxZoom
-* @param {"selection"|"canvas"|"content"|"layer"|module:SVGEditor.BBoxObjectWithFactor} val - Bounding box object to zoom to or string indicating zoom option. Note: the object value type is defined in `svg-editor.js`
-* @param {Integer} editorW - The editor's workarea box's width
-* @param {Integer} editorH - The editor's workarea box's height
-* @returns {module:svgcanvas.ZoomAndBBox|void}
-*/
-    this.setBBoxZoom = function (val, editorW, editorH) {
+     * Sets the zoom level on the canvas-side based on the given value.
+     * @function module:svgcanvas.SvgCanvas#setBBoxZoom
+     * @param {"selection"|"canvas"|"content"|"layer"|module:SVGEditor.BBoxObjectWithFactor} val - Bounding box object to zoom to or string indicating zoom option. Note: the object value type is defined in `svg-editor.js`
+     * @param {Integer} editorW - The editor's workarea box's width
+     * @param {Integer} editorH - The editor's workarea box's height
+     * @returns {module:svgcanvas.ZoomAndBBox|void}
+     */
+    this.setBBoxZoom = function(val, editorW, editorH) {
       let spacer = 0.85;
       let bb;
-      const calcZoom = function (bb) {
+      const calcZoom = function(bb) {
         // eslint-disable-line no-shadow
         if (!bb) {
           return false;
         }
-        const wZoom = Math.round (editorW / bb.width * 100 * spacer) / 100;
-        const hZoom = Math.round (editorH / bb.height * 100 * spacer) / 100;
-        const zoom = Math.min (wZoom, hZoom);
-        canvas.setZoom (zoom);
-        return {zoom, bbox: bb};
+        const wZoom = Math.round((editorW / bb.width) * 100 * spacer) / 100;
+        const hZoom = Math.round((editorH / bb.height) * 100 * spacer) / 100;
+        const zoom = Math.min(wZoom, hZoom);
+        canvas.setZoom(zoom);
+        return { zoom, bbox: bb };
       };
 
       if (typeof val === 'object') {
         bb = val;
         if (bb.width === 0 || bb.height === 0) {
           const newzoom = bb.zoom ? bb.zoom : currentZoom * bb.factor;
-          canvas.setZoom (newzoom);
-          return {zoom: currentZoom, bbox: bb};
+          canvas.setZoom(newzoom);
+          return { zoom: currentZoom, bbox: bb };
         }
-        return calcZoom (bb);
+        return calcZoom(bb);
       }
 
       switch (val) {
@@ -5771,195 +5802,195 @@ function hideCursor () {
           if (!selectedElements[0]) {
             return undefined;
           }
-          const selectedElems = $.map (selectedElements, function (n) {
+          const selectedElems = $.map(selectedElements, function(n) {
             if (n) {
               return n;
             }
             return undefined;
           });
-          bb = getStrokedBBoxDefaultVisible (selectedElems);
+          bb = getStrokedBBoxDefaultVisible(selectedElems);
           break;
         }
         case 'canvas': {
-          const res = getResolution ();
+          const res = getResolution();
           spacer = 0.95;
-          bb = {width: res.w, height: res.h, x: 0, y: 0};
+          bb = { width: res.w, height: res.h, x: 0, y: 0 };
           break;
         }
         case 'content':
-          bb = getStrokedBBoxDefaultVisible ();
+          bb = getStrokedBBoxDefaultVisible();
           break;
         case 'layer':
-          bb = getStrokedBBoxDefaultVisible (
-            getVisibleElements (getCurrentDrawing ().getCurrentLayer ())
+          bb = getStrokedBBoxDefaultVisible(
+            getVisibleElements(getCurrentDrawing().getCurrentLayer()),
           );
           break;
         default:
           return undefined;
       }
-      return calcZoom (bb);
+      return calcZoom(bb);
     };
 
     /**
-* The zoom level has changed. Supplies the new zoom level as a number (not percentage).
-* @event module:svgcanvas.SvgCanvas#event:ext_zoomChanged
-* @type {Float}
-*/
+     * The zoom level has changed. Supplies the new zoom level as a number (not percentage).
+     * @event module:svgcanvas.SvgCanvas#event:ext_zoomChanged
+     * @type {Float}
+     */
     /**
-* The bottom panel was updated.
-* @event module:svgcanvas.SvgCanvas#event:ext_toolButtonStateUpdate
-* @type {PlainObject}
-* @property {boolean} nofill Indicates fill is disabled
-* @property {boolean} nostroke Indicates stroke is disabled
-*/
+     * The bottom panel was updated.
+     * @event module:svgcanvas.SvgCanvas#event:ext_toolButtonStateUpdate
+     * @type {PlainObject}
+     * @property {boolean} nofill Indicates fill is disabled
+     * @property {boolean} nostroke Indicates stroke is disabled
+     */
     /**
-* The element selection has changed (elements were added/removed from selection).
-* @event module:svgcanvas.SvgCanvas#event:ext_selectedChanged
-* @type {PlainObject}
-* @property {Element[]} elems Array of the newly selected elements
-* @property {Element|null} selectedElement The single selected element
-* @property {boolean} multiselected Indicates whether one or more elements were selected
-*/
+     * The element selection has changed (elements were added/removed from selection).
+     * @event module:svgcanvas.SvgCanvas#event:ext_selectedChanged
+     * @type {PlainObject}
+     * @property {Element[]} elems Array of the newly selected elements
+     * @property {Element|null} selectedElement The single selected element
+     * @property {boolean} multiselected Indicates whether one or more elements were selected
+     */
     /**
-* Called when part of element is in process of changing, generally on
-* mousemove actions like rotate, move, etc.
-* @event module:svgcanvas.SvgCanvas#event:ext_elementTransition
-* @type {PlainObject}
-* @property {Element[]} elems Array of transitioning elements
-*/
+     * Called when part of element is in process of changing, generally on
+     * mousemove actions like rotate, move, etc.
+     * @event module:svgcanvas.SvgCanvas#event:ext_elementTransition
+     * @type {PlainObject}
+     * @property {Element[]} elems Array of transitioning elements
+     */
     /**
-* One or more elements were changed.
-* @event module:svgcanvas.SvgCanvas#event:ext_elementChanged
-* @type {PlainObject}
-* @property {Element[]} elems Array of the affected elements
-*/
+     * One or more elements were changed.
+     * @event module:svgcanvas.SvgCanvas#event:ext_elementChanged
+     * @type {PlainObject}
+     * @property {Element[]} elems Array of the affected elements
+     */
     /**
-* Invoked as soon as the locale is ready.
-* @event module:svgcanvas.SvgCanvas#event:ext_langReady
-* @type {PlainObject}
-* @property {string} lang The two-letter language code
-* @property {module:SVGEditor.uiStrings} uiStrings
-* @property {module:SVGEditor~ImportLocale} importLocale
-*/
+     * Invoked as soon as the locale is ready.
+     * @event module:svgcanvas.SvgCanvas#event:ext_langReady
+     * @type {PlainObject}
+     * @property {string} lang The two-letter language code
+     * @property {module:SVGEditor.uiStrings} uiStrings
+     * @property {module:SVGEditor~ImportLocale} importLocale
+     */
     /**
-* The language was changed. Two-letter code of the new language.
-* @event module:svgcanvas.SvgCanvas#event:ext_langChanged
-* @type {string}
-*/
+     * The language was changed. Two-letter code of the new language.
+     * @event module:svgcanvas.SvgCanvas#event:ext_langChanged
+     * @type {string}
+     */
     /**
-* Means for an extension to add locale data. The two-letter language code.
-* @event module:svgcanvas.SvgCanvas#event:ext_addLangData
-* @type {PlainObject}
-* @property {string} lang
-* @property {module:SVGEditor~ImportLocale} importLocale
-*/
+     * Means for an extension to add locale data. The two-letter language code.
+     * @event module:svgcanvas.SvgCanvas#event:ext_addLangData
+     * @type {PlainObject}
+     * @property {string} lang
+     * @property {module:SVGEditor~ImportLocale} importLocale
+     */
     /**
- * Called when new image is created.
- * @event module:svgcanvas.SvgCanvas#event:ext_onNewDocument
- * @type {void}
- */
+     * Called when new image is created.
+     * @event module:svgcanvas.SvgCanvas#event:ext_onNewDocument
+     * @type {void}
+     */
     /**
- * Called when sidepanel is resized or toggled.
- * @event module:svgcanvas.SvgCanvas#event:ext_workareaResized
- * @type {void}
-*/
+     * Called when sidepanel is resized or toggled.
+     * @event module:svgcanvas.SvgCanvas#event:ext_workareaResized
+     * @type {void}
+     */
     /**
- * Called upon addition of the extension, or, if svgicons are set,
- * after the icons are ready when extension SVG icons have loaded.
- * @event module:svgcanvas.SvgCanvas#event:ext_callback
- * @type {void}
-*/
+     * Called upon addition of the extension, or, if svgicons are set,
+     * after the icons are ready when extension SVG icons have loaded.
+     * @event module:svgcanvas.SvgCanvas#event:ext_callback
+     * @type {void}
+     */
 
     /**
-* Sets the zoom to the given level.
-* @function module:svgcanvas.SvgCanvas#setZoom
-* @param {Float} zoomLevel - Float indicating the zoom level to change to
-* @fires module:svgcanvas.SvgCanvas#event:ext_zoomChanged
-* @returns {void}
-*/
-    this.setZoom = function (zoomLevel) {
-      const res = getResolution ();
-      svgcontent.setAttribute (
+     * Sets the zoom to the given level.
+     * @function module:svgcanvas.SvgCanvas#setZoom
+     * @param {Float} zoomLevel - Float indicating the zoom level to change to
+     * @fires module:svgcanvas.SvgCanvas#event:ext_zoomChanged
+     * @returns {void}
+     */
+    this.setZoom = function(zoomLevel) {
+      const res = getResolution();
+      svgcontent.setAttribute(
         'viewBox',
-        '0 0 ' + res.w / zoomLevel + ' ' + res.h / zoomLevel
+        '0 0 ' + res.w / zoomLevel + ' ' + res.h / zoomLevel,
       );
       currentZoom = zoomLevel;
-      $.each (selectedElements, function (i, elem) {
+      $.each(selectedElements, function(i, elem) {
         if (!elem) {
           return;
         }
-        selectorManager.requestSelector (elem).resize ();
+        selectorManager.requestSelector(elem).resize();
       });
-      pathActions.zoomChange ();
-      runExtensions (
+      pathActions.zoomChange();
+      runExtensions(
         'zoomChanged',
-        /** @type {module:svgcanvas.SvgCanvas#event:ext_zoomChanged} */ zoomLevel
+        /** @type {module:svgcanvas.SvgCanvas#event:ext_zoomChanged} */ zoomLevel,
       );
     };
 
     /**
-* @function module:svgcanvas.SvgCanvas#getMode
-* @returns {string} The current editor mode string
-*/
-    this.getMode = function () {
+     * @function module:svgcanvas.SvgCanvas#getMode
+     * @returns {string} The current editor mode string
+     */
+    this.getMode = function() {
       return currentMode;
     };
 
     /**
-* Sets the editor's mode to the given string.
-* @function module:svgcanvas.SvgCanvas#setMode
-* @param {string} name - String with the new mode to change to
-* @returns {void}
-*/
-    this.setMode = function (name) {
-      pathActions.clear (true);
-      textActions.clear ();
-      curProperties = selectedElements[0] &&
-        selectedElements[0].nodeName === 'text'
-        ? curText
-        : curShape;
+     * Sets the editor's mode to the given string.
+     * @function module:svgcanvas.SvgCanvas#setMode
+     * @param {string} name - String with the new mode to change to
+     * @returns {void}
+     */
+    this.setMode = function(name) {
+      pathActions.clear(true);
+      textActions.clear();
+      curProperties =
+        selectedElements[0] && selectedElements[0].nodeName === 'text'
+          ? curText
+          : curShape;
       currentMode = name;
     };
 
     /**
-* Group: Element Styling.
-*/
+     * Group: Element Styling.
+     */
 
     /**
-* @typedef {PlainObject} module:svgcanvas.PaintOptions
-* @property {"solidColor"} type
-*/
+     * @typedef {PlainObject} module:svgcanvas.PaintOptions
+     * @property {"solidColor"} type
+     */
 
     /**
-* @function module:svgcanvas.SvgCanvas#getColor
-* @param {string} type
-* @returns {string|module:svgcanvas.PaintOptions|Float|module:jGraduate~Paint} The current fill/stroke option
-*/
-    this.getColor = function (type) {
+     * @function module:svgcanvas.SvgCanvas#getColor
+     * @param {string} type
+     * @returns {string|module:svgcanvas.PaintOptions|Float|module:jGraduate~Paint} The current fill/stroke option
+     */
+    this.getColor = function(type) {
       return curProperties[type];
     };
 
     /**
-* Change the current stroke/fill color/gradient value.
-* @function module:svgcanvas.SvgCanvas#setColor
-* @param {string} type - String indicating fill or stroke
-* @param {string} val - The value to set the stroke attribute to
-* @param {boolean} preventUndo - Boolean indicating whether or not this should be an undoable option
-* @fires module:svgcanvas.SvgCanvas#event:changed
-* @returns {void}
-*/
-    this.setColor = function (type, val, preventUndo) {
+     * Change the current stroke/fill color/gradient value.
+     * @function module:svgcanvas.SvgCanvas#setColor
+     * @param {string} type - String indicating fill or stroke
+     * @param {string} val - The value to set the stroke attribute to
+     * @param {boolean} preventUndo - Boolean indicating whether or not this should be an undoable option
+     * @fires module:svgcanvas.SvgCanvas#event:changed
+     * @returns {void}
+     */
+    this.setColor = function(type, val, preventUndo) {
       curShape[type] = val;
-      curProperties[type + '_paint'] = {type: 'solidColor'};
+      curProperties[type + '_paint'] = { type: 'solidColor' };
       const elems = [];
       /**
-   *
-   * @param {Element} e
-   * @returns {void}
-   */
-      function addNonG (e) {
+       *
+       * @param {Element} e
+       * @returns {void}
+       */
+      function addNonG(e) {
         if (e.nodeName !== 'g') {
-          elems.push (e);
+          elems.push(e);
         }
       }
       let i = selectedElements.length;
@@ -5967,33 +5998,33 @@ function hideCursor () {
         const elem = selectedElements[i];
         if (elem) {
           if (elem.tagName === 'g') {
-            walkTree (elem, addNonG);
+            walkTree(elem, addNonG);
           } else if (type === 'fill') {
             if (elem.tagName !== 'polyline' && elem.tagName !== 'line') {
-              elems.push (elem);
+              elems.push(elem);
             }
           } else {
-            elems.push (elem);
+            elems.push(elem);
           }
         }
       }
       if (elems.length > 0) {
         if (!preventUndo) {
-          changeSelectedAttribute (type, val, elems);
-          call ('changed', elems);
+          changeSelectedAttribute(type, val, elems);
+          call('changed', elems);
         } else {
-          changeSelectedAttributeNoUndo (type, val, elems);
+          changeSelectedAttributeNoUndo(type, val, elems);
         }
       }
     };
 
     /**
-* Apply the current gradient to selected element's fill or stroke.
-* @function module:svgcanvas.SvgCanvas#setGradient
-* @param {"fill"|"stroke"} type - String indicating "fill" or "stroke" to apply to an element
-* @returns {void}
-*/
-    const setGradient = (this.setGradient = function (type) {
+     * Apply the current gradient to selected element's fill or stroke.
+     * @function module:svgcanvas.SvgCanvas#setGradient
+     * @param {"fill"|"stroke"} type - String indicating "fill" or "stroke" to apply to an element
+     * @returns {void}
+     */
+    const setGradient = (this.setGradient = function(type) {
       if (
         !curProperties[type + '_paint'] ||
         curProperties[type + '_paint'].type === 'solidColor'
@@ -6002,49 +6033,49 @@ function hideCursor () {
       }
       let grad = canvas[type + 'Grad'];
       // find out if there is a duplicate gradient already in the defs
-      const duplicateGrad = findDuplicateGradient (grad);
-      const defs = findDefs ();
+      const duplicateGrad = findDuplicateGradient(grad);
+      const defs = findDefs();
       // no duplicate found, so import gradient into defs
       if (!duplicateGrad) {
         // const origGrad = grad;
-        grad = defs.appendChild (svgdoc.importNode (grad, true));
+        grad = defs.appendChild(svgdoc.importNode(grad, true));
         // get next id and set it on the grad
-        grad.id = getNextId ();
+        grad.id = getNextId();
       } else {
         // use existing gradient
         grad = duplicateGrad;
       }
-      canvas.setColor (type, 'url(#' + grad.id + ')');
+      canvas.setColor(type, 'url(#' + grad.id + ')');
     });
 
     /**
-* Check if exact gradient already exists.
-* @function module:svgcanvas~findDuplicateGradient
-* @param {SVGGradientElement} grad - The gradient DOM element to compare to others
-* @returns {SVGGradientElement} The existing gradient if found, `null` if not
-*/
-    const findDuplicateGradient = function (grad) {
-      const defs = findDefs ();
-      const existingGrads = $ (defs).find ('linearGradient, radialGradient');
+     * Check if exact gradient already exists.
+     * @function module:svgcanvas~findDuplicateGradient
+     * @param {SVGGradientElement} grad - The gradient DOM element to compare to others
+     * @returns {SVGGradientElement} The existing gradient if found, `null` if not
+     */
+    const findDuplicateGradient = function(grad) {
+      const defs = findDefs();
+      const existingGrads = $(defs).find('linearGradient, radialGradient');
       let i = existingGrads.length;
       const radAttrs = ['r', 'cx', 'cy', 'fx', 'fy'];
       while (i--) {
         const og = existingGrads[i];
         if (grad.tagName === 'linearGradient') {
           if (
-            grad.getAttribute ('x1') !== og.getAttribute ('x1') ||
-            grad.getAttribute ('y1') !== og.getAttribute ('y1') ||
-            grad.getAttribute ('x2') !== og.getAttribute ('x2') ||
-            grad.getAttribute ('y2') !== og.getAttribute ('y2')
+            grad.getAttribute('x1') !== og.getAttribute('x1') ||
+            grad.getAttribute('y1') !== og.getAttribute('y1') ||
+            grad.getAttribute('x2') !== og.getAttribute('x2') ||
+            grad.getAttribute('y2') !== og.getAttribute('y2')
           ) {
             continue;
           }
         } else {
-          const gradAttrs = $ (grad).attr (radAttrs);
-          const ogAttrs = $ (og).attr (radAttrs);
+          const gradAttrs = $(grad).attr(radAttrs);
+          const ogAttrs = $(og).attr(radAttrs);
 
           let diff = false;
-          $.each (radAttrs, function (j, attr) {
+          $.each(radAttrs, function(j, attr) {
             if (gradAttrs[attr] !== ogAttrs[attr]) {
               diff = true;
             }
@@ -6056,8 +6087,8 @@ function hideCursor () {
         }
 
         // else could be a duplicate, iterate through stops
-        const stops = grad.getElementsByTagNameNS (NS.SVG, 'stop');
-        const ostops = og.getElementsByTagNameNS (NS.SVG, 'stop');
+        const stops = grad.getElementsByTagNameNS(NS.SVG, 'stop');
+        const ostops = og.getElementsByTagNameNS(NS.SVG, 'stop');
 
         if (stops.length !== ostops.length) {
           continue;
@@ -6069,11 +6100,10 @@ function hideCursor () {
           const ostop = ostops[j];
 
           if (
-            stop.getAttribute ('offset') !== ostop.getAttribute ('offset') ||
-            stop.getAttribute ('stop-opacity') !==
-              ostop.getAttribute ('stop-opacity') ||
-            stop.getAttribute ('stop-color') !==
-              ostop.getAttribute ('stop-color')
+            stop.getAttribute('offset') !== ostop.getAttribute('offset') ||
+            stop.getAttribute('stop-opacity') !==
+              ostop.getAttribute('stop-opacity') ||
+            stop.getAttribute('stop-color') !== ostop.getAttribute('stop-color')
           ) {
             break;
           }
@@ -6088,84 +6118,84 @@ function hideCursor () {
     };
 
     /**
-* Set a color/gradient to a fill/stroke.
-* @function module:svgcanvas.SvgCanvas#setPaint
-* @param {"fill"|"stroke"} type - String with "fill" or "stroke"
-* @param {module:jGraduate.jGraduatePaintOptions} paint - The jGraduate paint object to apply
-* @returns {void}
-*/
-    this.setPaint = function (type, paint) {
+     * Set a color/gradient to a fill/stroke.
+     * @function module:svgcanvas.SvgCanvas#setPaint
+     * @param {"fill"|"stroke"} type - String with "fill" or "stroke"
+     * @param {module:jGraduate.jGraduatePaintOptions} paint - The jGraduate paint object to apply
+     * @returns {void}
+     */
+    this.setPaint = function(type, paint) {
       // make a copy
-      const p = new $.jGraduate.Paint (paint);
-      this.setPaintOpacity (type, p.alpha / 100, true);
+      const p = new $.jGraduate.Paint(paint);
+      this.setPaintOpacity(type, p.alpha / 100, true);
 
       // now set the current paint object
       curProperties[type + '_paint'] = p;
       switch (p.type) {
         case 'solidColor':
-          this.setColor (
+          this.setColor(
             type,
-            p.solidColor !== 'none' ? '#' + p.solidColor : 'none'
+            p.solidColor !== 'none' ? '#' + p.solidColor : 'none',
           );
           break;
         case 'linearGradient':
         case 'radialGradient':
           canvas[type + 'Grad'] = p[p.type];
-          setGradient (type);
+          setGradient(type);
           break;
       }
     };
 
     /**
-* @function module:svgcanvas.SvgCanvas#setStrokePaint
-* @param {module:jGraduate~Paint} paint
-* @returns {void}
-*/
-    this.setStrokePaint = function (paint) {
-      this.setPaint ('stroke', paint);
+     * @function module:svgcanvas.SvgCanvas#setStrokePaint
+     * @param {module:jGraduate~Paint} paint
+     * @returns {void}
+     */
+    this.setStrokePaint = function(paint) {
+      this.setPaint('stroke', paint);
     };
 
     /**
-* @function module:svgcanvas.SvgCanvas#setFillPaint
-* @param {module:jGraduate~Paint} paint
-* @returns {void}
-*/
-    this.setFillPaint = function (paint) {
-      this.setPaint ('fill', paint);
+     * @function module:svgcanvas.SvgCanvas#setFillPaint
+     * @param {module:jGraduate~Paint} paint
+     * @returns {void}
+     */
+    this.setFillPaint = function(paint) {
+      this.setPaint('fill', paint);
     };
 
     /**
-* @function module:svgcanvas.SvgCanvas#getStrokeWidth
-* @returns {Float|string} The current stroke-width value
-*/
-    this.getStrokeWidth = function () {
+     * @function module:svgcanvas.SvgCanvas#getStrokeWidth
+     * @returns {Float|string} The current stroke-width value
+     */
+    this.getStrokeWidth = function() {
       return curProperties.stroke_width;
     };
 
     /**
-* Sets the stroke width for the current selected elements.
-* When attempting to set a line's width to 0, this changes it to 1 instead.
-* @function module:svgcanvas.SvgCanvas#setStrokeWidth
-* @param {Float} val - A Float indicating the new stroke width value
-* @fires module:svgcanvas.SvgCanvas#event:changed
-* @returns {void}
-*/
-    this.setStrokeWidth = function (val) {
-      if (val === 0 && ['line', 'path'].includes (currentMode)) {
-        canvas.setStrokeWidth (1);
+     * Sets the stroke width for the current selected elements.
+     * When attempting to set a line's width to 0, this changes it to 1 instead.
+     * @function module:svgcanvas.SvgCanvas#setStrokeWidth
+     * @param {Float} val - A Float indicating the new stroke width value
+     * @fires module:svgcanvas.SvgCanvas#event:changed
+     * @returns {void}
+     */
+    this.setStrokeWidth = function(val) {
+      if (val === 0 && ['line', 'path'].includes(currentMode)) {
+        canvas.setStrokeWidth(1);
         return;
       }
       curProperties.stroke_width = val;
 
       const elems = [];
       /**
-   *
-   * @param {Element} e
-   * @returns {void}
-   */
-      function addNonG (e) {
+       *
+       * @param {Element} e
+       * @returns {void}
+       */
+      function addNonG(e) {
         if (e.nodeName !== 'g') {
-          elems.push (e);
+          elems.push(e);
         }
       }
       let i = selectedElements.length;
@@ -6173,28 +6203,28 @@ function hideCursor () {
         const elem = selectedElements[i];
         if (elem) {
           if (elem.tagName === 'g') {
-            walkTree (elem, addNonG);
+            walkTree(elem, addNonG);
           } else {
-            elems.push (elem);
+            elems.push(elem);
           }
         }
       }
       if (elems.length > 0) {
-        changeSelectedAttribute ('stroke-width', val, elems);
-        call ('changed', selectedElements);
+        changeSelectedAttribute('stroke-width', val, elems);
+        call('changed', selectedElements);
       }
     };
 
     /**
-* Set the given stroke-related attribute the given value for selected elements.
-* @function module:svgcanvas.SvgCanvas#setStrokeAttr
-* @param {string} attr - String with the attribute name
-* @param {string|Float} val - String or number with the attribute value
-* @fires module:svgcanvas.SvgCanvas#event:changed
-* @returns {void}
-*/
-    this.setStrokeAttr = function (attr, val) {
-      curShape[attr.replace ('-', '_')] = val;
+     * Set the given stroke-related attribute the given value for selected elements.
+     * @function module:svgcanvas.SvgCanvas#setStrokeAttr
+     * @param {string} attr - String with the attribute name
+     * @param {string|Float} val - String or number with the attribute value
+     * @fires module:svgcanvas.SvgCanvas#event:changed
+     * @returns {void}
+     */
+    this.setStrokeAttr = function(attr, val) {
+      curShape[attr.replace('-', '_')] = val;
       const elems = [];
 
       let i = selectedElements.length;
@@ -6202,192 +6232,190 @@ function hideCursor () {
         const elem = selectedElements[i];
         if (elem) {
           if (elem.tagName === 'g') {
-            walkTree (elem, function (e) {
+            walkTree(elem, function(e) {
               if (e.nodeName !== 'g') {
-                elems.push (e);
+                elems.push(e);
               }
             });
           } else {
-            elems.push (elem);
+            elems.push(elem);
           }
         }
       }
       if (elems.length > 0) {
-        changeSelectedAttribute (attr, val, elems);
-        call ('changed', selectedElements);
+        changeSelectedAttribute(attr, val, elems);
+        call('changed', selectedElements);
       }
     };
 
     /**
-* @typedef {PlainObject} module:svgcanvas.StyleOptions
-* @property {string} fill
-* @property {Float} fill_opacity
-* @property {string} stroke
-* @property {Float} stroke_width
-* @property {string} stroke_dasharray
-* @property {string} stroke_linejoin
-* @property {string} stroke_linecap
-* @property {Float} stroke_opacity
-* @property {Float} opacity
-*/
+     * @typedef {PlainObject} module:svgcanvas.StyleOptions
+     * @property {string} fill
+     * @property {Float} fill_opacity
+     * @property {string} stroke
+     * @property {Float} stroke_width
+     * @property {string} stroke_dasharray
+     * @property {string} stroke_linejoin
+     * @property {string} stroke_linecap
+     * @property {Float} stroke_opacity
+     * @property {Float} opacity
+     */
 
     /**
-* @function module:svgcanvas.SvgCanvas#getStyle
-* @returns {module:svgcanvas.StyleOptions} current style options
-*/
-    this.getStyle = function () {
+     * @function module:svgcanvas.SvgCanvas#getStyle
+     * @returns {module:svgcanvas.StyleOptions} current style options
+     */
+    this.getStyle = function() {
       return curShape;
     };
 
     /**
-* @function module:svgcanvas.SvgCanvas#getOpacity
-* @returns {Float} the current opacity
-*/
+     * @function module:svgcanvas.SvgCanvas#getOpacity
+     * @returns {Float} the current opacity
+     */
     this.getOpacity = getOpacity;
 
     /**
-* Sets the given opacity on the current selected elements.
-* @function module:svgcanvas.SvgCanvas#setOpacity
-* @param {string} val
-* @returns {void}
-*/
-    this.setOpacity = function (val) {
+     * Sets the given opacity on the current selected elements.
+     * @function module:svgcanvas.SvgCanvas#setOpacity
+     * @param {string} val
+     * @returns {void}
+     */
+    this.setOpacity = function(val) {
       curShape.opacity = val;
-      changeSelectedAttribute ('opacity', val);
+      changeSelectedAttribute('opacity', val);
     };
 
     /**
-* @function module:svgcanvas.SvgCanvas#getFillOpacity
-* @returns {Float} the current fill opacity
-*/
-    this.getFillOpacity = function () {
+     * @function module:svgcanvas.SvgCanvas#getFillOpacity
+     * @returns {Float} the current fill opacity
+     */
+    this.getFillOpacity = function() {
       return curShape.fill_opacity;
     };
 
     /**
-* @function module:svgcanvas.SvgCanvas#getStrokeOpacity
-* @returns {string} the current stroke opacity
-*/
-    this.getStrokeOpacity = function () {
+     * @function module:svgcanvas.SvgCanvas#getStrokeOpacity
+     * @returns {string} the current stroke opacity
+     */
+    this.getStrokeOpacity = function() {
       return curShape.stroke_opacity;
     };
 
     /**
-* Sets the current fill/stroke opacity.
-* @function module:svgcanvas.SvgCanvas#setPaintOpacity
-* @param {string} type - String with "fill" or "stroke"
-* @param {Float} val - Float with the new opacity value
-* @param {boolean} preventUndo - Indicates whether or not this should be an undoable action
-* @returns {void}
-*/
-    this.setPaintOpacity = function (type, val, preventUndo) {
+     * Sets the current fill/stroke opacity.
+     * @function module:svgcanvas.SvgCanvas#setPaintOpacity
+     * @param {string} type - String with "fill" or "stroke"
+     * @param {Float} val - Float with the new opacity value
+     * @param {boolean} preventUndo - Indicates whether or not this should be an undoable action
+     * @returns {void}
+     */
+    this.setPaintOpacity = function(type, val, preventUndo) {
       curShape[type + '_opacity'] = val;
       if (!preventUndo) {
-        changeSelectedAttribute (type + '-opacity', val);
+        changeSelectedAttribute(type + '-opacity', val);
       } else {
-        changeSelectedAttributeNoUndo (type + '-opacity', val);
+        changeSelectedAttributeNoUndo(type + '-opacity', val);
       }
     };
 
     /**
-* Gets the current fill/stroke opacity.
-* @function module:svgcanvas.SvgCanvas#getPaintOpacity
-* @param {"fill"|"stroke"} type - String with "fill" or "stroke"
-* @returns {Float} Fill/stroke opacity
-*/
-    this.getPaintOpacity = function (type) {
-      return type === 'fill'
-        ? this.getFillOpacity ()
-        : this.getStrokeOpacity ();
+     * Gets the current fill/stroke opacity.
+     * @function module:svgcanvas.SvgCanvas#getPaintOpacity
+     * @param {"fill"|"stroke"} type - String with "fill" or "stroke"
+     * @returns {Float} Fill/stroke opacity
+     */
+    this.getPaintOpacity = function(type) {
+      return type === 'fill' ? this.getFillOpacity() : this.getStrokeOpacity();
     };
 
     /**
-* Gets the `stdDeviation` blur value of the given element.
-* @function module:svgcanvas.SvgCanvas#getBlur
-* @param {Element} elem - The element to check the blur value for
-* @returns {string} stdDeviation blur attribute value
-*/
-    this.getBlur = function (elem) {
+     * Gets the `stdDeviation` blur value of the given element.
+     * @function module:svgcanvas.SvgCanvas#getBlur
+     * @param {Element} elem - The element to check the blur value for
+     * @returns {string} stdDeviation blur attribute value
+     */
+    this.getBlur = function(elem) {
       let val = 0;
       // const elem = selectedElements[0];
 
       if (elem) {
-        const filterUrl = elem.getAttribute ('filter');
+        const filterUrl = elem.getAttribute('filter');
         if (filterUrl) {
-          const blur = getElem (elem.id + '_blur');
+          const blur = getElem(elem.id + '_blur');
           if (blur) {
-            val = blur.firstChild.getAttribute ('stdDeviation');
+            val = blur.firstChild.getAttribute('stdDeviation');
           }
         }
       }
       return val;
     };
 
-    (function () {
+    (function() {
       let curCommand = null;
       let filter = null;
       let filterHidden = false;
 
       /**
-* Sets the `stdDeviation` blur value on the selected element without being undoable.
-* @function module:svgcanvas.SvgCanvas#setBlurNoUndo
-* @param {Float} val - The new `stdDeviation` value
-* @returns {void}
-*/
-      canvas.setBlurNoUndo = function (val) {
+       * Sets the `stdDeviation` blur value on the selected element without being undoable.
+       * @function module:svgcanvas.SvgCanvas#setBlurNoUndo
+       * @param {Float} val - The new `stdDeviation` value
+       * @returns {void}
+       */
+      canvas.setBlurNoUndo = function(val) {
         if (!filter) {
-          canvas.setBlur (val);
+          canvas.setBlur(val);
           return;
         }
         if (val === 0) {
           // Don't change the StdDev, as that will hide the element.
           // Instead, just remove the value for "filter"
-          changeSelectedAttributeNoUndo ('filter', '');
+          changeSelectedAttributeNoUndo('filter', '');
           filterHidden = true;
         } else {
           const elem = selectedElements[0];
           if (filterHidden) {
-            changeSelectedAttributeNoUndo (
+            changeSelectedAttributeNoUndo(
               'filter',
-              'url(#' + elem.id + '_blur)'
+              'url(#' + elem.id + '_blur)',
             );
           }
-          if (isWebkit ()) {
+          if (isWebkit()) {
             // console.log('e', elem); // eslint-disable-line no-console
-            elem.removeAttribute ('filter');
-            elem.setAttribute ('filter', 'url(#' + elem.id + '_blur)');
+            elem.removeAttribute('filter');
+            elem.setAttribute('filter', 'url(#' + elem.id + '_blur)');
           }
-          changeSelectedAttributeNoUndo ('stdDeviation', val, [
+          changeSelectedAttributeNoUndo('stdDeviation', val, [
             filter.firstChild,
           ]);
-          canvas.setBlurOffsets (filter, val);
+          canvas.setBlurOffsets(filter, val);
         }
       };
 
       /**
- *
- * @returns {void}
- */
-      function finishChange () {
-        const bCmd = canvas.undoMgr.finishUndoableChange ();
-        curCommand.addSubCommand (bCmd);
-        addCommandToHistory (curCommand);
+       *
+       * @returns {void}
+       */
+      function finishChange() {
+        const bCmd = canvas.undoMgr.finishUndoableChange();
+        curCommand.addSubCommand(bCmd);
+        addCommandToHistory(curCommand);
         curCommand = null;
         filter = null;
       }
 
       /**
-* Sets the `x`, `y`, `width`, `height` values of the filter element in order to
-* make the blur not be clipped. Removes them if not neeeded.
-* @function module:svgcanvas.SvgCanvas#setBlurOffsets
-* @param {Element} filterElem - The filter DOM element to update
-* @param {Float} stdDev - The standard deviation value on which to base the offset size
-* @returns {void}
-*/
-      canvas.setBlurOffsets = function (filterElem, stdDev) {
+       * Sets the `x`, `y`, `width`, `height` values of the filter element in order to
+       * make the blur not be clipped. Removes them if not neeeded.
+       * @function module:svgcanvas.SvgCanvas#setBlurOffsets
+       * @param {Element} filterElem - The filter DOM element to update
+       * @param {Float} stdDev - The standard deviation value on which to base the offset size
+       * @returns {void}
+       */
+      canvas.setBlurOffsets = function(filterElem, stdDev) {
         if (stdDev > 3) {
           // TODO: Create algorithm here where size is based on expected blur
-          assignAttributes (
+          assignAttributes(
             filterElem,
             {
               x: '-50%',
@@ -6395,38 +6423,38 @@ function hideCursor () {
               width: '200%',
               height: '200%',
             },
-            100
+            100,
           );
           // Removing these attributes hides text in Chrome (see Issue 579)
-        } else if (!isWebkit ()) {
-          filterElem.removeAttribute ('x');
-          filterElem.removeAttribute ('y');
-          filterElem.removeAttribute ('width');
-          filterElem.removeAttribute ('height');
+        } else if (!isWebkit()) {
+          filterElem.removeAttribute('x');
+          filterElem.removeAttribute('y');
+          filterElem.removeAttribute('width');
+          filterElem.removeAttribute('height');
         }
       };
 
       /**
-* Adds/updates the blur filter to the selected element.
-* @function module:svgcanvas.SvgCanvas#setBlur
-* @param {Float} val - Float with the new `stdDeviation` blur value
-* @param {boolean} complete - Whether or not the action should be completed (to add to the undo manager)
-* @returns {void}
-*/
-      canvas.setBlur = function (val, complete) {
+       * Adds/updates the blur filter to the selected element.
+       * @function module:svgcanvas.SvgCanvas#setBlur
+       * @param {Float} val - Float with the new `stdDeviation` blur value
+       * @param {boolean} complete - Whether or not the action should be completed (to add to the undo manager)
+       * @returns {void}
+       */
+      canvas.setBlur = function(val, complete) {
         if (curCommand) {
-          finishChange ();
+          finishChange();
           return;
         }
 
         // Looks for associated blur, creates one if not found
         const elem = selectedElements[0];
         const elemId = elem.id;
-        filter = getElem (elemId + '_blur');
+        filter = getElem(elemId + '_blur');
 
         val -= 0;
 
-        const batchCmd = new BatchCommand ();
+        const batchCmd = new BatchCommand();
 
         // Blur found!
         if (filter) {
@@ -6435,7 +6463,7 @@ function hideCursor () {
           }
         } else {
           // Not found, so create
-          const newblur = addSVGElementFromJson ({
+          const newblur = addSVGElementFromJson({
             element: 'feGaussianBlur',
             attr: {
               in: 'SourceGraphic',
@@ -6443,269 +6471,269 @@ function hideCursor () {
             },
           });
 
-          filter = addSVGElementFromJson ({
+          filter = addSVGElementFromJson({
             element: 'filter',
             attr: {
               id: elemId + '_blur',
             },
           });
 
-          filter.append (newblur);
-          findDefs ().append (filter);
+          filter.append(newblur);
+          findDefs().append(filter);
 
-          batchCmd.addSubCommand (new InsertElementCommand (filter));
+          batchCmd.addSubCommand(new InsertElementCommand(filter));
         }
 
-        const changes = {filter: elem.getAttribute ('filter')};
+        const changes = { filter: elem.getAttribute('filter') };
 
         if (val === 0) {
-          elem.removeAttribute ('filter');
-          batchCmd.addSubCommand (new ChangeElementCommand (elem, changes));
+          elem.removeAttribute('filter');
+          batchCmd.addSubCommand(new ChangeElementCommand(elem, changes));
           return;
         }
 
-        changeSelectedAttribute ('filter', 'url(#' + elemId + '_blur)');
-        batchCmd.addSubCommand (new ChangeElementCommand (elem, changes));
-        canvas.setBlurOffsets (filter, val);
+        changeSelectedAttribute('filter', 'url(#' + elemId + '_blur)');
+        batchCmd.addSubCommand(new ChangeElementCommand(elem, changes));
+        canvas.setBlurOffsets(filter, val);
 
         curCommand = batchCmd;
-        canvas.undoMgr.beginUndoableChange ('stdDeviation', [
+        canvas.undoMgr.beginUndoableChange('stdDeviation', [
           filter ? filter.firstChild : null,
         ]);
         if (complete) {
-          canvas.setBlurNoUndo (val);
-          finishChange ();
+          canvas.setBlurNoUndo(val);
+          finishChange();
         }
       };
-    }) ();
+    })();
 
     /**
-* Check whether selected element is bold or not.
-* @function module:svgcanvas.SvgCanvas#getBold
-* @returns {boolean} Indicates whether or not element is bold
-*/
-    this.getBold = function () {
+     * Check whether selected element is bold or not.
+     * @function module:svgcanvas.SvgCanvas#getBold
+     * @returns {boolean} Indicates whether or not element is bold
+     */
+    this.getBold = function() {
       // should only have one element selected
       const selected = selectedElements[0];
       if (
-        !isNullish (selected) &&
+        !isNullish(selected) &&
         selected.tagName === 'text' &&
-        isNullish (selectedElements[1])
+        isNullish(selectedElements[1])
       ) {
-        return selected.getAttribute ('font-weight') === 'bold';
+        return selected.getAttribute('font-weight') === 'bold';
       }
       return false;
     };
 
     /**
-* Make the selected element bold or normal.
-* @function module:svgcanvas.SvgCanvas#setBold
-* @param {boolean} b - Indicates bold (`true`) or normal (`false`)
-* @returns {void}
-*/
-    this.setBold = function (b) {
+     * Make the selected element bold or normal.
+     * @function module:svgcanvas.SvgCanvas#setBold
+     * @param {boolean} b - Indicates bold (`true`) or normal (`false`)
+     * @returns {void}
+     */
+    this.setBold = function(b) {
       const selected = selectedElements[0];
       if (
-        !isNullish (selected) &&
+        !isNullish(selected) &&
         selected.tagName === 'text' &&
-        isNullish (selectedElements[1])
+        isNullish(selectedElements[1])
       ) {
-        changeSelectedAttribute ('font-weight', b ? 'bold' : 'normal');
+        changeSelectedAttribute('font-weight', b ? 'bold' : 'normal');
       }
       if (!selectedElements[0].textContent) {
-        textActions.setCursor ();
+        textActions.setCursor();
       }
     };
 
     /**
-* Check whether selected element is in italics or not.
-* @function module:svgcanvas.SvgCanvas#getItalic
-* @returns {boolean} Indicates whether or not element is italic
-*/
-    this.getItalic = function () {
+     * Check whether selected element is in italics or not.
+     * @function module:svgcanvas.SvgCanvas#getItalic
+     * @returns {boolean} Indicates whether or not element is italic
+     */
+    this.getItalic = function() {
       const selected = selectedElements[0];
       if (
-        !isNullish (selected) &&
+        !isNullish(selected) &&
         selected.tagName === 'text' &&
-        isNullish (selectedElements[1])
+        isNullish(selectedElements[1])
       ) {
-        return selected.getAttribute ('font-style') === 'italic';
+        return selected.getAttribute('font-style') === 'italic';
       }
       return false;
     };
 
     /**
-* Make the selected element italic or normal.
-* @function module:svgcanvas.SvgCanvas#setItalic
-* @param {boolean} i - Indicates italic (`true`) or normal (`false`)
-* @returns {void}
-*/
-    this.setItalic = function (i) {
+     * Make the selected element italic or normal.
+     * @function module:svgcanvas.SvgCanvas#setItalic
+     * @param {boolean} i - Indicates italic (`true`) or normal (`false`)
+     * @returns {void}
+     */
+    this.setItalic = function(i) {
       const selected = selectedElements[0];
       if (
-        !isNullish (selected) &&
+        !isNullish(selected) &&
         selected.tagName === 'text' &&
-        isNullish (selectedElements[1])
+        isNullish(selectedElements[1])
       ) {
-        changeSelectedAttribute ('font-style', i ? 'italic' : 'normal');
+        changeSelectedAttribute('font-style', i ? 'italic' : 'normal');
       }
       if (!selectedElements[0].textContent) {
-        textActions.setCursor ();
+        textActions.setCursor();
       }
     };
 
     /**
-* @function module:svgcanvas.SvgCanvas#getFontFamily
-* @returns {string} The current font family
-*/
-    this.getFontFamily = function () {
+     * @function module:svgcanvas.SvgCanvas#getFontFamily
+     * @returns {string} The current font family
+     */
+    this.getFontFamily = function() {
       return curText.font_family;
     };
 
     /**
-* Set the new font family.
-* @function module:svgcanvas.SvgCanvas#setFontFamily
-* @param {string} val - String with the new font family
-* @returns {void}
-*/
-    this.setFontFamily = function (val) {
+     * Set the new font family.
+     * @function module:svgcanvas.SvgCanvas#setFontFamily
+     * @param {string} val - String with the new font family
+     * @returns {void}
+     */
+    this.setFontFamily = function(val) {
       curText.font_family = val;
-      changeSelectedAttribute ('font-family', val);
+      changeSelectedAttribute('font-family', val);
       if (selectedElements[0] && !selectedElements[0].textContent) {
-        textActions.setCursor ();
+        textActions.setCursor();
       }
     };
 
     /**
-* Set the new font color.
-* @function module:svgcanvas.SvgCanvas#setFontColor
-* @param {string} val - String with the new font color
-* @returns {void}
-*/
-    this.setFontColor = function (val) {
+     * Set the new font color.
+     * @function module:svgcanvas.SvgCanvas#setFontColor
+     * @param {string} val - String with the new font color
+     * @returns {void}
+     */
+    this.setFontColor = function(val) {
       curText.fill = val;
-      changeSelectedAttribute ('fill', val);
+      changeSelectedAttribute('fill', val);
     };
 
     /**
-* @function module:svgcanvas.SvgCanvas#getFontColor
-* @returns {string} The current font color
-*/
-    this.getFontColor = function () {
+     * @function module:svgcanvas.SvgCanvas#getFontColor
+     * @returns {string} The current font color
+     */
+    this.getFontColor = function() {
       return curText.fill;
     };
 
     /**
-* @function module:svgcanvas.SvgCanvas#getFontSize
-* @returns {Float} The current font size
-*/
-    this.getFontSize = function () {
+     * @function module:svgcanvas.SvgCanvas#getFontSize
+     * @returns {Float} The current font size
+     */
+    this.getFontSize = function() {
       return curText.font_size;
     };
 
     /**
-* Applies the given font size to the selected element.
-* @function module:svgcanvas.SvgCanvas#setFontSize
-* @param {Float} val - Float with the new font size
-* @returns {void}
-*/
-    this.setFontSize = function (val) {
+     * Applies the given font size to the selected element.
+     * @function module:svgcanvas.SvgCanvas#setFontSize
+     * @param {Float} val - Float with the new font size
+     * @returns {void}
+     */
+    this.setFontSize = function(val) {
       curText.font_size = val;
-      changeSelectedAttribute ('font-size', val);
+      changeSelectedAttribute('font-size', val);
       if (!selectedElements[0].textContent) {
-        textActions.setCursor ();
+        textActions.setCursor();
       }
     };
 
     /**
-* @function module:svgcanvas.SvgCanvas#getText
-* @returns {string} The current text (`textContent`) of the selected element
-*/
-    this.getText = function () {
+     * @function module:svgcanvas.SvgCanvas#getText
+     * @returns {string} The current text (`textContent`) of the selected element
+     */
+    this.getText = function() {
       const selected = selectedElements[0];
-      if (isNullish (selected)) {
+      if (isNullish(selected)) {
         return '';
       }
       return selected.textContent;
     };
 
     /**
-* Updates the text element with the given string.
-* @function module:svgcanvas.SvgCanvas#setTextContent
-* @param {string} val - String with the new text
-* @returns {void}
-*/
-    this.setTextContent = function (val) {
-      changeSelectedAttribute ('#text', val);
-      textActions.init (val);
-      textActions.setCursor ();
+     * Updates the text element with the given string.
+     * @function module:svgcanvas.SvgCanvas#setTextContent
+     * @param {string} val - String with the new text
+     * @returns {void}
+     */
+    this.setTextContent = function(val) {
+      changeSelectedAttribute('#text', val);
+      textActions.init(val);
+      textActions.setCursor();
     };
 
     /**
-* Sets the new image URL for the selected image element. Updates its size if
-* a new URL is given.
-* @function module:svgcanvas.SvgCanvas#setImageURL
-* @param {string} val - String with the image URL/path
-* @fires module:svgcanvas.SvgCanvas#event:changed
-* @returns {void}
-*/
-    this.setImageURL = function (val) {
+     * Sets the new image URL for the selected image element. Updates its size if
+     * a new URL is given.
+     * @function module:svgcanvas.SvgCanvas#setImageURL
+     * @param {string} val - String with the image URL/path
+     * @fires module:svgcanvas.SvgCanvas#event:changed
+     * @returns {void}
+     */
+    this.setImageURL = function(val) {
       const elem = selectedElements[0];
       if (!elem) {
         return;
       }
 
-      const attrs = $ (elem).attr (['width', 'height']);
+      const attrs = $(elem).attr(['width', 'height']);
       const setsize = !attrs.width || !attrs.height;
 
-      const curHref = getHref (elem);
+      const curHref = getHref(elem);
 
       // Do nothing if no URL change or size change
       if (curHref === val && !setsize) {
         return;
       }
 
-      const batchCmd = new BatchCommand ('Change Image URL');
+      const batchCmd = new BatchCommand('Change Image URL');
 
-      setHref (elem, val);
-      batchCmd.addSubCommand (
-        new ChangeElementCommand (elem, {
+      setHref(elem, val);
+      batchCmd.addSubCommand(
+        new ChangeElementCommand(elem, {
           '#href': curHref,
-        })
+        }),
       );
 
-      $ (new Image ())
-        .load (function () {
-          const changes = $ (elem).attr (['width', 'height']);
+      $(new Image())
+        .load(function() {
+          const changes = $(elem).attr(['width', 'height']);
 
-          $ (elem).attr ({
+          $(elem).attr({
             width: this.width,
             height: this.height,
           });
 
-          selectorManager.requestSelector (elem).resize ();
+          selectorManager.requestSelector(elem).resize();
 
-          batchCmd.addSubCommand (new ChangeElementCommand (elem, changes));
-          addCommandToHistory (batchCmd);
-          call ('changed', [elem]);
+          batchCmd.addSubCommand(new ChangeElementCommand(elem, changes));
+          addCommandToHistory(batchCmd);
+          call('changed', [elem]);
         })
-        .attr ('src', val);
+        .attr('src', val);
     };
 
     /**
-* Sets the new link URL for the selected anchor element.
-* @function module:svgcanvas.SvgCanvas#setLinkURL
-* @param {string} val - String with the link URL/path
-* @returns {void}
-*/
-    this.setLinkURL = function (val) {
+     * Sets the new link URL for the selected anchor element.
+     * @function module:svgcanvas.SvgCanvas#setLinkURL
+     * @param {string} val - String with the link URL/path
+     * @returns {void}
+     */
+    this.setLinkURL = function(val) {
       let elem = selectedElements[0];
       if (!elem) {
         return;
       }
       if (elem.tagName !== 'a') {
         // See if parent is an anchor
-        const parentsA = $ (elem).parents ('a');
+        const parentsA = $(elem).parents('a');
         if (parentsA.length) {
           elem = parentsA[0];
         } else {
@@ -6713,107 +6741,103 @@ function hideCursor () {
         }
       }
 
-      const curHref = getHref (elem);
+      const curHref = getHref(elem);
 
       if (curHref === val) {
         return;
       }
 
-      const batchCmd = new BatchCommand ('Change Link URL');
+      const batchCmd = new BatchCommand('Change Link URL');
 
-      setHref (elem, val);
-      batchCmd.addSubCommand (
-        new ChangeElementCommand (elem, {
+      setHref(elem, val);
+      batchCmd.addSubCommand(
+        new ChangeElementCommand(elem, {
           '#href': curHref,
-        })
+        }),
       );
 
-      addCommandToHistory (batchCmd);
+      addCommandToHistory(batchCmd);
     };
 
     /**
-* Sets the `rx` and `ry` values to the selected `rect` element
-* to change its corner radius.
-* @function module:svgcanvas.SvgCanvas#setRectRadius
-* @param {string|Float} val - The new radius
-* @fires module:svgcanvas.SvgCanvas#event:changed
-* @returns {void}
-*/
-    this.setRectRadius = function (val) {
+     * Sets the `rx` and `ry` values to the selected `rect` element
+     * to change its corner radius.
+     * @function module:svgcanvas.SvgCanvas#setRectRadius
+     * @param {string|Float} val - The new radius
+     * @fires module:svgcanvas.SvgCanvas#event:changed
+     * @returns {void}
+     */
+    this.setRectRadius = function(val) {
       const selected = selectedElements[0];
-      if (!isNullish (selected) && selected.tagName === 'rect') {
-        const r = selected.getAttribute ('rx');
-        if (r !== String (val)) {
-          selected.setAttribute ('rx', val);
-          selected.setAttribute ('ry', val);
-          addCommandToHistory (
-            new ChangeElementCommand (selected, {rx: r, ry: r}, 'Radius')
+      if (!isNullish(selected) && selected.tagName === 'rect') {
+        const r = selected.getAttribute('rx');
+        if (r !== String(val)) {
+          selected.setAttribute('rx', val);
+          selected.setAttribute('ry', val);
+          addCommandToHistory(
+            new ChangeElementCommand(selected, { rx: r, ry: r }, 'Radius'),
           );
-          call ('changed', [selected]);
+          call('changed', [selected]);
         }
       }
     };
 
     /**
-* Wraps the selected element(s) in an anchor element or converts group to one.
-* @function module:svgcanvas.SvgCanvas#makeHyperlink
-* @param {string} url
-* @returns {void}
-*/
-    this.makeHyperlink = function (url) {
-      canvas.groupSelectedElements ('a', url);
+     * Wraps the selected element(s) in an anchor element or converts group to one.
+     * @function module:svgcanvas.SvgCanvas#makeHyperlink
+     * @param {string} url
+     * @returns {void}
+     */
+    this.makeHyperlink = function(url) {
+      canvas.groupSelectedElements('a', url);
 
       // TODO: If element is a single "g", convert to "a"
       //  if (selectedElements.length > 1 && selectedElements[1]) {
     };
 
     /**
-* @function module:svgcanvas.SvgCanvas#removeHyperlink
-* @returns {void}
-*/
-    this.removeHyperlink = function () {
-      canvas.ungroupSelectedElement ();
+     * @function module:svgcanvas.SvgCanvas#removeHyperlink
+     * @returns {void}
+     */
+    this.removeHyperlink = function() {
+      canvas.ungroupSelectedElement();
     };
 
     /**
-* Group: Element manipulation.
-*/
+     * Group: Element manipulation.
+     */
 
     /**
-* Sets the new segment type to the selected segment(s).
-* @function module:svgcanvas.SvgCanvas#setSegType
-* @param {Integer} newType - New segment type. See {@link https://www.w3.org/TR/SVG/paths.html#InterfaceSVGPathSeg} for list
-* @returns {void}
-*/
-    this.setSegType = function (newType) {
-      pathActions.setSegType (newType);
+     * Sets the new segment type to the selected segment(s).
+     * @function module:svgcanvas.SvgCanvas#setSegType
+     * @param {Integer} newType - New segment type. See {@link https://www.w3.org/TR/SVG/paths.html#InterfaceSVGPathSeg} for list
+     * @returns {void}
+     */
+    this.setSegType = function(newType) {
+      pathActions.setSegType(newType);
     };
 
     /**
-* Convert selected element to a path, or get the BBox of an element-as-path.
-* @function module:svgcanvas.SvgCanvas#convertToPath
-* @todo (codedread): Remove the getBBox argument and split this function into two.
-* @param {Element} elem - The DOM element to be converted
-* @param {boolean} getBBox - Boolean on whether or not to only return the path's BBox
-* @returns {void|DOMRect|false|SVGPathElement|null} If the getBBox flag is true, the resulting path's bounding box object.
-* Otherwise the resulting path element is returned.
-*/
-    this.convertToPath = function (elem, getBBox) {
-      if (isNullish (elem)) {
+     * Convert selected element to a path, or get the BBox of an element-as-path.
+     * @function module:svgcanvas.SvgCanvas#convertToPath
+     * @todo (codedread): Remove the getBBox argument and split this function into two.
+     * @param {Element} elem - The DOM element to be converted
+     * @param {boolean} getBBox - Boolean on whether or not to only return the path's BBox
+     * @returns {void|DOMRect|false|SVGPathElement|null} If the getBBox flag is true, the resulting path's bounding box object.
+     * Otherwise the resulting path element is returned.
+     */
+    this.convertToPath = function(elem, getBBox) {
+      if (isNullish(elem)) {
         const elems = selectedElements;
-        $.each (elems, function (i, el) {
+        $.each(elems, function(i, el) {
           if (el) {
-            canvas.convertToPath (el);
+            canvas.convertToPath(el);
           }
         });
         return undefined;
       }
       if (getBBox) {
-        return getBBoxOfElementAsPath (
-          elem,
-          addSVGElementFromJson,
-          pathActions
-        );
+        return getBBoxOfElementAsPath(elem, addSVGElementFromJson, pathActions);
       }
       // TODO: Why is this applying attributes from curShape, then inside utilities.convertToPath it's pulling addition attributes from elem?
       // TODO: If convertToPath is called with one elem, curShape and elem are probably the same; but calling with multiple is a bug or cool feature.
@@ -6829,7 +6853,7 @@ function hideCursor () {
         opacity: curShape.opacity,
         visibility: 'hidden',
       };
-      return convertToPath (
+      return convertToPath(
         elem,
         attrs,
         addSVGElementFromJson,
@@ -6837,22 +6861,22 @@ function hideCursor () {
         clearSelection,
         addToSelection,
         hstry,
-        addCommandToHistory
+        addCommandToHistory,
       );
     };
 
     /**
-* This function makes the changes to the elements. It does not add the change
-* to the history stack.
-* @param {string} attr - Attribute name
-* @param {string|Float} newValue - String or number with the new attribute value
-* @param {Element[]} elems - The DOM elements to apply the change to
-* @returns {void}
-*/
-    const changeSelectedAttributeNoUndo = function (attr, newValue, elems) {
+     * This function makes the changes to the elements. It does not add the change
+     * to the history stack.
+     * @param {string} attr - Attribute name
+     * @param {string|Float} newValue - String or number with the new attribute value
+     * @param {Element[]} elems - The DOM elements to apply the change to
+     * @returns {void}
+     */
+    const changeSelectedAttributeNoUndo = function(attr, newValue, elems) {
       if (currentMode === 'pathedit') {
         // Editing node
-        pathActions.moveNode (attr, newValue);
+        pathActions.moveNode(attr, newValue);
       }
       elems = elems || selectedElements;
       let i = elems.length;
@@ -6861,22 +6885,22 @@ function hideCursor () {
 
       while (i--) {
         let elem = elems[i];
-        if (isNullish (elem)) {
+        if (isNullish(elem)) {
           continue;
         }
 
         // Set x,y vals on elements that don't have them
         if (
           (attr === 'x' || attr === 'y') &&
-          noXYElems.includes (elem.tagName)
+          noXYElems.includes(elem.tagName)
         ) {
-          const bbox = getStrokedBBoxDefaultVisible ([elem]);
+          const bbox = getStrokedBBoxDefaultVisible([elem]);
           const diffX = attr === 'x' ? newValue - bbox.x : 0;
           const diffY = attr === 'y' ? newValue - bbox.y : 0;
-          canvas.moveSelectedElements (
+          canvas.moveSelectedElements(
             diffX * currentZoom,
             diffY * currentZoom,
-            true
+            true,
           );
           continue;
         }
@@ -6884,20 +6908,19 @@ function hideCursor () {
         // only allow the transform/opacity/filter attribute to change on <g> elements, slightly hacky
         // TODO: Missing statement body
         // if (elem.tagName === 'g' && goodGAttrs.includes(attr)) {}
-        let oldval = attr === '#text'
-          ? elem.textContent
-          : elem.getAttribute (attr);
-        if (isNullish (oldval)) {
+        let oldval =
+          attr === '#text' ? elem.textContent : elem.getAttribute(attr);
+        if (isNullish(oldval)) {
           oldval = '';
         }
-        if (oldval !== String (newValue)) {
+        if (oldval !== String(newValue)) {
           if (attr === '#text') {
             // const oldW = utilsGetBBox(elem).width;
             elem.textContent = newValue;
 
             // FF bug occurs on on rotated elements
-            if (/rotate/.test (elem.getAttribute ('transform'))) {
-              elem = ffClone (elem);
+            if (/rotate/.test(elem.getAttribute('transform'))) {
+              elem = ffClone(elem);
             }
             // Hoped to solve the issue of moving text with text-anchor="start",
             // but this doesn't actually fix it. Hopefully on the right track, though. -Fyrd
@@ -6914,9 +6937,9 @@ function hideCursor () {
             //   elem.setAttribute('y', elem.getAttribute('y') - dy);
             // }
           } else if (attr === '#href') {
-            setHref (elem, newValue);
+            setHref(elem, newValue);
           } else {
-            elem.setAttribute (attr, newValue);
+            elem.setAttribute(attr, newValue);
           }
 
           // Go into "select" mode for text changes
@@ -6928,7 +6951,7 @@ function hideCursor () {
             attr !== '#text' &&
             elem.textContent.length
           ) {
-            textActions.toSelectMode (elem);
+            textActions.toSelectMode(elem);
           }
 
           // if (i === 0) {
@@ -6938,54 +6961,55 @@ function hideCursor () {
           // Use the Firefox ffClone hack for text elements with gradients or
           // where other text attributes are changed.
           if (
-            isGecko () &&
+            isGecko() &&
             elem.nodeName === 'text' &&
-            /rotate/.test (elem.getAttribute ('transform'))
+            /rotate/.test(elem.getAttribute('transform'))
           ) {
             if (
-              String (newValue).startsWith ('url') ||
-              (['font-size', 'font-family', 'x', 'y'].includes (attr) &&
+              String(newValue).startsWith('url') ||
+              (['font-size', 'font-family', 'x', 'y'].includes(attr) &&
                 elem.textContent)
             ) {
-              elem = ffClone (elem);
+              elem = ffClone(elem);
             }
           }
           // Timeout needed for Opera & Firefox
           // codedread: it is now possible for this function to be called with elements
           // that are not in the selectedElements array, we need to only request a
           // selector if the element is in that array
-          if (selectedElements.includes (elem)) {
-            setTimeout (function () {
+          if (selectedElements.includes(elem)) {
+            setTimeout(function() {
               // Due to element replacement, this element may no longer
               // be part of the DOM
               if (!elem.parentNode) {
                 return;
               }
-              selectorManager.requestSelector (elem).resize ();
+              selectorManager.requestSelector(elem).resize();
             }, 0);
           }
           // if this element was rotated, and we changed the position of this element
           // we need to update the rotational transform attribute
-          const angle = getRotationAngle (elem);
+          const angle = getRotationAngle(elem);
           if (angle !== 0 && attr !== 'transform') {
-            const tlist = getTransformList (elem);
+            const tlist = getTransformList(elem);
             let n = tlist.numberOfItems;
             while (n--) {
-              const xform = tlist.getItem (n);
+              const xform = tlist.getItem(n);
               if (xform.type === 4) {
                 // remove old rotate
-                tlist.removeItem (n);
+                tlist.removeItem(n);
 
-                const box = utilsGetBBox (elem);
-                const center = transformPoint (
+                const box = utilsGetBBox(elem);
+                const center = transformPoint(
                   box.x + box.width / 2,
                   box.y + box.height / 2,
-                  transformListToTransform (tlist).matrix
+                  transformListToTransform(tlist).matrix,
                 );
-                const cx = center.x, cy = center.y;
-                const newrot = svgroot.createSVGTransform ();
-                newrot.setRotate (angle, cx, cy);
-                tlist.insertItemBefore (newrot, n);
+                const cx = center.x,
+                  cy = center.y;
+                const newrot = svgroot.createSVGTransform();
+                newrot.setRotate(angle, cx, cy);
+                tlist.insertItemBefore(newrot, n);
                 break;
               }
             }
@@ -6995,48 +7019,48 @@ function hideCursor () {
     };
 
     /**
-* Change the given/selected element and add the original value to the history stack.
-* If you want to change all `selectedElements`, ignore the `elems` argument.
-* If you want to change only a subset of `selectedElements`, then send the
-* subset to this function in the `elems` argument.
-* @function module:svgcanvas.SvgCanvas#changeSelectedAttribute
-* @param {string} attr - String with the attribute name
-* @param {string|Float} val - String or number with the new attribute value
-* @param {Element[]} elems - The DOM elements to apply the change to
-* @returns {void}
-*/
-    const changeSelectedAttribute = (this.changeSelectedAttribute = function (
+     * Change the given/selected element and add the original value to the history stack.
+     * If you want to change all `selectedElements`, ignore the `elems` argument.
+     * If you want to change only a subset of `selectedElements`, then send the
+     * subset to this function in the `elems` argument.
+     * @function module:svgcanvas.SvgCanvas#changeSelectedAttribute
+     * @param {string} attr - String with the attribute name
+     * @param {string|Float} val - String or number with the new attribute value
+     * @param {Element[]} elems - The DOM elements to apply the change to
+     * @returns {void}
+     */
+    const changeSelectedAttribute = (this.changeSelectedAttribute = function(
       attr,
       val,
-      elems
+      elems,
     ) {
       elems = elems || selectedElements;
-      canvas.undoMgr.beginUndoableChange (attr, elems);
+      canvas.undoMgr.beginUndoableChange(attr, elems);
       // const i = elems.length;
 
-      changeSelectedAttributeNoUndo (attr, val, elems);
+      changeSelectedAttributeNoUndo(attr, val, elems);
 
-      const batchCmd = canvas.undoMgr.finishUndoableChange ();
-      if (!batchCmd.isEmpty ()) {
-        addCommandToHistory (batchCmd);
+      const batchCmd = canvas.undoMgr.finishUndoableChange();
+      if (!batchCmd.isEmpty()) {
+        addCommandToHistory(batchCmd);
       }
     });
 
     /**
-* Removes all selected elements from the DOM and adds the change to the
-* history stack.
-* @function module:svgcanvas.SvgCanvas#deleteSelectedElements
-* @fires module:svgcanvas.SvgCanvas#event:changed
-* @returns {void}
-*/
-    this.deleteSelectedElements = function () {
-      const batchCmd = new BatchCommand ('Delete Elements');
+     * Removes all selected elements from the DOM and adds the change to the
+     * history stack.
+     * @function module:svgcanvas.SvgCanvas#deleteSelectedElements
+     * @fires module:svgcanvas.SvgCanvas#event:changed
+     * @returns {void}
+     */
+    this.deleteSelectedElements = function() {
+      const batchCmd = new BatchCommand('Delete Elements');
       const len = selectedElements.length;
       const selectedCopy = []; // selectedElements is being deleted
 
       for (let i = 0; i < len; ++i) {
         const selected = selectedElements[i];
-        if (isNullish (selected)) {
+        if (isNullish(selected)) {
           break;
         }
 
@@ -7044,10 +7068,10 @@ function hideCursor () {
         let t = selected;
 
         // this will unselect the element and remove the selectedOutline
-        selectorManager.releaseSelector (t);
+        selectorManager.releaseSelector(t);
 
         // Remove the path if present.
-        pathModule.removePath_ (t.id);
+        pathModule.removePath_(t.id);
 
         // Get the parent if it's a single-child anchor
         if (parent.tagName === 'a' && parent.childNodes.length === 1) {
@@ -7055,148 +7079,148 @@ function hideCursor () {
           parent = parent.parentNode;
         }
 
-        const {nextSibling} = t;
-        const elem = parent.removeChild (t);
-        selectedCopy.push (selected); // for the copy
-        batchCmd.addSubCommand (
-          new RemoveElementCommand (elem, nextSibling, parent)
+        const { nextSibling } = t;
+        const elem = parent.removeChild(t);
+        selectedCopy.push(selected); // for the copy
+        batchCmd.addSubCommand(
+          new RemoveElementCommand(elem, nextSibling, parent),
         );
       }
       selectedElements = [];
 
-      if (!batchCmd.isEmpty ()) {
-        addCommandToHistory (batchCmd);
+      if (!batchCmd.isEmpty()) {
+        addCommandToHistory(batchCmd);
       }
-      call ('changed', selectedCopy);
-      clearSelection ();
+      call('changed', selectedCopy);
+      clearSelection();
     };
 
     /**
-* Removes all selected elements from the DOM and adds the change to the
-* history stack. Remembers removed elements on the clipboard.
-* @function module:svgcanvas.SvgCanvas#cutSelectedElements
-* @returns {void}
-*/
-    this.cutSelectedElements = function () {
-      canvas.copySelectedElements ();
-      canvas.deleteSelectedElements ();
+     * Removes all selected elements from the DOM and adds the change to the
+     * history stack. Remembers removed elements on the clipboard.
+     * @function module:svgcanvas.SvgCanvas#cutSelectedElements
+     * @returns {void}
+     */
+    this.cutSelectedElements = function() {
+      canvas.copySelectedElements();
+      canvas.deleteSelectedElements();
     };
 
     const CLIPBOARD_ID = 'svgedit_clipboard';
 
     /**
-* Flash the clipboard data momentarily on localStorage so all tabs can see.
-* @returns {void}
-*/
-    function flashStorage () {
-      const data = sessionStorage.getItem (CLIPBOARD_ID);
-      localStorage.setItem (CLIPBOARD_ID, data);
-      setTimeout (function () {
-        localStorage.removeItem (CLIPBOARD_ID);
+     * Flash the clipboard data momentarily on localStorage so all tabs can see.
+     * @returns {void}
+     */
+    function flashStorage() {
+      const data = sessionStorage.getItem(CLIPBOARD_ID);
+      localStorage.setItem(CLIPBOARD_ID, data);
+      setTimeout(function() {
+        localStorage.removeItem(CLIPBOARD_ID);
       }, 1);
     }
 
     /**
-* Transfers sessionStorage from one tab to another.
-* @param {!Event} ev Storage event.
-* @returns {void}
-*/
-    function storageChange (ev) {
+     * Transfers sessionStorage from one tab to another.
+     * @param {!Event} ev Storage event.
+     * @returns {void}
+     */
+    function storageChange(ev) {
       if (!ev.newValue) return; // This is a call from removeItem.
       if (ev.key === CLIPBOARD_ID + '_startup') {
         // Another tab asked for our sessionStorage.
-        localStorage.removeItem (CLIPBOARD_ID + '_startup');
-        flashStorage ();
+        localStorage.removeItem(CLIPBOARD_ID + '_startup');
+        flashStorage();
       } else if (ev.key === CLIPBOARD_ID) {
         // Another tab sent data.
-        sessionStorage.setItem (CLIPBOARD_ID, ev.newValue);
+        sessionStorage.setItem(CLIPBOARD_ID, ev.newValue);
       }
     }
 
     // Listen for changes to localStorage.
-    window.addEventListener ('storage', storageChange, false);
+    window.addEventListener('storage', storageChange, false);
     // Ask other tabs for sessionStorage (this is ONLY to trigger event).
-    localStorage.setItem (CLIPBOARD_ID + '_startup', Math.random ());
+    localStorage.setItem(CLIPBOARD_ID + '_startup', Math.random());
 
     /**
-* Remembers the current selected elements on the clipboard.
-* @function module:svgcanvas.SvgCanvas#copySelectedElements
-* @returns {void}
-*/
-    this.copySelectedElements = function () {
-      const data = JSON.stringify (
-        selectedElements.map (x => getJsonFromSvgElement (x))
+     * Remembers the current selected elements on the clipboard.
+     * @function module:svgcanvas.SvgCanvas#copySelectedElements
+     * @returns {void}
+     */
+    this.copySelectedElements = function() {
+      const data = JSON.stringify(
+        selectedElements.map(x => getJsonFromSvgElement(x)),
       );
       // Use sessionStorage for the clipboard data.
-      sessionStorage.setItem (CLIPBOARD_ID, data);
-      flashStorage ();
+      sessionStorage.setItem(CLIPBOARD_ID, data);
+      flashStorage();
 
-      const menu = $ ('#cmenu_canvas');
+      const menu = $('#cmenu_canvas');
       // Context menu might not exist (it is provided by editor.js).
       if (menu.enableContextMenuItems) {
-        menu.enableContextMenuItems ('#paste,#paste_in_place');
+        menu.enableContextMenuItems('#paste,#paste_in_place');
       }
     };
 
     /**
-* @function module:svgcanvas.SvgCanvas#pasteElements
-* @param {"in_place"|"point"|void} type
-* @param {Integer|void} x Expected if type is "point"
-* @param {Integer|void} y Expected if type is "point"
-* @fires module:svgcanvas.SvgCanvas#event:changed
-* @fires module:svgcanvas.SvgCanvas#event:ext_IDsUpdated
-* @returns {void}
-*/
-    this.pasteElements = function (type, x, y) {
-      let clipb = JSON.parse (sessionStorage.getItem (CLIPBOARD_ID));
+     * @function module:svgcanvas.SvgCanvas#pasteElements
+     * @param {"in_place"|"point"|void} type
+     * @param {Integer|void} x Expected if type is "point"
+     * @param {Integer|void} y Expected if type is "point"
+     * @fires module:svgcanvas.SvgCanvas#event:changed
+     * @fires module:svgcanvas.SvgCanvas#event:ext_IDsUpdated
+     * @returns {void}
+     */
+    this.pasteElements = function(type, x, y) {
+      let clipb = JSON.parse(sessionStorage.getItem(CLIPBOARD_ID));
       if (!clipb) return;
       let len = clipb.length;
       if (!len) return;
 
       const pasted = [];
-      const batchCmd = new BatchCommand ('Paste elements');
+      const batchCmd = new BatchCommand('Paste elements');
       // const drawing = getCurrentDrawing();
       /**
-  * @typedef {PlainObject<string, string>} module:svgcanvas.ChangedIDs
-  */
+       * @typedef {PlainObject<string, string>} module:svgcanvas.ChangedIDs
+       */
       /**
-   * @type {module:svgcanvas.ChangedIDs}
-   */
+       * @type {module:svgcanvas.ChangedIDs}
+       */
       const changedIDs = {};
 
       // Recursively replace IDs and record the changes
       /**
-   *
-   * @param {module:svgcanvas.SVGAsJSON} elem
-   * @returns {void}
-   */
-      function checkIDs (elem) {
+       *
+       * @param {module:svgcanvas.SVGAsJSON} elem
+       * @returns {void}
+       */
+      function checkIDs(elem) {
         if (elem.attr && elem.attr.id) {
-          changedIDs[elem.attr.id] = getNextId ();
+          changedIDs[elem.attr.id] = getNextId();
           elem.attr.id = changedIDs[elem.attr.id];
         }
-        if (elem.children) elem.children.forEach (checkIDs);
+        if (elem.children) elem.children.forEach(checkIDs);
       }
-      clipb.forEach (checkIDs);
+      clipb.forEach(checkIDs);
 
       // Give extensions like the connector extension a chance to reflect new IDs and remove invalid elements
       /**
-  * Triggered when `pasteElements` is called from a paste action (context menu or key).
-  * @event module:svgcanvas.SvgCanvas#event:ext_IDsUpdated
-  * @type {PlainObject}
-  * @property {module:svgcanvas.SVGAsJSON[]} elems
-  * @property {module:svgcanvas.ChangedIDs} changes Maps past ID (on attribute) to current ID
-  */
-      runExtensions (
+       * Triggered when `pasteElements` is called from a paste action (context menu or key).
+       * @event module:svgcanvas.SvgCanvas#event:ext_IDsUpdated
+       * @type {PlainObject}
+       * @property {module:svgcanvas.SVGAsJSON[]} elems
+       * @property {module:svgcanvas.ChangedIDs} changes Maps past ID (on attribute) to current ID
+       */
+      runExtensions(
         'IDsUpdated',
         /** @type {module:svgcanvas.SvgCanvas#event:ext_IDsUpdated} */
-        {elems: clipb, changes: changedIDs},
-        true
-      ).forEach (function (extChanges) {
+        { elems: clipb, changes: changedIDs },
+        true,
+      ).forEach(function(extChanges) {
         if (!extChanges || !('remove' in extChanges)) return;
 
-        extChanges.remove.forEach (function (removeID) {
-          clipb = clipb.filter (function (clipBoardItem) {
+        extChanges.remove.forEach(function(removeID) {
+          clipb = clipb.filter(function(clipBoardItem) {
             return clipBoardItem.attr.id !== removeID;
           });
         });
@@ -7209,14 +7233,14 @@ function hideCursor () {
           continue;
         }
 
-        const copy = addSVGElementFromJson (elem);
-        pasted.push (copy);
-        batchCmd.addSubCommand (new InsertElementCommand (copy));
+        const copy = addSVGElementFromJson(elem);
+        pasted.push(copy);
+        batchCmd.addSubCommand(new InsertElementCommand(copy));
 
-        restoreRefElems (copy);
+        restoreRefElems(copy);
       }
 
-      selectOnly (pasted);
+      selectOnly(pasted);
 
       if (type !== 'in_place') {
         let ctrX, ctrY;
@@ -7229,33 +7253,33 @@ function hideCursor () {
           ctrY = y;
         }
 
-        const bbox = getStrokedBBoxDefaultVisible (pasted);
+        const bbox = getStrokedBBoxDefaultVisible(pasted);
         const cx = ctrX - (bbox.x + bbox.width / 2),
           cy = ctrY - (bbox.y + bbox.height / 2),
           dx = [],
           dy = [];
 
-        $.each (pasted, function (i, item) {
-          dx.push (cx);
-          dy.push (cy);
+        $.each(pasted, function(i, item) {
+          dx.push(cx);
+          dy.push(cy);
         });
 
-        const cmd = canvas.moveSelectedElements (dx, dy, false);
-        if (cmd) batchCmd.addSubCommand (cmd);
+        const cmd = canvas.moveSelectedElements(dx, dy, false);
+        if (cmd) batchCmd.addSubCommand(cmd);
       }
 
-      addCommandToHistory (batchCmd);
-      call ('changed', pasted);
+      addCommandToHistory(batchCmd);
+      call('changed', pasted);
     };
 
     /**
-* Wraps all the selected elements in a group (`g`) element.
-* @function module:svgcanvas.SvgCanvas#groupSelectedElements
-* @param {"a"|"g"} [type="g"] - type of element to group into, defaults to `<g>`
-* @param {string} [urlArg]
-* @returns {void}
-*/
-    this.groupSelectedElements = function (type, urlArg) {
+     * Wraps all the selected elements in a group (`g`) element.
+     * @function module:svgcanvas.SvgCanvas#groupSelectedElements
+     * @param {"a"|"g"} [type="g"] - type of element to group into, defaults to `<g>`
+     * @param {string} [urlArg]
+     * @returns {void}
+     */
+    this.groupSelectedElements = function(type, urlArg) {
       if (!type) {
         type = 'g';
       }
@@ -7275,25 +7299,25 @@ function hideCursor () {
         }
       }
 
-      const batchCmd = new BatchCommand (cmdStr);
+      const batchCmd = new BatchCommand(cmdStr);
 
       // create and insert the group element
-      const g = addSVGElementFromJson ({
+      const g = addSVGElementFromJson({
         element: type,
         attr: {
-          id: getNextId (),
+          id: getNextId(),
         },
       });
       if (type === 'a') {
-        setHref (g, url);
+        setHref(g, url);
       }
-      batchCmd.addSubCommand (new InsertElementCommand (g));
+      batchCmd.addSubCommand(new InsertElementCommand(g));
 
       // now move all children into the group
       let i = selectedElements.length;
       while (i--) {
         let elem = selectedElements[i];
-        if (isNullish (elem)) {
+        if (isNullish(elem)) {
           continue;
         }
 
@@ -7306,39 +7330,39 @@ function hideCursor () {
 
         const oldNextSibling = elem.nextSibling;
         const oldParent = elem.parentNode;
-        g.append (elem);
-        batchCmd.addSubCommand (
-          new MoveElementCommand (elem, oldNextSibling, oldParent)
+        g.append(elem);
+        batchCmd.addSubCommand(
+          new MoveElementCommand(elem, oldNextSibling, oldParent),
         );
       }
-      if (!batchCmd.isEmpty ()) {
-        addCommandToHistory (batchCmd);
+      if (!batchCmd.isEmpty()) {
+        addCommandToHistory(batchCmd);
       }
 
       // update selection
-      selectOnly ([g], true);
+      selectOnly([g], true);
     };
 
     /**
-* Pushes all appropriate parent group properties down to its children, then
-* removes them from the group.
-* @function module:svgcanvas.SvgCanvas#pushGroupProperties
-* @param {SVGAElement|SVGGElement} g
-* @param {boolean} undoable
-* @returns {BatchCommand|void}
-*/
-    const pushGroupProperties = (this.pushGroupProperties = function (
+     * Pushes all appropriate parent group properties down to its children, then
+     * removes them from the group.
+     * @function module:svgcanvas.SvgCanvas#pushGroupProperties
+     * @param {SVGAElement|SVGGElement} g
+     * @param {boolean} undoable
+     * @returns {BatchCommand|void}
+     */
+    const pushGroupProperties = (this.pushGroupProperties = function(
       g,
-      undoable
+      undoable,
     ) {
       const children = g.childNodes;
       const len = children.length;
-      const xform = g.getAttribute ('transform');
+      const xform = g.getAttribute('transform');
 
-      const glist = getTransformList (g);
-      const m = transformListToTransform (glist).matrix;
+      const glist = getTransformList(g);
+      const m = transformListToTransform(glist).matrix;
 
-      const batchCmd = new BatchCommand ('Push group properties');
+      const batchCmd = new BatchCommand('Push group properties');
 
       // TODO: get all fill/stroke properties from the group that we are about to destroy
       // "fill", "fill-opacity", "fill-rule", "stroke", "stroke-dasharray", "stroke-dashoffset",
@@ -7347,11 +7371,11 @@ function hideCursor () {
       // and then for each child, if they do not have the attribute (or the value is 'inherit')
       // then set the child's attribute
 
-      const gangle = getRotationAngle (g);
+      const gangle = getRotationAngle(g);
 
-      const gattrs = $ (g).attr (['filter', 'opacity']);
+      const gattrs = $(g).attr(['filter', 'opacity']);
       let gfilter, gblur, changes;
-      const drawing = getCurrentDrawing ();
+      const drawing = getCurrentDrawing();
 
       for (let i = 0; i < len; i++) {
         const elem = children[i];
@@ -7363,21 +7387,21 @@ function hideCursor () {
         if (gattrs.opacity !== null && gattrs.opacity !== 1) {
           // const c_opac = elem.getAttribute('opacity') || 1;
           const newOpac =
-            Math.round (
-              (elem.getAttribute ('opacity') || 1) * gattrs.opacity * 100
+            Math.round(
+              (elem.getAttribute('opacity') || 1) * gattrs.opacity * 100,
             ) / 100;
-          changeSelectedAttribute ('opacity', newOpac, [elem]);
+          changeSelectedAttribute('opacity', newOpac, [elem]);
         }
 
         if (gattrs.filter) {
-          let cblur = this.getBlur (elem);
+          let cblur = this.getBlur(elem);
           const origCblur = cblur;
           if (!gblur) {
-            gblur = this.getBlur (g);
+            gblur = this.getBlur(g);
           }
           if (cblur) {
             // Is this formula correct?
-            cblur = Number (gblur) + Number (cblur);
+            cblur = Number(gblur) + Number(cblur);
           } else if (cblur === 0) {
             cblur = gblur;
           }
@@ -7386,38 +7410,35 @@ function hideCursor () {
           if (!origCblur) {
             // Set group's filter to use first child's ID
             if (!gfilter) {
-              gfilter = getRefElem (gattrs.filter);
+              gfilter = getRefElem(gattrs.filter);
             } else {
               // Clone the group's filter
-              gfilter = drawing.copyElem (gfilter);
-              findDefs ().append (gfilter);
+              gfilter = drawing.copyElem(gfilter);
+              findDefs().append(gfilter);
             }
           } else {
-            gfilter = getRefElem (elem.getAttribute ('filter'));
+            gfilter = getRefElem(elem.getAttribute('filter'));
           }
 
           // Change this in future for different filters
-          const suffix = gfilter.firstChild.tagName === 'feGaussianBlur'
-            ? 'blur'
-            : 'filter';
+          const suffix =
+            gfilter.firstChild.tagName === 'feGaussianBlur' ? 'blur' : 'filter';
           gfilter.id = elem.id + '_' + suffix;
-          changeSelectedAttribute ('filter', 'url(#' + gfilter.id + ')', [
-            elem,
-          ]);
+          changeSelectedAttribute('filter', 'url(#' + gfilter.id + ')', [elem]);
 
           // Update blur value
           if (cblur) {
-            changeSelectedAttribute ('stdDeviation', cblur, [
+            changeSelectedAttribute('stdDeviation', cblur, [
               gfilter.firstChild,
             ]);
-            canvas.setBlurOffsets (gfilter, cblur);
+            canvas.setBlurOffsets(gfilter, cblur);
           }
         }
 
-        let chtlist = getTransformList (elem);
+        let chtlist = getTransformList(elem);
 
         // Don't process gradient transforms
-        if (elem.tagName.includes ('Gradient')) {
+        if (elem.tagName.includes('Gradient')) {
           chtlist = null;
         }
 
@@ -7446,77 +7467,77 @@ function hideCursor () {
             // [Tr] = [Rg] [Rc] [Rc2_inv]
 
             // get group's rotation matrix (Rg)
-            const rgm = glist.getItem (0).matrix;
+            const rgm = glist.getItem(0).matrix;
 
             // get child's rotation matrix (Rc)
-            let rcm = svgroot.createSVGMatrix ();
-            const cangle = getRotationAngle (elem);
+            let rcm = svgroot.createSVGMatrix();
+            const cangle = getRotationAngle(elem);
             if (cangle) {
-              rcm = chtlist.getItem (0).matrix;
+              rcm = chtlist.getItem(0).matrix;
             }
 
             // get child's old center of rotation
-            const cbox = utilsGetBBox (elem);
-            const ceqm = transformListToTransform (chtlist).matrix;
-            const coldc = transformPoint (
+            const cbox = utilsGetBBox(elem);
+            const ceqm = transformListToTransform(chtlist).matrix;
+            const coldc = transformPoint(
               cbox.x + cbox.width / 2,
               cbox.y + cbox.height / 2,
-              ceqm
+              ceqm,
             );
 
             // sum group and child's angles
             const sangle = gangle + cangle;
 
             // get child's rotation at the old center (Rc2_inv)
-            const r2 = svgroot.createSVGTransform ();
-            r2.setRotate (sangle, coldc.x, coldc.y);
+            const r2 = svgroot.createSVGTransform();
+            r2.setRotate(sangle, coldc.x, coldc.y);
 
             // calculate equivalent translate
-            const trm = matrixMultiply (rgm, rcm, r2.matrix.inverse ());
+            const trm = matrixMultiply(rgm, rcm, r2.matrix.inverse());
 
             // set up tlist
             if (cangle) {
-              chtlist.removeItem (0);
+              chtlist.removeItem(0);
             }
 
             if (sangle) {
               if (chtlist.numberOfItems) {
-                chtlist.insertItemBefore (r2, 0);
+                chtlist.insertItemBefore(r2, 0);
               } else {
-                chtlist.appendItem (r2);
+                chtlist.appendItem(r2);
               }
             }
 
             if (trm.e || trm.f) {
-              const tr = svgroot.createSVGTransform ();
-              tr.setTranslate (trm.e, trm.f);
+              const tr = svgroot.createSVGTransform();
+              tr.setTranslate(trm.e, trm.f);
               if (chtlist.numberOfItems) {
-                chtlist.insertItemBefore (tr, 0);
+                chtlist.insertItemBefore(tr, 0);
               } else {
-                chtlist.appendItem (tr);
+                chtlist.appendItem(tr);
               }
             }
           } else {
             // more complicated than just a rotate
             // transfer the group's transform down to each child and then
             // call recalculateDimensions()
-            const oldxform = elem.getAttribute ('transform');
+            const oldxform = elem.getAttribute('transform');
             changes = {};
             changes.transform = oldxform || '';
 
-            const newxform = svgroot.createSVGTransform ();
+            const newxform = svgroot.createSVGTransform();
 
             // [ gm ] [ chm ] = [ chm ] [ gm' ]
             // [ gm' ] = [ chmInv ] [ gm ] [ chm ]
-            const chm = transformListToTransform (chtlist).matrix,
-              chmInv = chm.inverse ();
-            const gm = matrixMultiply (chmInv, m, chm);
-            newxform.setMatrix (gm);
-            chtlist.appendItem (newxform);
+            const chm = transformListToTransform(chtlist).matrix,
+              chmInv = chm.inverse();
+            const gm = matrixMultiply(chmInv, m, chm);
+            newxform.setMatrix(gm);
+            chtlist.appendItem(newxform);
           }
-          const cmd = recalculateDimensions (elem);
+          const cmd = recalculateDimensions(elem);
           if (cmd) {
-            batchCmd.addSubCommand (cmd);
+            batchCmd.addSubCommand(cmd);
           }
         }
       }
@@ -7525,56 +7546,60 @@ function hideCursor () {
       if (xform) {
         changes = {};
         changes.transform = xform;
-        g.setAttribute ('transform', '');
-        g.removeAttribute ('transform');
-        batchCmd.addSubCommand (new ChangeElementCommand (g, changes));
+        g.setAttribute('transform', '');
+        g.removeAttribute('transform');
+        batchCmd.addSubCommand(new ChangeElementCommand(g, changes));
       }
 
-      if (undoable && !batchCmd.isEmpty ()) {
+      if (undoable && !batchCmd.isEmpty()) {
         return batchCmd;
       }
       return undefined;
     });
 
     /**
-* Unwraps all the elements in a selected group (`g`) element. This requires
-* significant recalculations to apply group's transforms, etc. to its children.
-* @function module:svgcanvas.SvgCanvas#ungroupSelectedElement
-* @returns {void}
-*/
-    this.ungroupSelectedElement = function () {
+     * Unwraps all the elements in a selected group (`g`) element. This requires
+     * significant recalculations to apply group's transforms, etc. to its children.
+     * @function module:svgcanvas.SvgCanvas#ungroupSelectedElement
+     * @returns {void}
+     */
+    this.ungroupSelectedElement = function() {
       let g = selectedElements[0];
       if (!g) {
         return;
       }
-      if ($ (g).data ('gsvg') || $ (g).data ('symbol')) {
+      if ($(g).data('gsvg') || $(g).data('symbol')) {
         // Is svg, so actually convert to group
-        convertToGroup (g);
+        convertToGroup(g);
         return;
       }
       if (g.tagName === 'use') {
         // Somehow doesn't have data set, so retrieve
-        const symbol = getElem (getHref (g).substr (1));
-        $ (g).data ('symbol', symbol).data ('ref', symbol);
-        convertToGroup (g);
+        const symbol = getElem(getHref(g).substr(1));
+        $(g)
+          .data('symbol', symbol)
+          .data('ref', symbol);
+        convertToGroup(g);
         return;
       }
-      const parentsA = $ (g).parents ('a');
+      const parentsA = $(g).parents('a');
       if (parentsA.length) {
         g = parentsA[0];
       }
 
       // Look for parent "a"
       if (g.tagName === 'g' || g.tagName === 'a') {
-        const batchCmd = new BatchCommand ('Ungroup Elements');
-        const cmd = pushGroupProperties (g, true);
+        const batchCmd = new BatchCommand('Ungroup Elements');
+        const cmd = pushGroupProperties(g, true);
         if (cmd) {
-          batchCmd.addSubCommand (cmd);
+          batchCmd.addSubCommand(cmd);
         }
 
         const parent = g.parentNode;
-        const anchor = g.nextSibling;
-        const children = new Array (g.childNodes.length);
+        // const anchor = g.nextSibling;
+        // xiaoqing
+        const anchor = g.nextSibling || g.previousSibling || parent;
+        const children = new Array(g.childNodes.length);
 
         let i = 0;
         while (g.firstChild) {
@@ -7584,107 +7609,118 @@ function hideCursor () {
 
           // Remove child title elements
           if (elem.tagName === 'title') {
-            const {nextSibling} = elem;
-            batchCmd.addSubCommand (
-              new RemoveElementCommand (elem, nextSibling, oldParent)
+            const { nextSibling } = elem;
+            batchCmd.addSubCommand(
+              new RemoveElementCommand(elem, nextSibling, oldParent),
             );
-            elem.remove ();
+            elem.remove();
             continue;
           }
 
-          children[i++] = elem = anchor.before (elem);
-          batchCmd.addSubCommand (
-            new MoveElementCommand (elem, oldNextSibling, oldParent)
+          // xiaoqing start
+          // children[i++] = elem = anchor.before (elem);
+          children[i++] = elem;
+          anchor.before(elem);
+          // xiaoqing end
+          batchCmd.addSubCommand(
+            new MoveElementCommand(elem, oldNextSibling, oldParent),
           );
         }
 
         // remove the group from the selection
-        clearSelection ();
+        clearSelection();
 
         // delete the group element (but make undo-able)
         const gNextSibling = g.nextSibling;
-        g = parent.removeChild (g);
-        batchCmd.addSubCommand (
-          new RemoveElementCommand (g, gNextSibling, parent)
+        g = parent.removeChild(g);
+        batchCmd.addSubCommand(
+          new RemoveElementCommand(g, gNextSibling, parent),
         );
 
-        if (!batchCmd.isEmpty ()) {
-          addCommandToHistory (batchCmd);
+        if (!batchCmd.isEmpty()) {
+          addCommandToHistory(batchCmd);
         }
 
         // update selection
-        addToSelection (children);
+        addToSelection(children);
       }
     };
 
     /**
-* Repositions the selected element to the bottom in the DOM to appear on top of
-* other elements.
-* @function module:svgcanvas.SvgCanvas#moveToTopSelectedElement
-* @fires module:svgcanvas.SvgCanvas#event:changed
-* @returns {void}
-*/
-    this.moveToTopSelectedElement = function () {
+     * Repositions the selected element to the bottom in the DOM to appear on top of
+     * other elements.
+     * @function module:svgcanvas.SvgCanvas#moveToTopSelectedElement
+     * @fires module:svgcanvas.SvgCanvas#event:changed
+     * @returns {void}
+     */
+    this.moveToTopSelectedElement = function() {
       const [selected] = selectedElements;
-      if (!isNullish (selected)) {
+      if (!isNullish(selected)) {
         let t = selected;
         const oldParent = t.parentNode;
         const oldNextSibling = t.nextSibling;
-        t = t.parentNode.appendChild (t);
+        t = t.parentNode.appendChild(t);
         // If the element actually moved position, add the command and fire the changed
         // event handler.
         if (oldNextSibling !== t.nextSibling) {
-          addCommandToHistory (
-            new MoveElementCommand (t, oldNextSibling, oldParent, 'top')
+          addCommandToHistory(
+            new MoveElementCommand(t, oldNextSibling, oldParent, 'top'),
           );
-          call ('changed', [t]);
+          call('changed', [t]);
         }
       }
     };
 
     /**
-* Repositions the selected element to the top in the DOM to appear under
-* other elements.
-* @function module:svgcanvas.SvgCanvas#moveToBottomSelectedElement
-* @fires module:svgcanvas.SvgCanvas#event:changed
-* @returns {void}
-*/
-    this.moveToBottomSelectedElement = function () {
+     * Repositions the selected element to the top in the DOM to appear under
+     * other elements.
+     * @function module:svgcanvas.SvgCanvas#moveToBottomSelectedElement
+     * @fires module:svgcanvas.SvgCanvas#event:changed
+     * @returns {void}
+     */
+    this.moveToBottomSelectedElement = function() {
       const [selected] = selectedElements;
-      if (!isNullish (selected)) {
+      if (!isNullish(selected)) {
         let t = selected;
         const oldParent = t.parentNode;
         const oldNextSibling = t.nextSibling;
-        let {firstChild} = t.parentNode;
+        let { firstChild } = t.parentNode;
         if (firstChild.tagName === 'title') {
           firstChild = firstChild.nextSibling;
         }
+
+        // xiaoqing start
+        if (firstChild.getAttribute('id') === 'svg_back_color_rect') {
+          firstChild = firstChild.nextSibling;
+        }
+        // xiaoqing end
+
         // This can probably be removed, as the defs should not ever apppear
         // inside a layer group
         if (firstChild.tagName === 'defs') {
           firstChild = firstChild.nextSibling;
         }
-        t = t.parentNode.insertBefore (t, firstChild);
+        t = t.parentNode.insertBefore(t, firstChild);
         // If the element actually moved position, add the command and fire the changed
         // event handler.
         if (oldNextSibling !== t.nextSibling) {
-          addCommandToHistory (
-            new MoveElementCommand (t, oldNextSibling, oldParent, 'bottom')
+          addCommandToHistory(
+            new MoveElementCommand(t, oldNextSibling, oldParent, 'bottom'),
           );
-          call ('changed', [t]);
+          call('changed', [t]);
         }
       }
     };
 
     /**
-* Moves the select element up or down the stack, based on the visibly
-* intersecting elements.
-* @function module:svgcanvas.SvgCanvas#moveUpDownSelected
-* @param {"Up"|"Down"} dir - String that's either 'Up' or 'Down'
-* @fires module:svgcanvas.SvgCanvas#event:changed
-* @returns {void}
-*/
-    this.moveUpDownSelected = function (dir) {
+     * Moves the select element up or down the stack, based on the visibly
+     * intersecting elements.
+     * @function module:svgcanvas.SvgCanvas#moveUpDownSelected
+     * @param {"Up"|"Down"} dir - String that's either 'Up' or 'Down'
+     * @fires module:svgcanvas.SvgCanvas#event:changed
+     * @returns {void}
+     */
+    this.moveUpDownSelected = function(dir) {
       const selected = selectedElements[0];
       if (!selected) {
         return;
@@ -7693,14 +7729,14 @@ function hideCursor () {
       curBBoxes = [];
       let closest, foundCur;
       // jQuery sorts this list
-      const list = $ (
-        getIntersectionList (getStrokedBBoxDefaultVisible ([selected]))
-      ).toArray ();
+      const list = $(
+        getIntersectionList(getStrokedBBoxDefaultVisible([selected])),
+      ).toArray();
       if (dir === 'Down') {
-        list.reverse ();
+        list.reverse();
       }
 
-      $.each (list, function () {
+      $.each(list, function() {
         if (!foundCur) {
           if (this === selected) {
             foundCur = true;
@@ -7717,27 +7753,27 @@ function hideCursor () {
       const t = selected;
       const oldParent = t.parentNode;
       const oldNextSibling = t.nextSibling;
-      $ (closest)[dir === 'Down' ? 'before' : 'after'] (t);
+      $(closest)[dir === 'Down' ? 'before' : 'after'](t);
       // If the element actually moved position, add the command and fire the changed
       // event handler.
       if (oldNextSibling !== t.nextSibling) {
-        addCommandToHistory (
-          new MoveElementCommand (t, oldNextSibling, oldParent, 'Move ' + dir)
+        addCommandToHistory(
+          new MoveElementCommand(t, oldNextSibling, oldParent, 'Move ' + dir),
         );
-        call ('changed', [t]);
+        call('changed', [t]);
       }
     };
 
     /**
-* Moves selected elements on the X/Y axis.
-* @function module:svgcanvas.SvgCanvas#moveSelectedElements
-* @param {Float} dx - Float with the distance to move on the x-axis
-* @param {Float} dy - Float with the distance to move on the y-axis
-* @param {boolean} undoable - Boolean indicating whether or not the action should be undoable
-* @fires module:svgcanvas.SvgCanvas#event:changed
-* @returns {BatchCommand|void} Batch command for the move
-*/
-    this.moveSelectedElements = function (dx, dy, undoable) {
+     * Moves selected elements on the X/Y axis.
+     * @function module:svgcanvas.SvgCanvas#moveSelectedElements
+     * @param {Float} dx - Float with the distance to move on the x-axis
+     * @param {Float} dy - Float with the distance to move on the y-axis
+     * @param {boolean} undoable - Boolean indicating whether or not the action should be undoable
+     * @fires module:svgcanvas.SvgCanvas#event:changed
+     * @returns {BatchCommand|void} Batch command for the move
+     */
+    this.moveSelectedElements = function(dx, dy, undoable) {
       // if undoable is not sent, default to true
       // if single values, scale them to the zoom
       if (dx.constructor !== Array) {
@@ -7745,11 +7781,11 @@ function hideCursor () {
         dy /= currentZoom;
       }
       undoable = undoable || true;
-      const batchCmd = new BatchCommand ('position');
+      const batchCmd = new BatchCommand('position');
       let i = selectedElements.length;
       while (i--) {
         const selected = selectedElements[i];
-        if (!isNullish (selected)) {
+        if (!isNullish(selected)) {
           // if (i === 0) {
           //   selectedBBoxes[0] = utilsGetBBox(selected);
           // }
@@ -7757,8 +7793,8 @@ function hideCursor () {
           // for (const j in selectedBBoxes[i]) b[j] = selectedBBoxes[i][j];
           // selectedBBoxes[i] = b;
 
-          const xform = svgroot.createSVGTransform ();
-          const tlist = getTransformList (selected);
+          const xform = svgroot.createSVGTransform();
+          const tlist = getTransformList(selected);
 
           // dx and dy could be arrays
           if (dx.constructor === Array) {
@@ -7766,97 +7802,97 @@ function hideCursor () {
             //   selectedBBoxes[0].x += dx[0];
             //   selectedBBoxes[0].y += dy[0];
             // }
-            xform.setTranslate (dx[i], dy[i]);
+            xform.setTranslate(dx[i], dy[i]);
           } else {
             // if (i === 0) {
             //   selectedBBoxes[0].x += dx;
             //   selectedBBoxes[0].y += dy;
             // }
-            xform.setTranslate (dx, dy);
+            xform.setTranslate(dx, dy);
           }
 
           if (tlist.numberOfItems) {
-            tlist.insertItemBefore (xform, 0);
+            tlist.insertItemBefore(xform, 0);
           } else {
-            tlist.appendItem (xform);
+            tlist.appendItem(xform);
           }
 
-          const cmd = recalculateDimensions (selected);
+          const cmd = recalculateDimensions(selected);
           if (cmd) {
-            batchCmd.addSubCommand (cmd);
+            batchCmd.addSubCommand(cmd);
           }
 
-          selectorManager.requestSelector (selected).resize ();
+          selectorManager.requestSelector(selected).resize();
         }
       }
-      if (!batchCmd.isEmpty ()) {
+      if (!batchCmd.isEmpty()) {
         if (undoable) {
-          addCommandToHistory (batchCmd);
+          addCommandToHistory(batchCmd);
         }
-        call ('changed', selectedElements);
+        call('changed', selectedElements);
         return batchCmd;
       }
       return undefined;
     };
 
     /**
-* Create deep DOM copies (clones) of all selected elements and move them slightly
-* from their originals.
-* @function module:svgcanvas.SvgCanvas#cloneSelectedElements
-* @param {Float} x Float with the distance to move on the x-axis
-* @param {Float} y Float with the distance to move on the y-axis
-* @returns {void}
-*/
-    this.cloneSelectedElements = function (x, y) {
+     * Create deep DOM copies (clones) of all selected elements and move them slightly
+     * from their originals.
+     * @function module:svgcanvas.SvgCanvas#cloneSelectedElements
+     * @param {Float} x Float with the distance to move on the x-axis
+     * @param {Float} y Float with the distance to move on the y-axis
+     * @returns {void}
+     */
+    this.cloneSelectedElements = function(x, y) {
       let i, elem;
-      const batchCmd = new BatchCommand ('Clone Elements');
+      const batchCmd = new BatchCommand('Clone Elements');
       // find all the elements selected (stop at first null)
       const len = selectedElements.length;
       /**
-   * Sorts an array numerically and ascending.
-   * @param {Element} a
-   * @param {Element} b
-   * @returns {Integer}
-   */
-      function sortfunction (a, b) {
-        return $ (b).index () - $ (a).index ();
+       * Sorts an array numerically and ascending.
+       * @param {Element} a
+       * @param {Element} b
+       * @returns {Integer}
+       */
+      function sortfunction(a, b) {
+        return $(b).index() - $(a).index();
       }
-      selectedElements.sort (sortfunction);
+      selectedElements.sort(sortfunction);
       for (i = 0; i < len; ++i) {
         elem = selectedElements[i];
-        if (isNullish (elem)) {
+        if (isNullish(elem)) {
           break;
         }
       }
       // use slice to quickly get the subset of elements we need
-      const copiedElements = selectedElements.slice (0, i);
-      this.clearSelection (true);
+      const copiedElements = selectedElements.slice(0, i);
+      this.clearSelection(true);
       // note that we loop in the reverse way because of the way elements are added
       // to the selectedElements array (top-first)
-      const drawing = getCurrentDrawing ();
+      const drawing = getCurrentDrawing();
       i = copiedElements.length;
       while (i--) {
         // clone each element and replace it within copiedElements
-        elem = copiedElements[i] = drawing.copyElem (copiedElements[i]);
-        (currentGroup || drawing.getCurrentLayer ()).append (elem);
-        batchCmd.addSubCommand (new InsertElementCommand (elem));
+        elem = copiedElements[i] = drawing.copyElem(copiedElements[i]);
+        (currentGroup || drawing.getCurrentLayer()).append(elem);
+        batchCmd.addSubCommand(new InsertElementCommand(elem));
       }
 
-      if (!batchCmd.isEmpty ()) {
-        addToSelection (copiedElements.reverse ()); // Need to reverse for correct selection-adding
-        this.moveSelectedElements (x, y, false);
-        addCommandToHistory (batchCmd);
+      if (!batchCmd.isEmpty()) {
+        addToSelection(copiedElements.reverse()); // Need to reverse for correct selection-adding
+        this.moveSelectedElements(x, y, false);
+        addCommandToHistory(batchCmd);
       }
     };
 
     /**
-* Aligns selected elements.
-* @function module:svgcanvas.SvgCanvas#alignSelectedElements
-* @param {string} type - String with single character indicating the alignment type
-* @param {"selected"|"largest"|"smallest"|"page"} relativeTo
-* @returns {void}
-*/
-    this.alignSelectedElements = function (type, relativeTo) {
+     * Aligns selected elements.
+     * @function module:svgcanvas.SvgCanvas#alignSelectedElements
+     * @param {string} type - String with single character indicating the alignment type
+     * @param {"selected"|"largest"|"smallest"|"page"} relativeTo
+     * @returns {void}
+     */
+    this.alignSelectedElements = function(type, relativeTo) {
       const bboxes = []; // angles = [];
       const len = selectedElements.length;
       if (!len) {
@@ -7866,13 +7902,14 @@ function hideCursor () {
         maxx = Number.MIN_VALUE,
         miny = Number.MAX_VALUE,
         maxy = Number.MIN_VALUE;
-      let curwidth = Number.MIN_VALUE, curheight = Number.MIN_VALUE;
+      let curwidth = Number.MIN_VALUE,
+        curheight = Number.MIN_VALUE;
       for (let i = 0; i < len; ++i) {
-        if (isNullish (selectedElements[i])) {
+        if (isNullish(selectedElements[i])) {
           break;
         }
         const elem = selectedElements[i];
-        bboxes[i] = getStrokedBBoxDefaultVisible ([elem]);
+        bboxes[i] = getStrokedBBoxDefaultVisible([elem]);
 
         // now bbox is axis-aligned and handles rotation
         switch (relativeTo) {
@@ -7935,10 +7972,10 @@ function hideCursor () {
         maxy = canvas.contentH;
       }
 
-      const dx = new Array (len);
-      const dy = new Array (len);
+      const dx = new Array(len);
+      const dy = new Array(len);
       for (let i = 0; i < len; ++i) {
-        if (isNullish (selectedElements[i])) {
+        if (isNullish(selectedElements[i])) {
           break;
         }
         // const elem = selectedElements[i];
@@ -7966,52 +8003,52 @@ function hideCursor () {
             break;
         }
       }
-      this.moveSelectedElements (dx, dy);
+      this.moveSelectedElements(dx, dy);
     };
 
     /**
-* Group: Additional editor tools.
-*/
+     * Group: Additional editor tools.
+     */
 
     /**
-* @name module:svgcanvas.SvgCanvas#contentW
-* @type {Float}
-*/
-    this.contentW = getResolution ().w;
+     * @name module:svgcanvas.SvgCanvas#contentW
+     * @type {Float}
+     */
+    this.contentW = getResolution().w;
     /**
-* @name module:svgcanvas.SvgCanvas#contentH
-* @type {Float}
-*/
-    this.contentH = getResolution ().h;
+     * @name module:svgcanvas.SvgCanvas#contentH
+     * @type {Float}
+     */
+    this.contentH = getResolution().h;
 
     /**
-* @typedef {PlainObject} module:svgcanvas.CanvasInfo
-* @property {Float} x - The canvas' new x coordinate
-* @property {Float} y - The canvas' new y coordinate
-* @property {string} oldX - The canvas' old x coordinate
-* @property {string} oldY - The canvas' old y coordinate
-* @property {Float} d_x - The x position difference
-* @property {Float} d_y - The y position difference
-*/
+     * @typedef {PlainObject} module:svgcanvas.CanvasInfo
+     * @property {Float} x - The canvas' new x coordinate
+     * @property {Float} y - The canvas' new y coordinate
+     * @property {string} oldX - The canvas' old x coordinate
+     * @property {string} oldY - The canvas' old y coordinate
+     * @property {Float} d_x - The x position difference
+     * @property {Float} d_y - The y position difference
+     */
 
     /**
-* Updates the editor canvas width/height/position after a zoom has occurred.
-* @function module:svgcanvas.SvgCanvas#updateCanvas
-* @param {Float} w - Float with the new width
-* @param {Float} h - Float with the new height
-* @fires module:svgcanvas.SvgCanvas#event:ext_canvasUpdated
-* @returns {module:svgcanvas.CanvasInfo}
-*/
-    this.updateCanvas = function (w, h) {
-      svgroot.setAttribute ('width', w);
-      svgroot.setAttribute ('height', h);
-      const bg = $ ('#canvasBackground')[0];
-      const oldX = svgcontent.getAttribute ('x');
-      const oldY = svgcontent.getAttribute ('y');
+     * Updates the editor canvas width/height/position after a zoom has occurred.
+     * @function module:svgcanvas.SvgCanvas#updateCanvas
+     * @param {Float} w - Float with the new width
+     * @param {Float} h - Float with the new height
+     * @fires module:svgcanvas.SvgCanvas#event:ext_canvasUpdated
+     * @returns {module:svgcanvas.CanvasInfo}
+     */
+    this.updateCanvas = function(w, h) {
+      svgroot.setAttribute('width', w);
+      svgroot.setAttribute('height', h);
+      const bg = $('#canvasBackground')[0];
+      const oldX = svgcontent.getAttribute('x');
+      const oldY = svgcontent.getAttribute('y');
       const x = (w - this.contentW * currentZoom) / 2;
       const y = (h - this.contentH * currentZoom) / 2;
 
-      assignAttributes (svgcontent, {
+      assignAttributes(svgcontent, {
         width: this.contentW * currentZoom,
         height: this.contentH * currentZoom,
         x,
@@ -8019,42 +8056,42 @@ function hideCursor () {
         viewBox: '0 0 ' + this.contentW + ' ' + this.contentH,
       });
 
-      assignAttributes (bg, {
-        width: svgcontent.getAttribute ('width'),
-        height: svgcontent.getAttribute ('height'),
+      assignAttributes(bg, {
+        width: svgcontent.getAttribute('width'),
+        height: svgcontent.getAttribute('height'),
         x,
         y,
       });
 
-      const bgImg = getElem ('background_image');
+      const bgImg = getElem('background_image');
       if (bgImg) {
-        assignAttributes (bgImg, {
+        assignAttributes(bgImg, {
           width: '100%',
           height: '100%',
         });
       }
 
-      selectorManager.selectorParentGroup.setAttribute (
+      selectorManager.selectorParentGroup.setAttribute(
         'transform',
-        'translate(' + x + ',' + y + ')'
+        'translate(' + x + ',' + y + ')',
       );
 
       /**
-  * Invoked upon updates to the canvas.
-  * @event module:svgcanvas.SvgCanvas#event:ext_canvasUpdated
-  * @type {PlainObject}
-  * @property {Integer} new_x
-  * @property {Integer} new_y
-  * @property {string} old_x (Of Integer)
-  * @property {string} old_y (Of Integer)
-  * @property {Integer} d_x
-  * @property {Integer} d_y
-  */
-      runExtensions (
+       * Invoked upon updates to the canvas.
+       * @event module:svgcanvas.SvgCanvas#event:ext_canvasUpdated
+       * @type {PlainObject}
+       * @property {Integer} new_x
+       * @property {Integer} new_y
+       * @property {string} old_x (Of Integer)
+       * @property {string} old_y (Of Integer)
+       * @property {Integer} d_x
+       * @property {Integer} d_y
+       */
+      runExtensions(
         'canvasUpdated',
         /**
-     * @type {module:svgcanvas.SvgCanvas#event:ext_canvasUpdated}
-     */
+         * @type {module:svgcanvas.SvgCanvas#event:ext_canvasUpdated}
+         */
         {
           new_x: x,
           new_y: y,
@@ -8062,48 +8099,49 @@ function hideCursor () {
           old_y: oldY,
           d_x: x - oldX,
           d_y: y - oldY,
-        }
+        },
       );
-      return {x, y, old_x: oldX, old_y: oldY, d_x: x - oldX, d_y: y - oldY};
+      return { x, y, old_x: oldX, old_y: oldY, d_x: x - oldX, d_y: y - oldY };
     };
 
     /**
-* Set the background of the editor (NOT the actual document).
-* @function module:svgcanvas.SvgCanvas#setBackground
-* @param {string} color - String with fill color to apply
-* @param {string} url - URL or path to image to use
-* @returns {void}
-*/
-    this.setBackground = function (color, url) {
-      const bg = getElem ('canvasBackground');
-      const border = $ (bg).find ('rect')[0];
-      let bgImg = getElem ('background_image');
-      let bgPattern = getElem ('background_pattern');
-      border.setAttribute ('fill', color === 'chessboard' ? '#fff' : color);
+     * Set the background of the editor (NOT the actual document).
+     * @function module:svgcanvas.SvgCanvas#setBackground
+     * @param {string} color - String with fill color to apply
+     * @param {string} url - URL or path to image to use
+     * @returns {void}
+     */
+    this.setBackground = function(color, url) {
+      const bg = getElem('canvasBackground');
+      const border = $(bg).find('rect')[0];
+      let bgImg = getElem('background_image');
+      let bgPattern = getElem('background_pattern');
+      border.setAttribute('fill', color === 'chessboard' ? '#fff' : color);
       if (color === 'chessboard') {
         if (!bgPattern) {
-          bgPattern = svgdoc.createElementNS (NS.SVG, 'foreignObject');
-          assignAttributes (bgPattern, {
+          bgPattern = svgdoc.createElementNS(NS.SVG, 'foreignObject');
+          assignAttributes(bgPattern, {
             id: 'background_pattern',
             width: '100%',
             height: '100%',
             preserveAspectRatio: 'xMinYMin',
             style: 'pointer-events:none',
           });
-          const div = document.createElement ('div');
-          assignAttributes (div, {
-            style: 'pointer-events:none;width:100%;height:100%;background-image:url(data:image/gif;base64,R0lGODlhEAAQAIAAAP///9bW1iH5BAAAAAAALAAAAAAQABAAAAIfjG+gq4jM3IFLJgpswNly/XkcBpIiVaInlLJr9FZWAQA7);',
+          const div = document.createElement('div');
+          assignAttributes(div, {
+            style:
+              'pointer-events:none;width:100%;height:100%;background-image:url(data:image/gif;base64,R0lGODlhEAAQAIAAAP///9bW1iH5BAAAAAAALAAAAAAQABAAAAIfjG+gq4jM3IFLJgpswNly/XkcBpIiVaInlLJr9FZWAQA7);',
           });
-          bgPattern.appendChild (div);
-          bg.append (bgPattern);
+          bgPattern.appendChild(div);
+          bg.append(bgPattern);
         }
       } else if (bgPattern) {
-        bgPattern.remove ();
+        bgPattern.remove();
       }
       if (url) {
         if (!bgImg) {
-          bgImg = svgdoc.createElementNS (NS.SVG, 'image');
-          assignAttributes (bgImg, {
+          bgImg = svgdoc.createElementNS(NS.SVG, 'image');
+          assignAttributes(bgImg, {
             id: 'background_image',
             width: '100%',
             height: '100%',
@@ -8111,31 +8149,31 @@ function hideCursor () {
             style: 'pointer-events:none',
           });
         }
-        setHref (bgImg, url);
-        bg.append (bgImg);
+        setHref(bgImg, url);
+        bg.append(bgImg);
       } else if (bgImg) {
-        bgImg.remove ();
+        bgImg.remove();
       }
     };
 
     /**
-* Select the next/previous element within the current layer.
-* @function module:svgcanvas.SvgCanvas#cycleElement
-* @param {boolean} next - true = next and false = previous element
-* @fires module:svgcanvas.SvgCanvas#event:selected
-* @returns {void}
-*/
-    this.cycleElement = function (next) {
+     * Select the next/previous element within the current layer.
+     * @function module:svgcanvas.SvgCanvas#cycleElement
+     * @param {boolean} next - true = next and false = previous element
+     * @fires module:svgcanvas.SvgCanvas#event:selected
+     * @returns {void}
+     */
+    this.cycleElement = function(next) {
       let num;
       const curElem = selectedElements[0];
       let elem = false;
-      const allElems = getVisibleElements (
-        currentGroup || getCurrentDrawing ().getCurrentLayer ()
+      const allElems = getVisibleElements(
+        currentGroup || getCurrentDrawing().getCurrentLayer(),
       );
       if (!allElems.length) {
         return;
       }
-      if (isNullish (curElem)) {
+      if (isNullish(curElem)) {
         num = next ? allElems.length - 1 : 0;
         elem = allElems[num];
       } else {
@@ -8153,41 +8191,41 @@ function hideCursor () {
           }
         }
       }
-      selectOnly ([elem], true);
-      call ('selected', selectedElements);
+      selectOnly([elem], true);
+      call('selected', selectedElements);
     };
 
-    this.clear ();
+    this.clear();
 
     /**
-* @interface module:svgcanvas.PrivateMethods
-* @type {PlainObject}
-* @property {module:svgcanvas~addCommandToHistory} addCommandToHistory
-* @property {module:history.HistoryCommand} BatchCommand
-* @property {module:history.HistoryCommand} ChangeElementCommand
-* @property {module:utilities.decode64} decode64
-* @property {module:utilities.dropXMLInternalSubset} dropXMLInternalSubset
-* @property {module:utilities.encode64} encode64
-* @property {module:svgcanvas~ffClone} ffClone
-* @property {module:svgcanvas~findDuplicateGradient} findDuplicateGradient
-* @property {module:utilities.getPathBBox} getPathBBox
-* @property {module:units.getTypeMap} getTypeMap
-* @property {module:draw.identifyLayers} identifyLayers
-* @property {module:history.HistoryCommand} InsertElementCommand
-* @property {module:browser.isChrome} isChrome
-* @property {module:math.isIdentity} isIdentity
-* @property {module:browser.isIE} isIE
-* @property {module:svgcanvas~logMatrix} logMatrix
-* @property {module:history.HistoryCommand} MoveElementCommand
-* @property {module:namespaces.NS} NS
-* @property {module:utilities.preventClickDefault} preventClickDefault
-* @property {module:history.HistoryCommand} RemoveElementCommand
-* @property {module:SVGTransformList.SVGEditTransformList} SVGEditTransformList
-* @property {module:utilities.text2xml} text2xml
-* @property {module:math.transformBox} transformBox
-* @property {module:math.transformPoint} transformPoint
-* @property {module:utilities.walkTree} walkTree
-*/
+     * @interface module:svgcanvas.PrivateMethods
+     * @type {PlainObject}
+     * @property {module:svgcanvas~addCommandToHistory} addCommandToHistory
+     * @property {module:history.HistoryCommand} BatchCommand
+     * @property {module:history.HistoryCommand} ChangeElementCommand
+     * @property {module:utilities.decode64} decode64
+     * @property {module:utilities.dropXMLInternalSubset} dropXMLInternalSubset
+     * @property {module:utilities.encode64} encode64
+     * @property {module:svgcanvas~ffClone} ffClone
+     * @property {module:svgcanvas~findDuplicateGradient} findDuplicateGradient
+     * @property {module:utilities.getPathBBox} getPathBBox
+     * @property {module:units.getTypeMap} getTypeMap
+     * @property {module:draw.identifyLayers} identifyLayers
+     * @property {module:history.HistoryCommand} InsertElementCommand
+     * @property {module:browser.isChrome} isChrome
+     * @property {module:math.isIdentity} isIdentity
+     * @property {module:browser.isIE} isIE
+     * @property {module:svgcanvas~logMatrix} logMatrix
+     * @property {module:history.HistoryCommand} MoveElementCommand
+     * @property {module:namespaces.NS} NS
+     * @property {module:utilities.preventClickDefault} preventClickDefault
+     * @property {module:history.HistoryCommand} RemoveElementCommand
+     * @property {module:SVGTransformList.SVGEditTransformList} SVGEditTransformList
+     * @property {module:utilities.text2xml} text2xml
+     * @property {module:math.transformBox} transformBox
+     * @property {module:math.transformPoint} transformPoint
+     * @property {module:utilities.walkTree} walkTree
+     */
     /**
 * @deprecated getPrivateMethods
 * Since all methods are/should be public somehow, this function should be removed;
@@ -8200,7 +8238,7 @@ function hideCursor () {
 * @function module:svgcanvas.SvgCanvas#getPrivateMethods
 * @returns {module:svgcanvas.PrivateMethods}
 */
-    this.getPrivateMethods = function () {
+    this.getPrivateMethods = function() {
       const obj = {
         addCommandToHistory,
         BatchCommand,
