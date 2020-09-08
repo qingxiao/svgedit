@@ -20,46 +20,48 @@ For default config and extensions (and available options) available to
 
 import svgEditor from './editor/svg-editor.js';
 
-const editPath = '/svgedit/editor/';
+const getPathWithPublic = url => {
+  return window.publicPath + url.replace(/^\//, '');
+};
+
+const editPath = getPathWithPublic('/svgedit/editor/');
 const addEditPath = url => {
   return editPath + url;
 };
 window.svgEditor = svgEditor;
 
 // URL OVERRIDE CONFIG
-svgEditor.setConfig (
-  {
-    /**
+svgEditor.setConfig({
+  /**
   To override the ability for URLs to set URL-based SVG content,
       uncomment the following:
   */
-    // preventURLContentLoading: true,
-    /**
+  // preventURLContentLoading: true,
+  /**
   To override the ability for URLs to set other configuration (including
       extension config), uncomment the following:
   */
-    // preventAllURLConfig: true,
-    /**
+  // preventAllURLConfig: true,
+  /**
   To override the ability for URLs to set their own extensions,
     uncomment the following (note that if `setConfig()` is used in
     extension code, it will still be additive to extensions,
     however):
   */
-    // lockExtensions: true,
-  }
-);
-svgEditor.setConfig (
+  // lockExtensions: true,
+});
+svgEditor.setConfig(
   {
     /*
   Provide default values here which differ from that of the editor but
     which the URL can override
   */
   },
-  {allowInitialUserOverride: true}
+  { allowInitialUserOverride: true },
 );
 
 // EXTENSION CONFIG
-svgEditor.setConfig ({
+svgEditor.setConfig({
   // extensions: [
   //   'ext-overview_window.js', 'ext-markers.js', 'ext-connector.js',
   //    'ext-eyedropper.js', 'ext-shapes.js', 'ext-imagelib.js',
@@ -67,9 +69,16 @@ svgEditor.setConfig ({
   //     'ext-storage.js'
   // ],
   extensions: [
-    'ext-overview_window.js', 'ext-markers.js', 'ext-connector.js',
-     'ext-eyedropper.js', 'ext-shapes.js', 'ext-imagelib.js',
-     'ext-grid.js', 'ext-polygon.js', 'ext-star.js', 'ext-panning.js',
+    'ext-overview_window.js',
+    'ext-markers.js',
+    'ext-connector.js',
+    'ext-eyedropper.js',
+    'ext-shapes.js',
+    'ext-imagelib.js',
+    'ext-grid.js',
+    'ext-polygon.js',
+    'ext-star.js',
+    'ext-panning.js',
   ],
   // noDefaultExtensions can only be meaningfully used in
   //  `svgedit-config-es.js` or in the URL
@@ -77,18 +86,18 @@ svgEditor.setConfig ({
 });
 
 // STYLESHEET CONFIG
-svgEditor.setConfig ({
+svgEditor.setConfig({
   // stylesheets: ['@default']
   stylesheets: [
     'jgraduate/css/jGraduate.css',
     'spinbtn/jQuery.SpinButton.css',
     'jgraduate/css/jPicker.css',
     'svg-editor.css',
-  ].map (addEditPath),
+  ].map(addEditPath),
 });
 
 // OTHER CONFIG
-svgEditor.setConfig ({
+svgEditor.setConfig({
   // canvasName: 'default',
   // canvas_expansion: 3,
   initFill: {
@@ -108,11 +117,11 @@ svgEditor.setConfig ({
   // showlayers: false,
   // no_save_warning: false,
   // PATH CONFIGURATION
-  extIconsPath: '/svgedit/editor/extensions/',
-  imgPath: '/svgedit/editor/images/',
-  langPath: '/svgedit/editor/locale/',
-  extPath: '/svgedit/editor/extensions/',
-  jGraduatePath: '/svgedit/editor/jgraduate/images/',
+  extIconsPath: getPathWithPublic('/svgedit/editor/extensions/'),
+  imgPath: getPathWithPublic('/svgedit/editor/images/'),
+  langPath: getPathWithPublic('/svgedit/editor/locale/'),
+  extPath: getPathWithPublic('/svgedit/editor/extensions/'),
+  jGraduatePath: getPathWithPublic('/svgedit/editor/jgraduate/images/'),
   /*
   Uncomment the following to allow at least same domain (embedded) access,
   including `file:///` access.
@@ -158,19 +167,19 @@ As with configuration, one may use allowInitialUserOverride, but
   Failing to use allowInitialUserOverride will ensure preferences
   are hard-coded here regardless of URL or prior user storage setting.
 */
-svgEditor.setConfig ({
+svgEditor.setConfig({
   // Set dynamically within locale.js if not previously set
   // lang: '',
   // Will default to 's' if the window height is smaller than the minimum
   //  height and 'm' otherwise
   iconsize: 'm',
   /**
-  * When showing the preferences dialog, svg-editor.js currently relies
-  * on `curPrefs` instead of `svgEditor.pref`, so allowing an override for
-  * `bkgd_color` means that this value won't have priority over block
-  * auto-detection as far as determining which color shows initially
-  * in the preferences dialog (though it can be changed and saved).
-  */
+   * When showing the preferences dialog, svg-editor.js currently relies
+   * on `curPrefs` instead of `svgEditor.pref`, so allowing an override for
+   * `bkgd_color` means that this value won't have priority over block
+   * auto-detection as far as determining which color shows initially
+   * in the preferences dialog (though it can be changed and saved).
+   */
   // bkgd_color: '#FFF',
   // bkgd_url: '',
   // img_save: 'embed',
@@ -178,12 +187,12 @@ svgEditor.setConfig ({
   // save_notice_done: false,
   // export_notice_done: false
 });
-svgEditor.setConfig (
+svgEditor.setConfig(
   {
     // Indicate pref settings here if you wish to allow user storage or URL
     //   settings to be able to override your default preferences (unless
     //   other config options have already explicitly prevented one or the
     //   other)
   },
-  {allowInitialUserOverride: true}
+  { allowInitialUserOverride: true },
 );
