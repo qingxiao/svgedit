@@ -3284,12 +3284,12 @@ class SvgCanvas {
         ) {
           // Escape from in-group edit
           // xiaoqing
-          // return;
+          return;
         }
 
-        // xiaoqing
-        call('dblClick', mouseTarget);
-        // draw.setContext(mouseTarget);
+        // xiaoqing 双击触发属性动画链接
+        // call('dblClick', mouseTarget);
+        draw.setContext(mouseTarget);
       };
 
       // prevent links from being followed in the canvas

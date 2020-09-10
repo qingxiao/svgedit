@@ -19,6 +19,7 @@ For default config and extensions (and available options) available to
 */
 
 import svgEditor from './editor/svg-editor.js';
+import { add } from './editor/contextmenu.js';
 
 const getPathWithPublic = url => {
   return window.publicPath + url.replace(/^\//, '');
@@ -29,6 +30,15 @@ const addEditPath = url => {
   return editPath + url;
 };
 window.svgEditor = svgEditor;
+
+// 添加自定义事件
+add({
+  id: 'animation',
+  label: '动画链接',
+  action(el) {
+    svgEditor.canvas.call('showAttributeEdit', el[0]);
+  },
+});
 
 // URL OVERRIDE CONFIG
 svgEditor.setConfig({
