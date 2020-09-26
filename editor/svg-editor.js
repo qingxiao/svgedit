@@ -854,7 +854,7 @@ editor.init = function() {
    * @param {string|Element|external:jQuery} elem
    * @param {string|external:jQuery} iconId
    * @param {Float} forcedSize Not in use
-   * @returns {void}
+   * @returns {void}console.log('SETiCON')
    */
   const setIcon = (editor.setIcon = function(elem, iconId, forcedSize) {
     const icon =
@@ -2194,6 +2194,7 @@ editor.init = function() {
       const bigInt = multi * uMulti;
 
       ctx.font = '9px sans-serif';
+      ctx.fillStyle = '#ccc';
 
       let rulerD = ((contentDim / uMulti) % multi) * uMulti;
       let labelPos = rulerD - bigInt;
@@ -2265,7 +2266,7 @@ editor.init = function() {
         }
         rulerD += bigInt;
       }
-      ctx.strokeStyle = '#000';
+      ctx.strokeStyle = '#ccc';
       ctx.stroke();
     }
   }
@@ -6834,7 +6835,7 @@ editor.init = function() {
       menu: 'cmenu_canvas',
       inSpeed: 0,
     },
-    function(action, el, pos) {
+    function(action, el, pos, event) {
       switch (action) {
         case 'delete':
           deleteSelected();
@@ -6872,7 +6873,7 @@ editor.init = function() {
           break;
         default:
           if (hasCustomHandler(action)) {
-            getCustomHandler(action).call(null, el);
+            getCustomHandler(action).call(null, event.target);
           }
           break;
       }
