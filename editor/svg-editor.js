@@ -1282,7 +1282,7 @@ editor.init = function() {
    * @returns {void}
    */
   function setIcons() {
-    $.svgIcons(curConfig.imgPath + 'svg_edit_icons.svg', {
+    $.svgIcons(curConfig.imgPath + '/hmisvg/svg_edit_icons.svg', {
       w: 24,
       h: 24,
       id_match: false,
@@ -1464,6 +1464,8 @@ editor.init = function() {
         '#group_opacityLabel': 'opacity',
         '#blurLabel': 'blur',
         '#font_sizeLabel': 'fontsize',
+
+        '#view_grid': 'view_grid',
 
         '.flyout_arrow_horiz': 'arrow_right',
         '.dropdown button, #main_button .dropdown': 'arrow_down',
