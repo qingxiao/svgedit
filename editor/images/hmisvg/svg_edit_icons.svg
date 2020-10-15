@@ -199,17 +199,13 @@
 	</g>
 	<g id="arrow_down">
 		<svg viewBox="0 0 50 40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-			<path transform="rotate(90, 26, 13)" d="m14,-12l0,50l25,-25l-25,-25z" fill="#d5d5d5" stroke="#d5d5d5" />
+			<path transform="rotate(90, 26, 13)" d="m14,-12l0,50l25,-25l-25,-25z" fill="#2d2d2d" stroke="#2d2d2d" />
 		</svg>
 	</g>
 	<g id="fill">
-		<svg width="32" height="33" xmlns="http://www.w3.org/2000/svg">
-			<g id="svg_5">
-				<path id="svg_4" d="m17.49167,10.97621c6.9875,-0.325 12.1875,2.70833 12.13333,7.36667l-0.325,10.075c-0.75833,4.0625 -2.275,3.0875 -3.03333,0.10833l0.21667,-9.64166c-0.43333,-0.975 -1.08333,-1.625 -1.95,-1.51667" stroke-linejoin="round" stroke="#606060" fill="#c0c0c0" />
-				<path id="svg_1" d="m2.00055,17.1309l10.72445,-10.72445l12.67445,12.13279l-3.52056,0.05389l-9.15389,9.26223l-10.72445,-10.72445z" stroke-linejoin="round" stroke="#d5d5d5" fill="#c0c0c0" />
-				<path id="svg_3" d="m14.35,13.57621c-0.1625,-3.95417 0.86667,-11.7 -1.84167,-11.59167c-2.70833,0.10833 -2.6,2.05833 -2.16667,6.93333" stroke-linejoin="round" stroke="#d5d5d5" fill="none" />
-				<circle id="svg_2" r="1.60938" cy="15.20121" cx="14.45833" stroke-linejoin="round" stroke="#d5d5d5" fill="none" />
-			</g>
+		<svg t="1602782582013" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3151" width="32" height="32">
+			<path d="M752.170667 796.544c-37.205333-49.621333-13.013333-117.845333 12.117333-164.266667l-295.125333 295.125334a43.050667 43.050667 0 0 1-60.885334 0l-353.024-353.024a43.050667 43.050667 0 0 1 0-60.842667l276.949334-276.906667-76.074667-76.117333A34.432 34.432 0 1 1 304.810667 111.786667l76.074666 76.074666 91.306667-91.306666a43.050667 43.050667 0 0 1 60.885333 0l352.981334 353.024a43.050667 43.050667 0 0 1 0 60.842666l-9.557334 9.557334c149.333333 194.602667 105.728 255.573333 70.4 294.784-35.498667 39.466667-132.992 64.085333-194.730666-18.261334z m39.552-289.109333a43.050667 43.050667 0 0 0 0-60.842667l-255.616-255.658667a43.050667 43.050667 0 0 0-60.885334 0l-45.653333 45.653334 106.538667 106.496a34.432 34.432 0 1 1-48.682667 48.725333L380.885333 285.269333l-228.266666 228.266667a43.050667 43.050667 0 0 0 0 60.842667l255.658666 255.616a43.050667 43.050667 0 0 0 60.885334 0l322.56-322.56z m121.728 206.933333c-7.509333-49.92-37.930667-132.309333-57.813334-155.178667 0 0-102.698667 165.546667-36.522666 206.933334 62.72 34.901333 98.858667-21.674667 94.336-51.754667z" p-id="3152" fill="#d5d5d5">
+			</path>
 		</svg>
 	</g>
 	<g id="stroke">
@@ -608,8 +604,8 @@
 			<!-- Created with SVG-edit - https://github.com/SVG-Edit/svgedit -->
 			<defs>
 				<linearGradient id="svg_8" x1="0.8" y1="1" x2="0.2" y2="1">
-					<stop offset="0" stop-color="#d5d5d5" stop-opacity="1" />
-					<stop offset="1" stop-color="#d5d5d5" stop-opacity="0" />
+					<stop offset="0" stop-color="#000" stop-opacity="1" />
+					<stop offset="1" stop-color="#000" stop-opacity="0" />
 				</linearGradient>
 			</defs>
 			<g>
@@ -624,8 +620,8 @@
 			<!-- Created with SVG-edit - https://github.com/SVG-Edit/svgedit -->
 			<defs>
 				<linearGradient id="svg_8" x1="0.8" y1="1" x2="0.2" y2="1">
-					<stop offset="0" stop-color="#d5d5d5" stop-opacity="1" />
-					<stop offset="1" stop-color="#d5d5d5" stop-opacity="0" />
+					<stop offset="0" stop-color="#000" stop-opacity="1" />
+					<stop offset="1" stop-color="#000" stop-opacity="0" />
 				</linearGradient>
 			</defs>
 			<g>
@@ -640,8 +636,8 @@
 			<!-- Created with SVG-edit - https://github.com/SVG-Edit/svgedit -->
 			<defs>
 				<linearGradient y2="1" x2="0.2" y1="1" x1="0.8" id="svg_8">
-					<stop stop-opacity="1" stop-color="#d5d5d5" offset="0" />
-					<stop stop-opacity="0" stop-color="#d5d5d5" offset="1" />
+					<stop stop-opacity="1" stop-color="#000" offset="0" />
+					<stop stop-opacity="0" stop-color="#000" offset="1" />
 				</linearGradient>
 			</defs>
 			<g>
@@ -656,8 +652,8 @@
 			<!-- Created with SVG-edit - https://github.com/SVG-Edit/svgedit -->
 			<defs>
 				<linearGradient y2="1" x2="0.2" y1="1" x1="0.8" id="svg_8">
-					<stop stop-opacity="1" stop-color="#d5d5d5" offset="0" />
-					<stop stop-opacity="0" stop-color="#d5d5d5" offset="1" />
+					<stop stop-opacity="1" stop-color="#000" offset="0" />
+					<stop stop-opacity="0" stop-color="#000" offset="1" />
 				</linearGradient>
 			</defs>
 			<g>
@@ -672,8 +668,8 @@
 			<!-- Created with SVG-edit - https://github.com/SVG-Edit/svgedit -->
 			<defs>
 				<linearGradient y2="1" x2="0.2" y1="1" x1="0.8" id="svg_8">
-					<stop stop-opacity="1" stop-color="#d5d5d5" offset="0" />
-					<stop stop-opacity="0" stop-color="#d5d5d5" offset="1" />
+					<stop stop-opacity="1" stop-color="#000" offset="0" />
+					<stop stop-opacity="0" stop-color="#000" offset="1" />
 				</linearGradient>
 			</defs>
 			<g>
@@ -688,8 +684,8 @@
 			<!-- Created with SVG-edit - https://github.com/SVG-Edit/svgedit -->
 			<defs>
 				<linearGradient y2="1" x2="0.2" y1="1" x1="0.8" id="svg_8">
-					<stop stop-opacity="1" stop-color="#d5d5d5" offset="0" />
-					<stop stop-opacity="0" stop-color="#d5d5d5" offset="1" />
+					<stop stop-opacity="1" stop-color="#000" offset="0" />
+					<stop stop-opacity="0" stop-color="#000" offset="1" />
 				</linearGradient>
 			</defs>
 			<g>
