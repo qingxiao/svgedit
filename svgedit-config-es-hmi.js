@@ -36,7 +36,8 @@ add({
   id: 'animation',
   label: '动画链接',
   action(el) {
-    svgEditor.canvas.call('showAttributeEdit', el);
+    const selectedEls = window.svgEditor.canvas.getSelectedElems();
+    svgEditor.canvas.call('showAttributeEdit', selectedEls[0]);
   },
 });
 
