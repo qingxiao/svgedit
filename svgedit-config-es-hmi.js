@@ -21,6 +21,8 @@ For default config and extensions (and available options) available to
 import svgEditor from './editor/svg-editor.js';
 import { add } from './editor/contextmenu.js';
 
+const language = localStorage.getItem('language') || 'zh-CN';
+
 const getPathWithPublic = url => {
   return window.publicPath + url.replace(/^\//, '');
 };
@@ -34,7 +36,7 @@ window.svgEditor = svgEditor;
 // 添加自定义事件
 add({
   id: 'animation',
-  label: '动画链接',
+  label: language === 'en' ? 'Animation' : '动画链接',
   action(el) {
     const selectedEls = window.svgEditor.canvas.getSelectedElems();
     svgEditor.canvas.call('showAttributeEdit', selectedEls[0]);
@@ -180,7 +182,7 @@ As with configuration, one may use allowInitialUserOverride, but
 */
 svgEditor.setConfig({
   // Set dynamically within locale.js if not previously set
-  // lang: '',
+  lang: language,
   // Will default to 's' if the window height is smaller than the minimum
   //  height and 'm' otherwise
   iconsize: 'm',
