@@ -1,9 +1,12 @@
+import {
+  visitAndApproveStorage
+} from '../../support/ui-test-helper.js';
+
 describe('UI - Accessibility', function () {
   beforeEach(() => {
-    cy.visit('/instrumented/svg-editor-es.html');
+    visitAndApproveStorage();
     cy.injectAxe();
   });
-
   // https://www.npmjs.com/package/cypress-axe
   it('Has no detectable a11y violations on load', () => {
     // Configure aXe and test the page at initial load
@@ -25,6 +28,16 @@ describe('UI - Accessibility', function () {
       locale: Object
       */
     });
-    cy.checkA11y();
+    cy.checkA11y(
+      {},
+      {
+        rules: {
+          'label-title-only': {enabled: false},
+          'page-has-heading-one': {enabled: false},
+          region: {enabled: false},
+          'scrollable-region-focusable': {enabled: false}
+        }
+      }
+    );
   });
 });

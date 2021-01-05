@@ -1,11 +1,13 @@
 /* globals SVGPathSeg */
-import '../../../instrumented/jquery.min.js';
+import 'pathseg';
 
-import '../../../instrumented/svgpathseg.js';
-import {NS} from '../../../instrumented/namespaces.js';
-import * as utilities from '../../../instrumented/utilities.js';
-import * as pathModule from '../../../instrumented/path.js';
-import {init as unitsInit} from '../../../instrumented/units.js';
+import '../../../instrumented/editor/jquery.min.js';
+
+import {NS} from '../../../instrumented/common/namespaces.js';
+import * as utilities from '../../../instrumented/common/utilities.js';
+import * as pathModule from '../../../instrumented/svgcanvas/path.js';
+import {Path, Segment} from '../../../instrumented/svgcanvas/path-method.js';
+import {init as unitsInit} from '../../../instrumented/common/units.js';
 
 describe('path', function () {
   /**
@@ -49,7 +51,7 @@ describe('path', function () {
     const [mockPathContext, mockUtilitiesContext] = getMockContexts();
     pathModule.init(mockPathContext);
     utilities.init(mockUtilitiesContext);
-    new pathModule.Path(path); // eslint-disable-line no-new
+    new Path(path); // eslint-disable-line no-new
 
     assert.equal(path.pathSegList.getItem(1).pathSegTypeAsLetter, 'L');
     assert.equal(path.pathSegList.getItem(1).x, 10);
@@ -69,13 +71,13 @@ describe('path', function () {
     const [mockPathContext, mockUtilitiesContext] = getMockContexts();
     pathModule.init(mockPathContext);
     utilities.init(mockUtilitiesContext);
-    new pathModule.Path(path); // eslint-disable-line no-new
+    new Path(path); // eslint-disable-line no-new
 
     assert.equal(path.pathSegList.getItem(1).pathSegTypeAsLetter, 'L');
     assert.equal(path.pathSegList.getItem(1).x, 10);
     assert.equal(path.pathSegList.getItem(1).y, 11);
 
-    const segment = new pathModule.Segment(1, path.pathSegList.getItem(1));
+    const segment = new Segment(1, path.pathSegList.getItem(1));
     segment.setType(SVGPathSeg.PATHSEG_LINETO_REL, [30, 31]);
     assert.equal(segment.item.pathSegTypeAsLetter, 'l');
     assert.equal(segment.item.x, 30);
@@ -97,8 +99,8 @@ describe('path', function () {
     const [mockPathContext, mockUtilitiesContext] = getMockContexts(svg);
     pathModule.init(mockPathContext);
     utilities.init(mockUtilitiesContext);
-    const segment = new pathModule.Segment(1, path.pathSegList.getItem(1));
-    segment.path = new pathModule.Path(path);
+    const segment = new Segment(1, path.pathSegList.getItem(1));
+    segment.path = new Path(path);
 
     assert.equal(path.pathSegList.getItem(1).pathSegTypeAsLetter, 'C');
     assert.equal(path.pathSegList.getItem(1).x1, 11);
@@ -125,13 +127,13 @@ describe('path', function () {
     const [mockPathContext, mockUtilitiesContext] = getMockContexts();
     pathModule.init(mockPathContext);
     utilities.init(mockUtilitiesContext);
-    new pathModule.Path(path); // eslint-disable-line no-new
+    new Path(path); // eslint-disable-line no-new
 
     assert.equal(path.pathSegList.getItem(1).pathSegTypeAsLetter, 'L');
     assert.equal(path.pathSegList.getItem(1).x, 10);
     assert.equal(path.pathSegList.getItem(1).y, 11);
 
-    const segment = new pathModule.Segment(1, path.pathSegList.getItem(1));
+    const segment = new Segment(1, path.pathSegList.getItem(1));
     segment.move(-3, 4);
     assert.equal(path.pathSegList.getItem(1).pathSegTypeAsLetter, 'L');
     assert.equal(path.pathSegList.getItem(1).x, 7);
@@ -145,7 +147,7 @@ describe('path', function () {
     const [mockPathContext, mockUtilitiesContext] = getMockContexts();
     pathModule.init(mockPathContext);
     utilities.init(mockUtilitiesContext);
-    new pathModule.Path(path); // eslint-disable-line no-new
+    new Path(path); // eslint-disable-line no-new
 
     assert.equal(path.pathSegList.getItem(1).pathSegTypeAsLetter, 'C');
     assert.equal(path.pathSegList.getItem(1).x1, 11);
@@ -155,7 +157,7 @@ describe('path', function () {
     assert.equal(path.pathSegList.getItem(1).x, 15);
     assert.equal(path.pathSegList.getItem(1).y, 16);
 
-    const segment = new pathModule.Segment(1, path.pathSegList.getItem(1));
+    const segment = new Segment(1, path.pathSegList.getItem(1));
     segment.moveCtrl(1, 100, -200);
     assert.equal(path.pathSegList.getItem(1).pathSegTypeAsLetter, 'C');
     assert.equal(path.pathSegList.getItem(1).x1, 111);

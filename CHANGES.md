@@ -41,6 +41,11 @@
 - Fix: remove "null" attributes in svg source #76 (@cuixiping)
 - Fix: A bug of `convertPath` function when converting H and V to
     relative (@cuixiping)
+- Fix: Layer `removeGroup` not returning element (@brettz9)
+- Fix: issue with undo because `this.elem` was overwritten with
+    `node.remove()`; #359 (@jhenon)
+- Fix: Double click not working to edit text within a group. #407 (@jhenon)
+- Fix: Showing SVG content when the context is changed. #408 (@jhenon)
 - Optimization: Remove unused `jquery-ui-1.8.custom.min.js` file
 - Optimization: Remove old build/tools closure/yuicompressor code
 - Optimization: Remove unmaintained chrome-app, firefox-extension,
@@ -60,12 +65,14 @@
 - Docs: Update license badges to reflect lack of (known) CC-BY-SA-2.0 usage
 - Docs: Update Contributing, Testing (renamed to Development),
     Linting and ReleaseInstructions
+- Docs: Add feature and PR templates
 - Update: Cypress code coverage plugin
 - Refactoring: Switch from `$.param.querystring` to `URL`
 - Refactoring: Ensure file-global jsdoc tags are at beginning of file
 - Refactoring: Move `build-html` to `build` directory
 - Refactoring: Add favicon no-op to suppress favicon 404s until
   loaded dynamically (might make configurable in future)
+- Refactoring: create a src folder and subfolders for svgcanvas, editor, common and externals.
 - Linting (ESLint): Simplify regexes
 - Linting (ESLint): Replace `innerHTML` with `textContent` from old demo
 - Linting (ESLint): Update as per latest ash-nazg
@@ -86,12 +93,15 @@
 - Testing: Produce mochawesome report
 - Testing: Cypress with multiple reporters in case we need
 - Build: Update underscore and core-js-bundle copies
+- Build: Use "json" extension for babelrc (easier out-of-the-box syntax
+    recognition by IDEs, etc.)
 - npm: Add `underscore` to copy script
 - npm: Make `copy`, `compress-images`, `start-embedded`, `build-docs-remove`
   scripts cross-platform; add `start-allow-origin` script
 - npm: Rename open script to open-tests, and add `open` script for opening
   instance of svgedit
 - npm: Ensure starting server for open scripts
+- npm/Linting: Add `--cache` to speed up subsequent linting
 - npm: Fix scripts for Windows development (needed for
   building docs and instrumenting)
 - npm: Update scripts to reflect removal of `all_tests.html`;
@@ -101,6 +111,8 @@
 - npm: Add `license-badges`, `build-docs`, and `copy` scripts to `prepublishOnly` script
 - npm: Rename `test-prep` to `prep` and other misc. script naming changes
 - npm: Update `package-lock.json`
+- npm: Update from deprecated `rollup-plugin-babel` to `@rollup/plugin-babel`
+    (and make `babelHelpers` explicit)
 - npm: Update devDeps, peerDeps
 
 ## 5.1.0
