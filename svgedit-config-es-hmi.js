@@ -18,8 +18,8 @@ For default config and extensions (and available options) available to
 `setConfig()`, see the file `docs/tutorials/ConfigOptions.md`
 */
 
-import svgEditor from './editor/svg-editor.js';
-import { add } from './editor/contextmenu.js';
+import svgEditor from './src/editor/svgedit.js';
+import { add } from './src/editor/contextmenu.js';
 
 const language = localStorage.getItem('language') || 'zh-CN';
 

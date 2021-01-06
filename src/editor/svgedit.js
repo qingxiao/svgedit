@@ -19,13 +19,20 @@
 import deparam from 'deparam';
 
 import './touch.js';
-import {NS} from '../common/namespaces.js';
-import {isWebkit, isChrome, isGecko, isIE, isMac, isTouch} from '../common/browser.js';
+import { NS } from '../common/namespaces.js';
+import {
+  isWebkit,
+  isChrome,
+  isGecko,
+  isIE,
+  isMac,
+  isTouch,
+} from '../common/browser.js';
 
 // Until we split this into smaller files, this helps distinguish utilities
 //   from local methods
 import * as Utils from '../common/utilities.js';
-import {getTypeMap, convertUnit, isValidUnit} from '../common/units.js';
+import { getTypeMap, convertUnit, isValidUnit } from '../common/units.js';
 import {
   hasCustomHandler,
   getCustomHandler,
@@ -43,18 +50,19 @@ import jQueryPluginContextMenu from './contextmenu/jQuery.contextMenu.js';
 import jQueryPluginJPicker from './jgraduate/jQuery.jPicker.js';
 import jQueryPluginDBox from '../svgcanvas/dbox.js';
 
-import {
-  readLang, putLocale,
-  setStrings
-} from './locale.js';
+import { readLang, putLocale, setStrings } from './locale.js';
 
-const {$q} = Utils;
+const { $q } = Utils;
 
 const editor = {};
 
 const $ = [
-  jQueryPluginJSHotkeys, jQueryPluginSVGIcons, jQueryPluginJGraduate,
-  jQueryPluginSpinButton, jQueryPluginContextMenu, jQueryPluginJPicker
+  jQueryPluginJSHotkeys,
+  jQueryPluginSVGIcons,
+  jQueryPluginJGraduate,
+  jQueryPluginSpinButton,
+  jQueryPluginContextMenu,
+  jQueryPluginJPicker,
 ].reduce((jq, func) => func(jq), jQuery);
 
 const homePage = 'https://github.com/SVG-Edit/svgedit';
@@ -90,17 +98,17 @@ const callbacks = [],
    * @typedef {"s"|"m"|"l"|"xl"|Float} module:SVGEditor.IconSize
    */
   /**
-  * Preferences.
-  * @interface module:SVGEditor.Prefs
-  * @property {string} [lang="en"] Two-letter language code. The language must exist in the Editor Preferences language list. Defaults to "en" if `locale.js` detection does not detect another language.
-  * @property {module:SVGEditor.IconSize} [iconsize="s" || "m"] Size of the toolbar icons. Will default to 's' if the window height is smaller than the minimum height and 'm' otherwise.
-  * @property {string} [bkgd_color="#FFF"] Color hex for canvas background color. Defaults to white.
-  * @property {string} [bkgd_url=""] Background raster image URL. This image will fill the background of the document; useful for tracing purposes.
-  * @property {"embed"|"ref"} [img_save="embed"] Defines whether included raster images should be saved as Data URIs when possible, or as URL references. Settable in the Document Properties dialog.
-  * @property {boolean} [save_notice_done=false] Used to track alert status
-  * @property {boolean} [export_notice_done=false] Used to track alert status
-  * @todo `save_notice_done` and `export_notice_done` should be changed to flags rather than preferences
-  */
+   * Preferences.
+   * @interface module:SVGEditor.Prefs
+   * @property {string} [lang="en"] Two-letter language code. The language must exist in the Editor Preferences language list. Defaults to "en" if `locale.js` detection does not detect another language.
+   * @property {module:SVGEditor.IconSize} [iconsize="s" || "m"] Size of the toolbar icons. Will default to 's' if the window height is smaller than the minimum height and 'm' otherwise.
+   * @property {string} [bkgd_color="#FFF"] Color hex for canvas background color. Defaults to white.
+   * @property {string} [bkgd_url=""] Background raster image URL. This image will fill the background of the document; useful for tracing purposes.
+   * @property {"embed"|"ref"} [img_save="embed"] Defines whether included raster images should be saved as Data URIs when possible, or as URL references. Settable in the Document Properties dialog.
+   * @property {boolean} [save_notice_done=false] Used to track alert status
+   * @property {boolean} [export_notice_done=false] Used to track alert status
+   * @todo `save_notice_done` and `export_notice_done` should be changed to flags rather than preferences
+   */
   /**
    * @namespace {module:SVGEditor.Prefs} defaultPrefs
    * @memberof module:SVGEditor~
@@ -142,7 +150,7 @@ const callbacks = [],
     'ext-polygon',
     'ext-shapes',
     'ext-star',
-    'ext-storage'
+    'ext-storage',
   ],
   /**
    * @typedef {"@default"|string} module:SVGEditor.Stylesheet `@default` will automatically load all of the default CSS paths for SVGEditor
@@ -154,53 +162,53 @@ const callbacks = [],
    * @property {Float} 1
    */
   /**
-  * @tutorial ConfigOptions
-  * @interface module:SVGEditor.Config
-  * @property {string} [canvasName="default"] Used to namespace storage provided via `ext-storage.js`; you can use this if you wish to have multiple independent instances of SVG Edit on the same domain
-  * @property {boolean} [no_save_warning=false] If `true`, prevents the warning dialog box from appearing when closing/reloading the page. Mostly useful for testing.
-  * @property {string} [imgPath="images/"] The path where the SVG icons are located, with trailing slash. Note that as of version 2.7, this is not configurable by URL for security reasons.
-  * @property {boolean} [preventAllURLConfig=false] Set to `true` to override the ability for URLs to set non-content configuration (including extension config). Must be set early, i.e., in `svgedit-config-iife.js`; extension loading is too late!
-  * @property {boolean} [preventURLContentLoading=false] Set to `true` to override the ability for URLs to set URL-based SVG content. Must be set early, i.e., in `svgedit-config-iife.js`; extension loading is too late!
-  * @property {boolean} [lockExtensions=false] Set to `true` to override the ability for URLs to set their own extensions; disallowed in URL setting. There is no need for this when `preventAllURLConfig` is used. Must be set early, i.e., in `svgedit-config-iife.js`; extension loading is too late!
-  * @property {boolean} [noDefaultExtensions=false] If set to `true`, prohibits automatic inclusion of default extensions (though "extensions" can still be used to add back any desired default extensions along with any other extensions). This can only be meaningfully used in `svgedit-config-iife.js` or in the URL
-  * @property {boolean} [noStorageOnLoad=false] Some interaction with `ext-storage.js`; prevent even the loading of previously saved local storage.
-  * @property {boolean} [forceStorage=false] Some interaction with `ext-storage.js`; strongly discouraged from modification as it bypasses user privacy by preventing them from choosing whether to keep local storage or not (and may be required by law in some regions)
-  * @property {boolean} [emptyStorageOnDecline=false] Used by `ext-storage.js`; empty any prior storage if the user declines to store
-  * @property {boolean} [avoidClientSide=false] DEPRECATED (use `avoidClientSideDownload` instead); Used by `ext-server_opensave.js`; set to `true` if you wish to always save to server and not only as fallback when client support is lacking
-  * @property {boolean} [avoidClientSideDownload=false] Used by `ext-server_opensave.js`; set to `true` if you wish to always save to server and not only as fallback when client support is lacking
-  * @property {boolean} [avoidClientSideOpen=false] Used by `ext-server_opensave.js`; set to `true` if you wish to always open from the server and not only as fallback when FileReader client support is lacking
-  * @property {string[]} [extensions=[]] Extensions to load on startup. Use an array in `setConfig` and comma separated file names in the URL. Extension names must begin with "ext-". Note that as of version 2.7, paths containing "/", "\", or ":", are disallowed for security reasons. Although previous versions of this list would entirely override the default list, as of version 2.7, the defaults will always be added to this explicit list unless the configuration `noDefaultExtensions` is included. See {@link module:SVGEditor~defaultExtensions}.
-  * @property {string[]} [allowedOrigins=[]] Used by `ext-xdomain-messaging.js` to indicate which origins are permitted for cross-domain messaging (e.g., between the embedded editor and main editor code). Besides explicit domains, one might add '*' to allow all domains (not recommended for privacy/data integrity of your user's content!), `window.location.origin` for allowing the same origin (should be safe if you trust all apps on your domain), 'null' to allow `file:///` URL usage
-  * @property {null|PlainObject} [colorPickerCSS=null] Object of CSS properties mapped to values (for jQuery) to apply to the color picker. See {@link http://api.jquery.com/css/#css-properties}. A `null` value (the default) will cause the CSS to default to `left` with a position equal to that of the `fill_color` or `stroke_color` element minus 140, and a `bottom` equal to 40
-  * @property {string} [paramurl] This was available via URL only. Allowed an un-encoded URL within the query string (use "url" or "source" with a data: URI instead)
-  * @property {Float} [canvas_expansion=3] The minimum area visible outside the canvas, as a multiple of the image dimensions. The larger the number, the more one can scroll outside the canvas.
-  * @property {PlainObject} [initFill] Init fill properties
-  * @property {string} [initFill.color="FF0000"] The initial fill color. Must be a hex code string. Defaults to solid red.
-  * @property {Float} [initFill.opacity=1] The initial fill opacity. Must be a number between 0 and 1
-  * @property {PlainObject} [initStroke] Init stroke properties
-  * @property {Float} [initStroke.width=5] The initial stroke width. Must be a positive number.
-  * @property {string} [initStroke.color="000000"] The initial stroke color. Must be a hex code. Defaults to solid black.
-  * @property {Float} [initStroke.opacity=1] The initial stroke opacity. Must be a number between 0 and 1.
-  * @property {PlainObject} text Text style properties
-  * @property {Float} [text.stroke_width=0] Text stroke width
-  * @property {Float} [text.font_size=24] Text font size
-  * @property {string} [text.font_family="serif"] Text font family
-  * @property {Float} [initOpacity=1] Initial opacity (multiplied by 100)
-  * @property {module:SVGEditor.XYDimensions} [dimensions=[640, 480]] The default width/height of a new document. Use an array in `setConfig` (e.g., `[800, 600]`) and comma separated numbers in the URL.
-  * @property {boolean} [gridSnapping=false] Enable snap to grid by default. Set in Editor Options.
-  * @property {string} [gridColor="#000"] Accepts hex, e.g., '#000'. Set in Editor Options. Defaults to black.
-  * @property {string} [baseUnit="px"] Set in Editor Options.
-  * @property {Float} [snappingStep=10] Set the default grid snapping value. Set in Editor Options.
-  * @property {boolean} [showRulers=true] Initial state of ruler display (v2.6). Set in Editor Options.
-  * @property {string} [initTool="select"] The initially selected tool. Must be either the ID of the button for the tool, or the ID without `tool_` prefix (e.g., "select").
-  * @property {boolean} [wireframe=false] Start in wireframe mode
-  * @property {boolean} [showlayers=false] Open the layers side-panel by default.
-  * @property {"new"|"same"} [exportWindowType="new"] Can be "new" or "same" to indicate whether new windows will be generated for each export; the `window.name` of the export window is namespaced based on the `canvasName` (and incremented if "new" is selected as the type). Introduced 2.8.
-  * @property {boolean} [showGrid=false] Set by `ext-grid.js`; determines whether or not to show the grid by default
-  * @property {boolean} [show_outside_canvas=true] Defines whether or not elements outside the canvas should be visible. Set and used in `svgcanvas.js`.
-  * @property {boolean} [selectNew=true] If true, will replace the selection with the current element and automatically select element objects (when not in "path" mode) after they are created, showing their grips (v2.6). Set and used in `svgcanvas.js` (`mouseUp`).
-  * @todo Some others could be preferences as well (e.g., preventing URL changing of extensions, defaultExtensions, stylesheets, colorPickerCSS); Change the following to preferences and add pref controls where missing to the UI (e.g., `canvas_expansion`, `initFill`, `initStroke`, `text`, `initOpacity`, `dimensions`, `initTool`, `wireframe`, `showlayers`, `gridSnapping`, `gridColor`, `baseUnit`, `snappingStep`, `showRulers`, `exportWindowType`, `showGrid`, `show_outside_canvas`, `selectNew`)?
-  */
+   * @tutorial ConfigOptions
+   * @interface module:SVGEditor.Config
+   * @property {string} [canvasName="default"] Used to namespace storage provided via `ext-storage.js`; you can use this if you wish to have multiple independent instances of SVG Edit on the same domain
+   * @property {boolean} [no_save_warning=false] If `true`, prevents the warning dialog box from appearing when closing/reloading the page. Mostly useful for testing.
+   * @property {string} [imgPath="images/"] The path where the SVG icons are located, with trailing slash. Note that as of version 2.7, this is not configurable by URL for security reasons.
+   * @property {boolean} [preventAllURLConfig=false] Set to `true` to override the ability for URLs to set non-content configuration (including extension config). Must be set early, i.e., in `svgedit-config-iife.js`; extension loading is too late!
+   * @property {boolean} [preventURLContentLoading=false] Set to `true` to override the ability for URLs to set URL-based SVG content. Must be set early, i.e., in `svgedit-config-iife.js`; extension loading is too late!
+   * @property {boolean} [lockExtensions=false] Set to `true` to override the ability for URLs to set their own extensions; disallowed in URL setting. There is no need for this when `preventAllURLConfig` is used. Must be set early, i.e., in `svgedit-config-iife.js`; extension loading is too late!
+   * @property {boolean} [noDefaultExtensions=false] If set to `true`, prohibits automatic inclusion of default extensions (though "extensions" can still be used to add back any desired default extensions along with any other extensions). This can only be meaningfully used in `svgedit-config-iife.js` or in the URL
+   * @property {boolean} [noStorageOnLoad=false] Some interaction with `ext-storage.js`; prevent even the loading of previously saved local storage.
+   * @property {boolean} [forceStorage=false] Some interaction with `ext-storage.js`; strongly discouraged from modification as it bypasses user privacy by preventing them from choosing whether to keep local storage or not (and may be required by law in some regions)
+   * @property {boolean} [emptyStorageOnDecline=false] Used by `ext-storage.js`; empty any prior storage if the user declines to store
+   * @property {boolean} [avoidClientSide=false] DEPRECATED (use `avoidClientSideDownload` instead); Used by `ext-server_opensave.js`; set to `true` if you wish to always save to server and not only as fallback when client support is lacking
+   * @property {boolean} [avoidClientSideDownload=false] Used by `ext-server_opensave.js`; set to `true` if you wish to always save to server and not only as fallback when client support is lacking
+   * @property {boolean} [avoidClientSideOpen=false] Used by `ext-server_opensave.js`; set to `true` if you wish to always open from the server and not only as fallback when FileReader client support is lacking
+   * @property {string[]} [extensions=[]] Extensions to load on startup. Use an array in `setConfig` and comma separated file names in the URL. Extension names must begin with "ext-". Note that as of version 2.7, paths containing "/", "\", or ":", are disallowed for security reasons. Although previous versions of this list would entirely override the default list, as of version 2.7, the defaults will always be added to this explicit list unless the configuration `noDefaultExtensions` is included. See {@link module:SVGEditor~defaultExtensions}.
+   * @property {string[]} [allowedOrigins=[]] Used by `ext-xdomain-messaging.js` to indicate which origins are permitted for cross-domain messaging (e.g., between the embedded editor and main editor code). Besides explicit domains, one might add '*' to allow all domains (not recommended for privacy/data integrity of your user's content!), `window.location.origin` for allowing the same origin (should be safe if you trust all apps on your domain), 'null' to allow `file:///` URL usage
+   * @property {null|PlainObject} [colorPickerCSS=null] Object of CSS properties mapped to values (for jQuery) to apply to the color picker. See {@link http://api.jquery.com/css/#css-properties}. A `null` value (the default) will cause the CSS to default to `left` with a position equal to that of the `fill_color` or `stroke_color` element minus 140, and a `bottom` equal to 40
+   * @property {string} [paramurl] This was available via URL only. Allowed an un-encoded URL within the query string (use "url" or "source" with a data: URI instead)
+   * @property {Float} [canvas_expansion=3] The minimum area visible outside the canvas, as a multiple of the image dimensions. The larger the number, the more one can scroll outside the canvas.
+   * @property {PlainObject} [initFill] Init fill properties
+   * @property {string} [initFill.color="FF0000"] The initial fill color. Must be a hex code string. Defaults to solid red.
+   * @property {Float} [initFill.opacity=1] The initial fill opacity. Must be a number between 0 and 1
+   * @property {PlainObject} [initStroke] Init stroke properties
+   * @property {Float} [initStroke.width=5] The initial stroke width. Must be a positive number.
+   * @property {string} [initStroke.color="000000"] The initial stroke color. Must be a hex code. Defaults to solid black.
+   * @property {Float} [initStroke.opacity=1] The initial stroke opacity. Must be a number between 0 and 1.
+   * @property {PlainObject} text Text style properties
+   * @property {Float} [text.stroke_width=0] Text stroke width
+   * @property {Float} [text.font_size=24] Text font size
+   * @property {string} [text.font_family="serif"] Text font family
+   * @property {Float} [initOpacity=1] Initial opacity (multiplied by 100)
+   * @property {module:SVGEditor.XYDimensions} [dimensions=[640, 480]] The default width/height of a new document. Use an array in `setConfig` (e.g., `[800, 600]`) and comma separated numbers in the URL.
+   * @property {boolean} [gridSnapping=false] Enable snap to grid by default. Set in Editor Options.
+   * @property {string} [gridColor="#000"] Accepts hex, e.g., '#000'. Set in Editor Options. Defaults to black.
+   * @property {string} [baseUnit="px"] Set in Editor Options.
+   * @property {Float} [snappingStep=10] Set the default grid snapping value. Set in Editor Options.
+   * @property {boolean} [showRulers=true] Initial state of ruler display (v2.6). Set in Editor Options.
+   * @property {string} [initTool="select"] The initially selected tool. Must be either the ID of the button for the tool, or the ID without `tool_` prefix (e.g., "select").
+   * @property {boolean} [wireframe=false] Start in wireframe mode
+   * @property {boolean} [showlayers=false] Open the layers side-panel by default.
+   * @property {"new"|"same"} [exportWindowType="new"] Can be "new" or "same" to indicate whether new windows will be generated for each export; the `window.name` of the export window is namespaced based on the `canvasName` (and incremented if "new" is selected as the type). Introduced 2.8.
+   * @property {boolean} [showGrid=false] Set by `ext-grid.js`; determines whether or not to show the grid by default
+   * @property {boolean} [show_outside_canvas=true] Defines whether or not elements outside the canvas should be visible. Set and used in `svgcanvas.js`.
+   * @property {boolean} [selectNew=true] If true, will replace the selection with the current element and automatically select element objects (when not in "path" mode) after they are created, showing their grips (v2.6). Set and used in `svgcanvas.js` (`mouseUp`).
+   * @todo Some others could be preferences as well (e.g., preventing URL changing of extensions, defaultExtensions, stylesheets, colorPickerCSS); Change the following to preferences and add pref controls where missing to the UI (e.g., `canvas_expansion`, `initFill`, `initStroke`, `text`, `initOpacity`, `dimensions`, `initTool`, `wireframe`, `showlayers`, `gridSnapping`, `gridColor`, `baseUnit`, `snappingStep`, `showRulers`, `exportWindowType`, `showGrid`, `show_outside_canvas`, `selectNew`)?
+   */
   /**
    * @namespace {module:SVGEditor.Config} defaultConfig
    * @memberof module:SVGEditor~
@@ -305,7 +313,7 @@ let svgCanvas,
  * @param {boolean} [opts.noAlert]
  * @throws {Error} Upon failure to load SVG
  */
-const loadSvgString = (str, {noAlert} = {}) => {
+const loadSvgString = (str, { noAlert } = {}) => {
   const success = svgCanvas.setSvgString(str) !== false;
   if (success) return;
   // eslint-disable-next-line no-alert
@@ -407,9 +415,11 @@ editor.loadContentAndPrefs = function() {
       defaultPrefs[key] = window.widget.preferenceForKey(storeKey);
     } else {
       const result = document.cookie.match(
-        new RegExp('(?:^|;\\s*)' + Utils.regexEscape(
-          encodeURIComponent(storeKey)
-        ) + '=([^;]+)')
+        new RegExp(
+          '(?:^|;\\s*)' +
+            Utils.regexEscape(encodeURIComponent(storeKey)) +
+            '=([^;]+)',
+        ),
       );
       defaultPrefs[key] = result ? decodeURIComponent(result[1]) : '';
     }
@@ -467,13 +477,14 @@ editor.setConfig = function(opts, cfgCfg) {
       } else {
         editor.pref(key, val);
       }
-    } else if (['extensions', 'userExtensions', 'allowedOrigins'].includes(key)) {
-      if (cfgCfg.overwrite === false &&
-        (
-          curConfig.preventAllURLConfig ||
+    } else if (
+      ['extensions', 'userExtensions', 'allowedOrigins'].includes(key)
+    ) {
+      if (
+        cfgCfg.overwrite === false &&
+        (curConfig.preventAllURLConfig ||
           ['allowedOrigins'].includes(key) ||
-          (key === 'extensions' && curConfig.lockExtensions)
-        )
+          (key === 'extensions' && curConfig.lockExtensions))
       ) {
         return;
       }
@@ -591,15 +602,15 @@ editor.setCustomHandlers = function(opts) {
  * @param {boolean} arg
  * @returns {void}
  */
-editor.randomizeIds = (arg) => {
+editor.randomizeIds = arg => {
   svgCanvas.randomizeIds(arg);
 };
 
 /**
-* Auto-run after a Promise microtask.
-* @function module:SVGEditor.init
-* @returns {void}
-*/
+ * Auto-run after a Promise microtask.
+ * @function module:SVGEditor.init
+ * @returns {void}
+ */
 editor.init = () => {
   // const host = location.hostname,
   //  onWeb = host && host.includes('.');
@@ -621,14 +632,16 @@ editor.init = () => {
   } catch (err) {}
 
   // get list of languages from options in the HTML
-  const goodLangs = [...document.querySelectorAll('#lang_select option')].map((option) => option.value);
+  const goodLangs = [...document.querySelectorAll('#lang_select option')].map(
+    option => option.value,
+  );
 
   /**
    * Sets up current preferences based on defaults.
    * @returns {void}
    */
-  function setupCurPrefs () {
-    curPrefs = {...defaultPrefs, ...curPrefs}; // Now safe to merge with priority for curPrefs in the event any are already set
+  function setupCurPrefs() {
+    curPrefs = { ...defaultPrefs, ...curPrefs }; // Now safe to merge with priority for curPrefs in the event any are already set
     // Export updated prefs
     editor.curPrefs = curPrefs;
   }
@@ -637,16 +650,17 @@ editor.init = () => {
    * Sets up current config based on defaults.
    * @returns {void}
    */
-  function setupCurConfig () {
-    curConfig = {...defaultConfig, ...curConfig}; // Now safe to merge with priority for curConfig in the event any are already set
+  function setupCurConfig() {
+    curConfig = { ...defaultConfig, ...curConfig }; // Now safe to merge with priority for curConfig in the event any are already set
 
     // Now deal with extensions and other array config
     if (!curConfig.noDefaultExtensions) {
       curConfig.extensions = curConfig.extensions.concat(defaultExtensions);
     }
     // ...and remove any dupes
-    ['extensions', 'allowedOrigins'].forEach(function (cfg) {
-      curConfig[cfg] = $.grep(curConfig[cfg], function (n, i) { // Supposedly faster than filter per http://amandeep1986.blogspot.hk/2015/02/jquery-grep-vs-js-filter.html
+    ['extensions', 'allowedOrigins'].forEach(function(cfg) {
+      curConfig[cfg] = $.grep(curConfig[cfg], function(n, i) {
+        // Supposedly faster than filter per http://amandeep1986.blogspot.hk/2015/02/jquery-grep-vs-js-filter.html
         return i === curConfig[cfg].indexOf(n);
       });
     });
@@ -688,12 +702,11 @@ editor.init = () => {
       // security reasons, even for same-domain
       // ones given potential to interact in undesirable
       // ways with other script resources
-      ['userExtensions', 'imgPath']
-        .forEach(function (pathConfig) {
-          if (urldata[pathConfig]) {
-            delete urldata[pathConfig];
-          }
-        });
+      ['userExtensions', 'imgPath'].forEach(function(pathConfig) {
+        if (urldata[pathConfig]) {
+          delete urldata[pathConfig];
+        }
+      });
 
       // Note: `source` and `url` (as with `storagePrompt` later) are not
       //  set on config but are used below
@@ -760,8 +773,11 @@ editor.init = () => {
    * @fires module:svgcanvas.SvgCanvas#event:extensions_added
    * @returns {Promise<module:locale.LangAndData>} Resolves to result of {@link module:locale.readLang}
    */
-  const extAndLocaleFunc = async function () {
-    const {langParam, langData} = await editor.putLocale(editor.pref('lang'), goodLangs);
+  const extAndLocaleFunc = async function() {
+    const { langParam, langData } = await editor.putLocale(
+      editor.pref('lang'),
+      goodLangs,
+    );
     await setLang(langParam, langData);
 
     const { ok, cancel } = uiStrings.common;
@@ -772,7 +788,7 @@ editor.init = () => {
     try {
       // load standard extensions
       await Promise.all(
-        curConfig.extensions.map(async (extname) => {
+        curConfig.extensions.map(async extname => {
           /**
            * @tutorial ExtensionDocs
            * @typedef {PlainObject} module:SVGEditor.ExtensionObject
@@ -783,19 +799,26 @@ editor.init = () => {
             /**
              * @type {module:SVGEditor.ExtensionObject}
              */
-            const imported = await import(`./extensions/${encodeURIComponent(extname)}/${encodeURIComponent(extname)}.js`);
-            const {name = extname, init} = imported.default;
-            return editor.addExtension(name, (init && init.bind(editor)), {$, langParam});
+            const imported = await import(
+              `./extensions/${encodeURIComponent(extname)}/${encodeURIComponent(
+                extname,
+              )}.js`
+            );
+            const { name = extname, init } = imported.default;
+            return editor.addExtension(name, init && init.bind(editor), {
+              $,
+              langParam,
+            });
           } catch (err) {
             // Todo: Add config to alert any errors
             console.error('Extension failed to load: ' + extname + '; ', err); // eslint-disable-line no-console
             return undefined;
           }
-        })
+        }),
       );
       // load user extensions (given as pathNames)
       await Promise.all(
-        curConfig.userExtensions.map(async (extPathName) => {
+        curConfig.userExtensions.map(async extPathName => {
           /**
            * @tutorial ExtensionDocs
            * @typedef {PlainObject} module:SVGEditor.ExtensionObject
@@ -806,12 +829,16 @@ editor.init = () => {
             /**
              * @type {module:SVGEditor.ExtensionObject}
              */
-            const imported = await import(encodeURI(extPathName));
-            const {name, init} = imported.default;
-            return editor.addExtension(name, (init && init.bind(editor)), {$, langParam});
+            // todo 编译问题
+            // const imported = await import(encodeURI(extPathName));
+            // const {name, init} = imported.default;
+            // return editor.addExtension(name, (init && init.bind(editor)), {$, langParam});
           } catch (err) {
             // Todo: Add config to alert any errors
-            console.error('Extension failed to load: ' + extPathName + '; ', err); // eslint-disable-line no-console
+            console.error(
+              'Extension failed to load: ' + extPathName + '; ',
+              err,
+            ); // eslint-disable-line no-console
             return undefined;
           }
         }),
@@ -992,8 +1019,8 @@ editor.init = () => {
       },
       'div#workarea': {
         left: 38,
-        top: 74
-      }
+        top: 74,
+      },
     };
 
     let ruleElem = $('#tool_size_rules');
@@ -2410,21 +2437,39 @@ editor.init = () => {
           const textAnchorMiddle = $('#tool_text_anchor_middle');
           const textAnchorEnd = $('#tool_text_anchor_end');
           switch (elem.getAttribute('text-anchor')) {
-          case 'start':
-            textAnchorStart.addClass('push_button_pressed').removeClass('tool_button');
-            textAnchorMiddle.removeClass('push_button_pressed').addClass('tool_button');
-            textAnchorEnd.removeClass('push_button_pressed').addClass('tool_button');
-            break;
-          case 'middle':
-            textAnchorStart.removeClass('push_button_pressed').addClass('tool_button');
-            textAnchorMiddle.addClass('push_button_pressed').removeClass('tool_button');
-            textAnchorEnd.removeClass('push_button_pressed').addClass('tool_button');
-            break;
-          case 'end':
-            textAnchorStart.removeClass('push_button_pressed').addClass('tool_button');
-            textAnchorMiddle.removeClass('push_button_pressed').addClass('tool_button');
-            textAnchorEnd.addClass('push_button_pressed').removeClass('tool_button');
-            break;
+            case 'start':
+              textAnchorStart
+                .addClass('push_button_pressed')
+                .removeClass('tool_button');
+              textAnchorMiddle
+                .removeClass('push_button_pressed')
+                .addClass('tool_button');
+              textAnchorEnd
+                .removeClass('push_button_pressed')
+                .addClass('tool_button');
+              break;
+            case 'middle':
+              textAnchorStart
+                .removeClass('push_button_pressed')
+                .addClass('tool_button');
+              textAnchorMiddle
+                .addClass('push_button_pressed')
+                .removeClass('tool_button');
+              textAnchorEnd
+                .removeClass('push_button_pressed')
+                .addClass('tool_button');
+              break;
+            case 'end':
+              textAnchorStart
+                .removeClass('push_button_pressed')
+                .addClass('tool_button');
+              textAnchorMiddle
+                .removeClass('push_button_pressed')
+                .addClass('tool_button');
+              textAnchorEnd
+                .addClass('push_button_pressed')
+                .removeClass('tool_button');
+              break;
           }
           $('#font_family').val(elem.getAttribute('font-family'));
           $('#font_size').val(elem.getAttribute('font-size'));
@@ -2798,14 +2843,23 @@ editor.init = () => {
     let linkStr = '';
     if (context) {
       let str = '';
-      linkStr = '<a href="#" data-root="y">' + svgCanvas.getCurrentDrawing().getCurrentLayerName() + '</a>';
+      linkStr =
+        '<a href="#" data-root="y">' +
+        svgCanvas.getCurrentDrawing().getCurrentLayerName() +
+        '</a>';
 
-      $(context).parentsUntil('#svgcontent > g').andSelf().each(function () {
-        if (this.id) {
-          str += ' > ' + this.id;
-          linkStr += this !== context ? ' > <a href="#">' + this.id + '</a>' : ' > ' + this.id;
-        }
-      });
+      $(context)
+        .parentsUntil('#svgcontent > g')
+        .andSelf()
+        .each(function() {
+          if (this.id) {
+            str += ' > ' + this.id;
+            linkStr +=
+              this !== context
+                ? ' > <a href="#">' + this.id + '</a>'
+                : ' > ' + this.id;
+          }
+        });
 
       curContext = str;
     } else {
@@ -2922,7 +2976,12 @@ editor.init = () => {
             if (toolButtonClick(showSel)) {
               options.fn();
             }
-            const icon = options.icon ? $.getSvgIcon(options.icon, true) : $(options.sel).children().eq(0).clone();
+            const icon = options.icon
+              ? $.getSvgIcon(options.icon, true)
+              : $(options.sel)
+                  .children()
+                  .eq(0)
+                  .clone();
 
             icon[0].setAttribute('width', shower.width());
             icon[0].setAttribute('height', shower.height());
@@ -3112,7 +3171,7 @@ editor.init = () => {
       if (editor.langChanged) {
         // We check for this since the "lang" pref could have been set by storage
         const lang = editor.pref('lang');
-        await ext.langReady({lang});
+        await ext.langReady({ lang });
       }
     }
     /**
@@ -3562,9 +3621,11 @@ editor.init = () => {
       });
 
       if (svgicons) {
-        return new Promise((resolve, reject) => { // eslint-disable-line promise/avoid-new
+        return new Promise((resolve, reject) => {
+          // eslint-disable-line promise/avoid-new
           $.svgIcons(`${curConfig.imgPath}${svgicons}`, {
-            w: 24, h: 24,
+            w: 24,
+            h: 24,
             id_match: false,
             no_img: !isWebkit(),
             fallback: fallbackObj,
@@ -3596,7 +3657,9 @@ editor.init = () => {
     const opts = { alpha: opac };
     if (color.startsWith('url(#')) {
       let refElem = svgCanvas.getRefElem(color);
-      refElem = refElem ? refElem.cloneNode(true) : $('#' + type + '_color defs *')[0];
+      refElem = refElem
+        ? refElem.cloneNode(true)
+        : $('#' + type + '_color defs *')[0];
       opts[refElem.tagName] = refElem;
     } else if (color.startsWith('#')) {
       opts.solidColor = color.substr(1);
@@ -3664,13 +3727,19 @@ editor.init = () => {
   // Set up editor background functionality
   const colorBlocks = ['#FFF', '#888', '#000', 'chessboard'];
   str = '';
-  $.each(colorBlocks, function (i, e) {
-    str += e === 'chessboard'
-      ? '<div class="color_block" data-bgcolor="' + e +
-        '" style="background-image:url(data:image/gif;base64,' +
-        'R0lGODlhEAAQAIAAAP///9bW1iH5BAAAAAAALAAAAAAQABAAAAIfjG+' +
-        'gq4jM3IFLJgpswNly/XkcBpIiVaInlLJr9FZWAQA7);"></div>'
-      : '<div class="color_block" data-bgcolor="' + e + '" style="background-color:' + e + ';"></div>';
+  $.each(colorBlocks, function(i, e) {
+    str +=
+      e === 'chessboard'
+        ? '<div class="color_block" data-bgcolor="' +
+          e +
+          '" style="background-image:url(data:image/gif;base64,' +
+          'R0lGODlhEAAQAIAAAP///9bW1iH5BAAAAAAALAAAAAAQABAAAAIfjG+' +
+          'gq4jM3IFLJgpswNly/XkcBpIiVaInlLJr9FZWAQA7);"></div>'
+        : '<div class="color_block" data-bgcolor="' +
+          e +
+          '" style="background-color:' +
+          e +
+          ';"></div>';
   });
   $('#bg_blocks').append(str);
   const blocks = $('#bg_blocks div');
@@ -4278,19 +4347,22 @@ editor.init = () => {
       $(inp).blur();
     };
 
-    $('#svg_editor').find('button, select, input:not(#text)').focus(function () {
-      inp = this;
-      uiContext = 'toolbars';
-      workarea.mousedown(unfocus);
-    }).blur(function () {
-      uiContext = 'canvas';
-      workarea.unbind('mousedown', unfocus);
-      // Go back to selecting text if in textedit mode
-      if (svgCanvas.getMode() === 'textedit') {
-        $('#text').focus();
-      }
-    });
-  }());
+    $('#svg_editor')
+      .find('button, select, input:not(#text)')
+      .focus(function() {
+        inp = this;
+        uiContext = 'toolbars';
+        workarea.mousedown(unfocus);
+      })
+      .blur(function() {
+        uiContext = 'canvas';
+        workarea.unbind('mousedown', unfocus);
+        // Go back to selecting text if in textedit mode
+        if (svgCanvas.getMode() === 'textedit') {
+          $('#text').focus();
+        }
+      });
+  })();
 
   /**
    *
@@ -4695,17 +4767,17 @@ editor.init = () => {
    * @param {string} value "start","end" or "middle"
    * @returns {false}
    */
-  const clickTextAnchor = function (value) {
+  const clickTextAnchor = function(value) {
     svgCanvas.setTextAnchor(value);
     updateContextPanel();
     return false;
   };
 
   /**
-  *
-  * @returns {void}
-  */
-  const clickSave = function () {
+   *
+   * @returns {void}
+   */
+  const clickSave = function() {
     // In the future, more options can be provided here
     const saveOpts = {
       images: editor.pref('img_save'),
@@ -4815,10 +4887,10 @@ editor.init = () => {
   };
 
   /**
-  *
-  * @returns {void}
-  */
-  const clickImport = function () {
+   *
+   * @returns {void}
+   */
+  const clickImport = function() {
     /* empty fn */
   };
 
@@ -5093,7 +5165,7 @@ editor.init = () => {
     // set language
     const lang = $('#lang_select').val();
     if (lang && lang !== editor.pref('lang')) {
-      const {langParam, langData} = await editor.putLocale(lang, goodLangs);
+      const { langParam, langData } = await editor.putLocale(lang, goodLangs);
       await setLang(langParam, langData);
     }
 
@@ -5308,11 +5380,11 @@ editor.init = () => {
       .css(curConfig.colorPickerCSS || { left: pos.left - 140, bottom: 40 })
       .jGraduate(
         {
-          images: {clientPath: './jgraduate/images/'},
+          images: { clientPath: './jgraduate/images/' },
           paint,
-          window: {pickerTitle: title},
+          window: { pickerTitle: title },
           // images: {clientPath: curConfig.imgPath},
-          newstop: 'inverse'
+          newstop: 'inverse',
         },
         function(p) {
           paint = new $.jGraduate.Paint(p);
@@ -5920,32 +5992,92 @@ editor.init = () => {
      * @type {module:SVGEditor.ToolButton[]}
      */
     const toolButtons = [
-      {sel: '#tool_select', fn: clickSelect, evt: 'click', key: ['V', true]},
-      {sel: '#tool_fhpath', fn: clickFHPath, evt: 'click', key: ['Q', true]},
-      {sel: '#tool_line', fn: clickLine, evt: 'click', key: ['L', true], parent: '#tools_line', prepend: true},
-      {sel: '#tool_rect', fn: clickRect, evt: 'mouseup', key: ['R', true], parent: '#tools_rect', icon: 'rect'},
-      {sel: '#tool_square', fn: clickSquare, evt: 'mouseup', parent: '#tools_rect', icon: 'square'},
-      {sel: '#tool_fhrect', fn: clickFHRect, evt: 'mouseup', parent: '#tools_rect', icon: 'fh_rect'},
-      {sel: '#tool_ellipse', fn: clickEllipse, evt: 'mouseup', key: ['E', true], parent: '#tools_ellipse', icon: 'ellipse'},
-      {sel: '#tool_circle', fn: clickCircle, evt: 'mouseup', parent: '#tools_ellipse', icon: 'circle'},
-      {sel: '#tool_fhellipse', fn: clickFHEllipse, evt: 'mouseup', parent: '#tools_ellipse', icon: 'fh_ellipse'},
-      {sel: '#tool_path', fn: clickPath, evt: 'click', key: ['P', true]},
-      {sel: '#tool_text', fn: clickText, evt: 'click', key: ['T', true]},
-      {sel: '#tool_image', fn: clickImage, evt: 'mouseup'},
-      {sel: '#tool_zoom', fn: clickZoom, evt: 'mouseup', key: ['Z', true]},
-      {sel: '#tool_clear', fn: clickClear, evt: 'mouseup', key: ['N', true]},
-      {sel: '#tool_save', fn () {
-        if (editingsource) {
-          saveSourceEditor();
-        } else {
-          clickSave();
-        }
-      }, evt: 'mouseup', key: ['S', true]},
-      {sel: '#tool_export', fn: clickExport, evt: 'mouseup'},
-      {sel: '#tool_open', fn: clickOpen, evt: 'mouseup', key: ['O', true]},
-      {sel: '#tool_import', fn: clickImport, evt: 'mouseup'},
-      {sel: '#tool_source', fn: showSourceEditor, evt: 'click', key: ['U', true]},
-      {sel: '#tool_wireframe', fn: clickWireframe, evt: 'click', key: ['F', true]},
+      { sel: '#tool_select', fn: clickSelect, evt: 'click', key: ['V', true] },
+      { sel: '#tool_fhpath', fn: clickFHPath, evt: 'click', key: ['Q', true] },
+      {
+        sel: '#tool_line',
+        fn: clickLine,
+        evt: 'click',
+        key: ['L', true],
+        parent: '#tools_line',
+        prepend: true,
+      },
+      {
+        sel: '#tool_rect',
+        fn: clickRect,
+        evt: 'mouseup',
+        key: ['R', true],
+        parent: '#tools_rect',
+        icon: 'rect',
+      },
+      {
+        sel: '#tool_square',
+        fn: clickSquare,
+        evt: 'mouseup',
+        parent: '#tools_rect',
+        icon: 'square',
+      },
+      {
+        sel: '#tool_fhrect',
+        fn: clickFHRect,
+        evt: 'mouseup',
+        parent: '#tools_rect',
+        icon: 'fh_rect',
+      },
+      {
+        sel: '#tool_ellipse',
+        fn: clickEllipse,
+        evt: 'mouseup',
+        key: ['E', true],
+        parent: '#tools_ellipse',
+        icon: 'ellipse',
+      },
+      {
+        sel: '#tool_circle',
+        fn: clickCircle,
+        evt: 'mouseup',
+        parent: '#tools_ellipse',
+        icon: 'circle',
+      },
+      {
+        sel: '#tool_fhellipse',
+        fn: clickFHEllipse,
+        evt: 'mouseup',
+        parent: '#tools_ellipse',
+        icon: 'fh_ellipse',
+      },
+      { sel: '#tool_path', fn: clickPath, evt: 'click', key: ['P', true] },
+      { sel: '#tool_text', fn: clickText, evt: 'click', key: ['T', true] },
+      { sel: '#tool_image', fn: clickImage, evt: 'mouseup' },
+      { sel: '#tool_zoom', fn: clickZoom, evt: 'mouseup', key: ['Z', true] },
+      { sel: '#tool_clear', fn: clickClear, evt: 'mouseup', key: ['N', true] },
+      {
+        sel: '#tool_save',
+        fn() {
+          if (editingsource) {
+            saveSourceEditor();
+          } else {
+            clickSave();
+          }
+        },
+        evt: 'mouseup',
+        key: ['S', true],
+      },
+      { sel: '#tool_export', fn: clickExport, evt: 'mouseup' },
+      { sel: '#tool_open', fn: clickOpen, evt: 'mouseup', key: ['O', true] },
+      { sel: '#tool_import', fn: clickImport, evt: 'mouseup' },
+      {
+        sel: '#tool_source',
+        fn: showSourceEditor,
+        evt: 'click',
+        key: ['U', true],
+      },
+      {
+        sel: '#tool_wireframe',
+        fn: clickWireframe,
+        evt: 'click',
+        key: ['F', true],
+      },
       {
         key: ['esc', false, false],
         fn() {
@@ -5981,49 +6113,133 @@ editor.init = () => {
         },
         evt: 'click',
       },
-      {sel: '#tool_source_cancel', fn: cancelOverlays, evt: 'click', key: ['esc', false, false], hidekey: true},
-      {sel: '#tool_docprops_cancel', fn: cancelOverlays, evt: 'click', key: ['esc', false, false], hidekey: true},
-      {sel: '#tool_prefs_cancel', fn: cancelOverlays, evt: 'click', key: ['esc', false, false], hidekey: true},
-      {sel: '.overlay', fn: cancelOverlays, evt: 'click', key: ['esc', false, false], hidekey: true},
-      {sel: '#tool_source_save', fn: saveSourceEditor, evt: 'click'},
-      {sel: '#tool_docprops_save', fn: saveDocProperties, evt: 'click'},
-      {sel: '#tool_docprops', fn: showDocProperties, evt: 'click'},
-      {sel: '#tool_prefs_save', fn: savePreferences, evt: 'click'},
-      {sel: '#tool_editor_prefs', fn: showPreferences, evt: 'click'},
-      {sel: '#tool_editor_homepage', fn: openHomePage, evt: 'click'},
-      {sel: '#tool_open', fn () { window.dispatchEvent(new CustomEvent('openImage')); }, evt: 'click'},
-      {sel: '#tool_import', fn () { window.dispatchEvent(new CustomEvent('importImage')); }, evt: 'click'},
-      {sel: '#tool_delete', fn: deleteSelected, evt: 'click', key: ['del/backspace', true]},
-      {sel: '#tool_delete_multi', fn: deleteSelected, evt: 'click', key: ['del/backspace', true]},
-      {sel: '#tool_reorient', fn: reorientPath, evt: 'click'},
-      {sel: '#tool_node_link', fn: linkControlPoints, evt: 'click'},
-      {sel: '#tool_node_clone', fn: clonePathNode, evt: 'click'},
-      {sel: '#tool_node_delete', fn: deletePathNode, evt: 'click'},
-      {sel: '#tool_openclose_path', fn: opencloseSubPath, evt: 'click'},
-      {sel: '#tool_add_subpath', fn: addSubPath, evt: 'click'},
-      {sel: '#tool_move_top', fn: moveToTopSelected, evt: 'click', key: 'ctrl+shift+]'},
-      {sel: '#tool_move_bottom', fn: moveToBottomSelected, evt: 'click', key: 'ctrl+shift+['},
-      {sel: '#tool_topath', fn: convertToPath, evt: 'click'},
-      {sel: '#tool_make_link', fn: makeHyperlink, evt: 'click'},
-      {sel: '#tool_make_link_multi', fn: makeHyperlink, evt: 'click'},
-      {sel: '#tool_undo', fn: clickUndo, evt: 'click'},
-      {sel: '#tool_redo', fn: clickRedo, evt: 'click'},
-      {sel: '#tool_clone', fn: clickClone, evt: 'click', key: ['D', true]},
-      {sel: '#tool_clone_multi', fn: clickClone, evt: 'click', key: ['D', true]},
-      {sel: '#tool_group_elements', fn: clickGroup, evt: 'click', key: ['G', true]},
-      {sel: '#tool_ungroup', fn: clickGroup, evt: 'click'},
-      {sel: '#tool_unlink_use', fn: clickGroup, evt: 'click'},
-      {sel: '[id^=tool_align]', fn: clickAlign, evt: 'click'},
+      {
+        sel: '#tool_source_cancel',
+        fn: cancelOverlays,
+        evt: 'click',
+        key: ['esc', false, false],
+        hidekey: true,
+      },
+      {
+        sel: '#tool_docprops_cancel',
+        fn: cancelOverlays,
+        evt: 'click',
+        key: ['esc', false, false],
+        hidekey: true,
+      },
+      {
+        sel: '#tool_prefs_cancel',
+        fn: cancelOverlays,
+        evt: 'click',
+        key: ['esc', false, false],
+        hidekey: true,
+      },
+      {
+        sel: '.overlay',
+        fn: cancelOverlays,
+        evt: 'click',
+        key: ['esc', false, false],
+        hidekey: true,
+      },
+      { sel: '#tool_source_save', fn: saveSourceEditor, evt: 'click' },
+      { sel: '#tool_docprops_save', fn: saveDocProperties, evt: 'click' },
+      { sel: '#tool_docprops', fn: showDocProperties, evt: 'click' },
+      { sel: '#tool_prefs_save', fn: savePreferences, evt: 'click' },
+      { sel: '#tool_editor_prefs', fn: showPreferences, evt: 'click' },
+      { sel: '#tool_editor_homepage', fn: openHomePage, evt: 'click' },
+      {
+        sel: '#tool_open',
+        fn() {
+          window.dispatchEvent(new CustomEvent('openImage'));
+        },
+        evt: 'click',
+      },
+      {
+        sel: '#tool_import',
+        fn() {
+          window.dispatchEvent(new CustomEvent('importImage'));
+        },
+        evt: 'click',
+      },
+      {
+        sel: '#tool_delete',
+        fn: deleteSelected,
+        evt: 'click',
+        key: ['del/backspace', true],
+      },
+      {
+        sel: '#tool_delete_multi',
+        fn: deleteSelected,
+        evt: 'click',
+        key: ['del/backspace', true],
+      },
+      { sel: '#tool_reorient', fn: reorientPath, evt: 'click' },
+      { sel: '#tool_node_link', fn: linkControlPoints, evt: 'click' },
+      { sel: '#tool_node_clone', fn: clonePathNode, evt: 'click' },
+      { sel: '#tool_node_delete', fn: deletePathNode, evt: 'click' },
+      { sel: '#tool_openclose_path', fn: opencloseSubPath, evt: 'click' },
+      { sel: '#tool_add_subpath', fn: addSubPath, evt: 'click' },
+      {
+        sel: '#tool_move_top',
+        fn: moveToTopSelected,
+        evt: 'click',
+        key: 'ctrl+shift+]',
+      },
+      {
+        sel: '#tool_move_bottom',
+        fn: moveToBottomSelected,
+        evt: 'click',
+        key: 'ctrl+shift+[',
+      },
+      { sel: '#tool_topath', fn: convertToPath, evt: 'click' },
+      { sel: '#tool_make_link', fn: makeHyperlink, evt: 'click' },
+      { sel: '#tool_make_link_multi', fn: makeHyperlink, evt: 'click' },
+      { sel: '#tool_undo', fn: clickUndo, evt: 'click' },
+      { sel: '#tool_redo', fn: clickRedo, evt: 'click' },
+      { sel: '#tool_clone', fn: clickClone, evt: 'click', key: ['D', true] },
+      {
+        sel: '#tool_clone_multi',
+        fn: clickClone,
+        evt: 'click',
+        key: ['D', true],
+      },
+      {
+        sel: '#tool_group_elements',
+        fn: clickGroup,
+        evt: 'click',
+        key: ['G', true],
+      },
+      { sel: '#tool_ungroup', fn: clickGroup, evt: 'click' },
+      { sel: '#tool_unlink_use', fn: clickGroup, evt: 'click' },
+      { sel: '[id^=tool_align]', fn: clickAlign, evt: 'click' },
       // these two lines are required to make Opera work properly with the flyout mechanism
       // {sel: '#tools_rect_show', fn: clickRect, evt: 'click'},
       // {sel: '#tools_ellipse_show', fn: clickEllipse, evt: 'click'},
-      {sel: '#tool_bold', fn: clickBold, evt: 'mousedown'},
-      {sel: '#tool_italic', fn: clickItalic, evt: 'mousedown'},
-      {sel: '#tool_text_anchor_start', fn () { clickTextAnchor('start'); }, evt: 'mousedown'},
-      {sel: '#tool_text_anchor_middle', fn () { clickTextAnchor('middle'); }, evt: 'mousedown'},
-      {sel: '#tool_text_anchor_end', fn () { clickTextAnchor('end'); }, evt: 'mousedown'},
-      {sel: '#sidepanel_handle', fn: toggleSidePanel, key: ['X']},
-      {sel: '#copy_save_done', fn: cancelOverlays, evt: 'click'},
+      { sel: '#tool_bold', fn: clickBold, evt: 'mousedown' },
+      { sel: '#tool_italic', fn: clickItalic, evt: 'mousedown' },
+      {
+        sel: '#tool_text_anchor_start',
+        fn() {
+          clickTextAnchor('start');
+        },
+        evt: 'mousedown',
+      },
+      {
+        sel: '#tool_text_anchor_middle',
+        fn() {
+          clickTextAnchor('middle');
+        },
+        evt: 'mousedown',
+      },
+      {
+        sel: '#tool_text_anchor_end',
+        fn() {
+          clickTextAnchor('end');
+        },
+        evt: 'mousedown',
+      },
+      { sel: '#sidepanel_handle', fn: toggleSidePanel, key: ['X'] },
+      { sel: '#copy_save_done', fn: cancelOverlays, evt: 'click' },
 
       // Shortcuts not associated with buttons
 
@@ -6211,12 +6427,14 @@ editor.init = () => {
         const flyouts = {};
         const keyHandler = {}; // will contain the action for each pressed key
 
-        toolButtons.forEach((opts) => {
+        toolButtons.forEach(opts => {
           // Bind function to button
           let btn;
           if (opts.sel) {
             btn = $q(opts.sel);
-            if (btn === null) { return true; } // Skip if markup does not exist
+            if (btn === null) {
+              return true;
+            } // Skip if markup does not exist
             if (opts.evt) {
               // `touch.js` changes `touchstart` to `mousedown`,
               //   so we must map tool button click events as well
@@ -6251,11 +6469,15 @@ editor.init = () => {
             let pd = false;
             if (Array.isArray(opts.key)) {
               keyval = opts.key[0];
-              if (opts.key.length > 1) { pd = opts.key[1]; }
+              if (opts.key.length > 1) {
+                pd = opts.key[1];
+              }
             }
             keyval = String(keyval);
-            const {fn} = opts;
-            keyval.split('/').forEach((key) => { keyHandler[key] = {fn, pd}; });
+            const { fn } = opts;
+            keyval.split('/').forEach(key => {
+              keyHandler[key] = { fn, pd };
+            });
 
             // Put shortcut in title
             if (opts.sel && !opts.hidekey && btn.title) {
@@ -6270,11 +6492,13 @@ editor.init = () => {
           return true;
         });
         // register the keydown event
-        document.addEventListener('keydown', (e) => {
+        document.addEventListener('keydown', e => {
           // only track keyboard shortcuts for the body containing the SVG-Editor
           if (e.target.nodeName !== 'BODY') return;
           // normalize key
-          const key = `${(e.metaKey) ? 'meta+' : ''}${(e.ctrlKey) ? 'ctrl+' : ''}${e.key.toLowerCase()}`;
+          const key = `${e.metaKey ? 'meta+' : ''}${
+            e.ctrlKey ? 'ctrl+' : ''
+          }${e.key.toLowerCase()}`;
           // return if no shortcut defined for this key
           if (!keyHandler[key]) return;
           // launch associated handler and preventDefault if necessary
@@ -6318,8 +6542,12 @@ editor.init = () => {
         $.each(keyAssocs, function(keyval, sel) {
           const menu = $(sel).parents('#main_menu').length;
 
-          $(sel).each(function () {
-            const t = menu ? $(this).text().split(' [')[0] : this.title.split(' [')[0];
+          $(sel).each(function() {
+            const t = menu
+              ? $(this)
+                  .text()
+                  .split(' [')[0]
+              : this.title.split(' [')[0];
             let keyStr = '';
             // Shift+Up
             $.each(keyval.split('/'), function(i, key) {
@@ -6352,7 +6580,7 @@ editor.init = () => {
   })();
 
   // Select given tool
-  editor.ready(function () {
+  editor.ready(function() {
     const preTool = document.getElementById(`tool_${curConfig.initTool}`);
     const regTool = document.getElementById(curConfig.initTool);
     const selectTool = document.getElementById('tool_select');
@@ -6765,14 +6993,14 @@ editor.init = () => {
   //  $('#copyright')[0].setAttribute('title', revnums);
 
   /**
-  * @function module:SVGEditor.setLang
-  * @param {string} lang The language code
-  * @param {module:locale.LocaleStrings} allStrings See {@tutorial LocaleDocs}
-  * @fires module:svgcanvas.SvgCanvas#event:ext_langReady
-  * @fires module:svgcanvas.SvgCanvas#event:ext_langChanged
-  * @returns {void} A Promise which resolves to `undefined`
-  */
-  const setLang = editor.setLang = function (lang, allStrings) {
+   * @function module:SVGEditor.setLang
+   * @param {string} lang The language code
+   * @param {module:locale.LocaleStrings} allStrings See {@tutorial LocaleDocs}
+   * @fires module:svgcanvas.SvgCanvas#event:ext_langReady
+   * @fires module:svgcanvas.SvgCanvas#event:ext_langChanged
+   * @returns {void} A Promise which resolves to `undefined`
+   */
+  const setLang = (editor.setLang = function(lang, allStrings) {
     editor.langChanged = true;
     editor.pref('lang', lang);
     $('#lang_select').val(lang);
@@ -6800,7 +7028,10 @@ editor.init = () => {
       populateLayers();
     }
 
-    svgCanvas.runExtensions('langChanged', /** @type {module:svgcanvas.SvgCanvas#event:ext_langChanged} */ lang);
+    svgCanvas.runExtensions(
+      'langChanged',
+      /** @type {module:svgcanvas.SvgCanvas#event:ext_langChanged} */ lang,
+    );
 
     // Update flyout tooltips
     setFlyoutTitles();
@@ -6821,7 +7052,7 @@ editor.init = () => {
     $('#multiselected_panel div[id^=tool_align]').each(function() {
       $('#tool_pos' + this.id.substr(10))[0].title = this.title;
     });
-  };
+  });
 
   // Load extensions
   extAndLocaleFunc();
@@ -6933,12 +7164,12 @@ editor.loadFromURL = function(url, { cache, noAlert } = {}) {
         beforeSend() {
           $.process_cancel(uiStrings.notification.loadingImage);
         },
-        success (str) {
-          loadSvgString(str, {noAlert});
+        success(str) {
+          loadSvgString(str, { noAlert });
         },
         error(xhr, stat, err) {
           if (xhr.status !== 404 && xhr.responseText) {
-            loadSvgString(xhr.responseText, {noAlert});
+            loadSvgString(xhr.responseText, { noAlert });
             return;
           }
           if (noAlert) {

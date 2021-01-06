@@ -7,7 +7,7 @@
  *
  */
 
-const loadExtensionTranslation = async function (lang) {
+const loadExtensionTranslation = async function(lang) {
   let translationModule;
   try {
     translationModule = await import(`./locale/${encodeURIComponent(lang)}.js`);
@@ -21,12 +21,11 @@ const loadExtensionTranslation = async function (lang) {
 
 export default {
   name: 'arrows',
-  async init (S) {
+  async init(S) {
     const svgEditor = this;
     const strings = await loadExtensionTranslation(svgEditor.curPrefs.lang);
     const svgCanvas = svgEditor.canvas;
-    const
-      addElem = svgCanvas.addSVGElementFromJson,
+    const addElem = svgCanvas.addSVGElementFromJson,
       { nonce, $ } = S,
       prefix = 'se_arrow_';
 
@@ -277,16 +276,21 @@ export default {
 
         // Check if last marker can be removed
         let remove = true;
-        $(S.svgcontent).find('line, polyline, path, polygon').each(function () {
-          const element = this;
-          $.each(mtypes, function (j, mtype) {
-            if ($(element).attr('marker-' + mtype) === 'url(#' + marker.id + ')') {
-              remove = false;
-              return remove;
-            }
-            return undefined;
+        $(S.svgcontent)
+          .find('line, polyline, path, polygon')
+          .each(function() {
+            const element = this;
+            $.each(mtypes, function(j, mtype) {
+              if (
+                $(element).attr('marker-' + mtype) ===
+                'url(#' + marker.id + ')'
+              ) {
+                remove = false;
+                return remove;
+              }
+              return undefined;
+            });
           });
-
         // Not found, so can safely remove
         if (remove) {
           $(marker).remove();
