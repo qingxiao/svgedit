@@ -1080,7 +1080,8 @@ editor.init = () => {
    * @returns {void}
    */
   function setIcons() {
-    $.svgIcons(curConfig.imgPath + '/svg_edit_icons.svg', {
+    // xiaoqing 新增hmisvg存放新的改动过的svg源
+    $.svgIcons(curConfig.imgPath + 'hmisvg/svg_edit_icons.svg', {
       w: 24,
       h: 24,
       id_match: false,
@@ -5588,19 +5589,20 @@ editor.init = () => {
   })();
 
   // Test for embedImage support (use timeout to not interfere with page load)
-  setTimeout(function() {
-    svgCanvas.embedImage('images/logo.png', function(datauri) {
-      if (!datauri) {
-        // Disable option
-        $('#image_save_opts [value=embed]').attr('disabled', 'disabled');
-        $('#image_save_opts input').val(['ref']);
-        editor.pref('img_save', 'ref');
-        $('#image_opt_embed')
-          .css('color', '#666')
-          .attr('title', uiStrings.notification.featNotSupported);
-      }
-    });
-  }, 1000);
+  // xiaoqing 没用到 注释掉
+  // setTimeout(function() {
+  //   svgCanvas.embedImage('images/logo.png', function(datauri) {
+  //     if (!datauri) {
+  //       // Disable option
+  //       $('#image_save_opts [value=embed]').attr('disabled', 'disabled');
+  //       $('#image_save_opts input').val(['ref']);
+  //       editor.pref('img_save', 'ref');
+  //       $('#image_opt_embed')
+  //         .css('color', '#666')
+  //         .attr('title', uiStrings.notification.featNotSupported);
+  //     }
+  //   });
+  // }, 1000);
 
   $('#fill_color, #tool_fill .icon_label').click(function() {
     colorPicker($('#fill_color'));

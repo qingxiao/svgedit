@@ -66,7 +66,8 @@ export const setStrings = function(type, obj, ids) {
           elem.setAttribute('aria-label', val);
           break;
         case 'content':
-          [...elems].some(node => {
+          // xiaoqing bugfix
+          [...elems, ...(elem.childNodes || [])].some(node => {
             if (
               node.nodeType === 3 /* Node.TEXT_NODE */ &&
               node.textContent.trim()

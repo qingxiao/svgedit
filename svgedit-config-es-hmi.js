@@ -131,7 +131,7 @@ svgEditor.setConfig({
   // no_save_warning: false,
   // PATH CONFIGURATION
   extIconsPath: getPathWithPublic('/svgedit/editor/extensions/'),
-  imgPath: getPathWithPublic('/svgedit/editor/images'),
+  imgPath: getPathWithPublic('/svgedit/editor/images/'),
   langPath: getPathWithPublic('/svgedit/editor/locale/'),
   extPath: getPathWithPublic('/svgedit/editor/extensions/'),
   jGraduatePath: getPathWithPublic('/svgedit/editor/jgraduate/images/'),
