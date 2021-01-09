@@ -7,14 +7,16 @@
  *
  */
 
-const loadExtensionTranslation = async function (lang) {
+const loadExtensionTranslation = async function(lang) {
   let translationModule;
   try {
-    translationModule = await import(`./locale/${encodeURIComponent(lang)}.js`);
+    translationModule = await Promise.resolve(
+      require(`./locale/${encodeURIComponent(lang)}.js`),
+    );
   } catch (_error) {
     // eslint-disable-next-line no-console
     console.error(`Missing translation (${lang}) - using 'en'`);
-    translationModule = await import(`./locale/en.js`);
+    translationModule = await Promise.resolve(require(`./locale/en.js`));
   }
   return translationModule.default;
 };
@@ -23,11 +25,11 @@ const loadExtensionTranslation = async function (lang) {
 // The button toggles whether the path is open or closed
 export default {
   name: 'closepath',
-  async init ({importLocale, $}) {
+  async init({ importLocale, $ }) {
     const svgEditor = this;
     const strings = await loadExtensionTranslation(svgEditor.curPrefs.lang);
     let selElems;
-    const updateButton = function (path) {
+    const updateButton = function(path) {
       const seglist = path.pathSegList,
         closed = seglist.getItem(seglist.numberOfItems - 1).pathSegType === 1,
         showbutton = closed ? '#tool_openpath' : '#tool_closepath',
@@ -35,14 +37,16 @@ export default {
       $(hidebutton).hide();
       $(showbutton).show();
     };
-    const showPanel = function (on) {
+    const showPanel = function(on) {
       $('#closepath_panel').toggle(on);
       if (on) {
         const path = selElems[0];
-        if (path) { updateButton(path); }
+        if (path) {
+          updateButton(path);
+        }
       }
     };
-    const toggleClosed = function () {
+    const toggleClosed = function() {
       const path = selElems[0];
       if (path) {
         const seglist = path.pathSegList,
@@ -64,10 +68,10 @@ export default {
         type: 'context',
         panel: 'closepath_panel',
         events: {
-          click () {
+          click() {
             toggleClosed();
-          }
-        }
+          },
+        },
       },
       {
         id: 'tool_closepath',
@@ -75,11 +79,11 @@ export default {
         type: 'context',
         panel: 'closepath_panel',
         events: {
-          click () {
+          click() {
             toggleClosed();
-          }
-        }
-      }
+          },
+        },
+      },
     ];
 
     return {
@@ -88,10 +92,10 @@ export default {
       buttons: strings.buttons.map((button, i) => {
         return Object.assign(buttons[i], button);
       }),
-      callback () {
+      callback() {
         $('#closepath_panel').hide();
       },
-      selectedChanged (opts) {
+      selectedChanged(opts) {
         selElems = opts.elems;
         let i = selElems.length;
         while (i--) {
@@ -106,7 +110,7 @@ export default {
             showPanel(false);
           }
         }
-      }
+      },
     };
-  }
+  },
 };

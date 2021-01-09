@@ -8,26 +8,28 @@
  */
 
 /**
-* This is a very basic SVG-Edit extension. It adds a "Hello World" button in
-*  the left ("mode") panel. Clicking on the button, and then the canvas
-*  will show the user the point on the canvas that was clicked on.
-*/
+ * This is a very basic SVG-Edit extension. It adds a "Hello World" button in
+ *  the left ("mode") panel. Clicking on the button, and then the canvas
+ *  will show the user the point on the canvas that was clicked on.
+ */
 
-const loadExtensionTranslation = async function (lang) {
+const loadExtensionTranslation = async function(lang) {
   let translationModule;
   try {
-    translationModule = await import(`./locale/${encodeURIComponent(lang)}.js`);
+    translationModule = await Promise.resolve(
+      require(`./locale/${encodeURIComponent(lang)}.js`),
+    );
   } catch (_error) {
     // eslint-disable-next-line no-console
     console.error(`Missing translation (${lang}) - using 'en'`);
-    translationModule = await import(`./locale/en.js`);
+    translationModule = await Promise.resolve(require(`./locale/en.js`));
   }
   return translationModule.default;
 };
 
 export default {
   name: 'helloworld',
-  async init ({$, importLocale}) {
+  async init({ $, importLocale }) {
     const svgEditor = this;
     const strings = await loadExtensionTranslation(svgEditor.curPrefs.lang);
     const svgCanvas = svgEditor.canvas;
@@ -38,45 +40,47 @@ export default {
       svgicons: 'helloworld-icon.xml',
 
       // Multiple buttons can be added in this array
-      buttons: [{
-        // Must match the icon ID in helloworld-icon.xml
-        id: 'hello_world',
+      buttons: [
+        {
+          // Must match the icon ID in helloworld-icon.xml
+          id: 'hello_world',
 
-        // Fallback, e.g., for `file:///` access
-        icon: 'helloworld.png',
+          // Fallback, e.g., for `file:///` access
+          icon: 'helloworld.png',
 
-        // This indicates that the button will be added to the "mode"
-        // button panel on the left side
-        type: 'mode',
+          // This indicates that the button will be added to the "mode"
+          // button panel on the left side
+          type: 'mode',
 
-        // Tooltip text
-        title: strings.buttons[0].title,
+          // Tooltip text
+          title: strings.buttons[0].title,
 
-        // Events
-        events: {
-          click () {
-            // The action taken when the button is clicked on.
-            // For "mode" buttons, any other button will
-            // automatically be de-pressed.
-            svgCanvas.setMode('hello_world');
-          }
-        }
-      }],
+          // Events
+          events: {
+            click() {
+              // The action taken when the button is clicked on.
+              // For "mode" buttons, any other button will
+              // automatically be de-pressed.
+              svgCanvas.setMode('hello_world');
+            },
+          },
+        },
+      ],
       // This is triggered when the main mouse button is pressed down
       // on the editor canvas (not the tool panels)
-      mouseDown () {
+      mouseDown() {
         // Check the mode on mousedown
         if (svgCanvas.getMode() === 'hello_world') {
           // The returned object must include "started" with
           // a value of true in order for mouseUp to be triggered
-          return {started: true};
+          return { started: true };
         }
         return undefined;
       },
 
       // This is triggered from anywhere, but "started" must have been set
       // to true (see above). Note that "opts" is an object with event info
-      mouseUp (opts) {
+      mouseUp(opts) {
         // Check the mode on mouseup
         if (svgCanvas.getMode() === 'hello_world') {
           const zoom = svgCanvas.getZoom();
@@ -86,10 +90,10 @@ export default {
           const y = opts.mouse_y / zoom;
 
           // We do our own formatting
-          let {text} = strings;
+          let { text } = strings;
           [
             ['x', x],
-            ['y', y]
+            ['y', y],
           ].forEach(([prop, val]) => {
             text = text.replace('{' + prop + '}', val);
           });
@@ -97,7 +101,7 @@ export default {
           // Show the text using the custom alert function
           $.alert(text);
         }
-      }
+      },
     };
-  }
+  },
 };

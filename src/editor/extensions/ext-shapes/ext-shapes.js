@@ -7,21 +7,23 @@
  *
  */
 
-const loadExtensionTranslation = async function (lang) {
+const loadExtensionTranslation = async function(lang) {
   let translationModule;
   try {
-    translationModule = await import(`./locale/${encodeURIComponent(lang)}.js`);
+    translationModule = await Promise.resolve(
+      require(`./locale/${encodeURIComponent(lang)}.js`),
+    );
   } catch (_error) {
     // eslint-disable-next-line no-console
     console.error(`Missing translation (${lang}) - using 'en'`);
-    translationModule = await import(`./locale/en.js`);
+    translationModule = await Promise.resolve(require(`./locale/en.js`));
   }
   return translationModule.default;
 };
 
 export default {
   name: 'shapes',
-  async init ({$}) {
+  async init({ $ }) {
     const svgEditor = this;
     const strings = await loadExtensionTranslation(svgEditor.curPrefs.lang);
     const canv = svgEditor.canvas;
@@ -29,7 +31,7 @@ export default {
     let lastBBox = {};
 
     // This populates the category list
-    const {categories} = strings;
+    const { categories } = strings;
     /* eslint-disable max-len */
     const library = {
       basic: {
@@ -169,11 +171,11 @@ export default {
 
       if (!lib) {
         $('#shape_buttons').html(strings.loading);
-        $.getJSON('./shapelib/' + catId + '.json', function (result) {
+        $.getJSON('./shapelib/' + catId + '.json', function(result) {
           curLib = library[catId] = {
             data: result.data,
             size: result.size,
-            fill: result.fill
+            fill: result.fill,
           };
           makeButtons(catId, result);
           loadIcons();
@@ -186,17 +188,19 @@ export default {
       }
       loadIcons();
     }
-    const buttons = [{
-      id: 'tool_shapelib',
-      icon: 'shapes.png',
-      type: 'mode_flyout', // _flyout
-      position: 6,
-      events: {
-        click () {
-          canv.setMode(modeId);
-        }
-      }
-    }];
+    const buttons = [
+      {
+        id: 'tool_shapelib',
+        icon: 'shapes.png',
+        type: 'mode_flyout', // _flyout
+        position: 6,
+        events: {
+          click() {
+            canv.setMode(modeId);
+          },
+        },
+      },
+    ];
 
     return {
       svgicons: 'ext-shapes.xml',

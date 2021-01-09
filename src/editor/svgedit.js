@@ -784,7 +784,6 @@ editor.init = () => {
     jQueryPluginDBox($, { ok, cancel });
 
     setIcons(); // Wait for dbox as needed for i18n
-
     try {
       // load standard extensions
       await Promise.all(
@@ -799,10 +798,16 @@ editor.init = () => {
             /**
              * @type {module:SVGEditor.ExtensionObject}
              */
-            const imported = await import(
-              `./extensions/${encodeURIComponent(extname)}/${encodeURIComponent(
+            // const imported = await import(
+            //   `./extensions/${encodeURIComponent(extname)}/${encodeURIComponent(
+            //     extname,
+            //   )}.js`
+            // );
+            // xiaoqing
+            const imported = await Promise.resolve(
+              require(`./extensions/${encodeURIComponent(
                 extname,
-              )}.js`
+              )}/${encodeURIComponent(extname)}.js`),
             );
             const { name = extname, init } = imported.default;
             return editor.addExtension(name, init && init.bind(editor), {
@@ -810,6 +815,7 @@ editor.init = () => {
               langParam,
             });
           } catch (err) {
+            debugger;
             // Todo: Add config to alert any errors
             console.error('Extension failed to load: ' + extname + '; ', err); // eslint-disable-line no-console
             return undefined;
@@ -829,8 +835,8 @@ editor.init = () => {
             /**
              * @type {module:SVGEditor.ExtensionObject}
              */
-            // todo 编译问题
-            // const imported = await import(encodeURI(extPathName));
+            // todo xiaoqing 编译问题
+            // const imported = await Promise.resolve(require(encodeURI(extPathName)));
             // const {name, init} = imported.default;
             // return editor.addExtension(name, (init && init.bind(editor)), {$, langParam});
           } catch (err) {
@@ -1074,7 +1080,7 @@ editor.init = () => {
    * @returns {void}
    */
   function setIcons() {
-    $.svgIcons(curConfig.imgPath + '/hmisvg/svg_edit_icons.svg', {
+    $.svgIcons(curConfig.imgPath + '/svg_edit_icons.svg', {
       w: 24,
       h: 24,
       id_match: false,

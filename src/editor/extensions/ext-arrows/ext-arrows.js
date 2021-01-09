@@ -10,11 +10,13 @@
 const loadExtensionTranslation = async function(lang) {
   let translationModule;
   try {
-    translationModule = await import(`./locale/${encodeURIComponent(lang)}.js`);
+    translationModule = await Promise.resolve(
+      require(`./locale/${encodeURIComponent(lang)}.js`),
+    );
   } catch (_error) {
     // eslint-disable-next-line no-console
     console.error(`Missing translation (${lang}) - using 'en'`);
-    translationModule = await import(`./locale/en.js`);
+    translationModule = await Promise.resolve(require(`./locale/en.js`));
   }
   return translationModule.default;
 };

@@ -7,25 +7,27 @@
  *
  */
 
-const loadExtensionTranslation = async function (lang) {
+const loadExtensionTranslation = async function(lang) {
   let translationModule;
   try {
-    translationModule = await import(`./locale/${encodeURIComponent(lang)}.js`);
+    translationModule = await Promise.resolve(
+      require(`./locale/${encodeURIComponent(lang)}.js`),
+    );
   } catch (_error) {
     // eslint-disable-next-line no-console
     console.error(`Missing translation (${lang}) - using 'en'`);
-    translationModule = await import(`./locale/en.js`);
+    translationModule = await Promise.resolve(require(`./locale/en.js`));
   }
   return translationModule.default;
 };
 
 export default {
   name: 'connector',
-  async init (S) {
+  async init(S) {
     const svgEditor = this;
     const svgCanvas = svgEditor.canvas;
-    const {getElem} = svgCanvas;
-    const {$, svgroot} = S,
+    const { getElem } = svgCanvas;
+    const { $, svgroot } = S,
       addElem = svgCanvas.addSVGElementFromJson,
       selManager = S.selectorManager,
       connSel = '.se_connector',
@@ -38,7 +40,7 @@ export default {
       startElem,
       endElem,
       seNs,
-      {svgcontent} = S,
+      { svgcontent } = S,
       started = false,
       connections = [],
       selElems = [];
@@ -51,7 +53,7 @@ export default {
      * @param {Float} offset
      * @returns {module:math.XYObject}
      */
-    function getBBintersect (x, y, bb, offset) {
+    function getBBintersect(x, y, bb, offset) {
       if (offset) {
         offset -= 0;
         bb = $.extend({}, bb);
@@ -70,25 +72,23 @@ export default {
 
       let ratio;
       if (slope < bb.height / bb.width) {
-        ratio = (bb.width / 2) / Math.abs(lenX);
+        ratio = bb.width / 2 / Math.abs(lenX);
       } else {
-        ratio = lenY
-          ? (bb.height / 2) / Math.abs(lenY)
-          : 0;
+        ratio = lenY ? bb.height / 2 / Math.abs(lenY) : 0;
       }
 
       return {
         x: midX + lenX * ratio,
-        y: midY + lenY * ratio
+        y: midY + lenY * ratio,
       };
     }
 
     /**
-    * @param {"start"|"end"} side
-    * @param {Element} line
-    * @returns {Float}
-    */
-    function getOffset (side, line) {
+     * @param {"start"|"end"} side
+     * @param {Element} line
+     * @returns {Float}
+     */
+    function getOffset(side, line) {
       const giveOffset = line.getAttribute('marker-' + side);
       // const giveOffset = $(line).data(side+'_off');
 
@@ -98,15 +98,19 @@ export default {
     }
 
     /**
-    * @param {boolean} on
-    * @returns {void}
-    */
-    function showPanel (on) {
+     * @param {boolean} on
+     * @returns {void}
+     */
+    function showPanel(on) {
       let connRules = $('#connector_rules');
       if (!connRules.length) {
         connRules = $('<style id="connector_rules"></style>').appendTo('head');
       }
-      connRules.text(!on ? '' : '#tool_clone, #tool_topath, #tool_angle, #xy_panel { display: none !important; }');
+      connRules.text(
+        !on
+          ? ''
+          : '#tool_clone, #tool_topath, #tool_angle, #xy_panel { display: none !important; }',
+      );
       $('#connector_panel').toggle(on);
     }
 
@@ -117,13 +121,15 @@ export default {
      * @param {Float} y
      * @param {boolean} [setMid]
      * @returns {void}
-    */
-    function setPoint (elem, pos, x, y, setMid) {
+     */
+    function setPoint(elem, pos, x, y, setMid) {
       const pts = elem.points;
       const pt = svgroot.createSVGPoint();
       pt.x = x;
       pt.y = y;
-      if (pos === 'end') { pos = pts.numberOfItems - 1; }
+      if (pos === 'end') {
+        pos = pts.numberOfItems - 1;
+      }
       // TODO: Test for this on init, then use alt only if needed
       try {
         pts.replaceItem(pt, pos);
@@ -147,11 +153,11 @@ export default {
     }
 
     /**
-    * @param {Float} diffX
-    * @param {Float} diffY
-    * @returns {void}
-    */
-    function updateLine (diffX, diffY) {
+     * @param {Float} diffX
+     * @param {Float} diffY
+     * @returns {void}
+     */
+    function updateLine(diffX, diffY) {
       // Update line with element
       let i = connections.length;
       while (i--) {
@@ -180,28 +186,33 @@ export default {
         setPoint(line, conn.is_start ? 0 : 'end', pt.x, pt.y, true);
 
         // Set point of connected element
-        const pt2 = getBBintersect(pt.x, pt.y, elData(line, altPre + '_bb'), getOffset(altPre, line));
+        const pt2 = getBBintersect(
+          pt.x,
+          pt.y,
+          elData(line, altPre + '_bb'),
+          getOffset(altPre, line),
+        );
         setPoint(line, conn.is_start ? 'end' : 0, pt2.x, pt2.y, true);
       }
     }
 
     /**
-    *
-    * @param {Element[]} [elems=selElems] Array of elements
-    * @returns {void}
-    */
-    function findConnectors (elems = selElems) {
+     *
+     * @param {Element[]} [elems=selElems] Array of elements
+     * @returns {void}
+     */
+    function findConnectors(elems = selElems) {
       const connectors = $(svgcontent).find(connSel);
       connections = [];
 
       // Loop through connectors to see if one is connected to the element
-      connectors.each(function () {
+      connectors.each(function() {
         let addThis;
         /**
-        *
-        * @returns {void}
-        */
-        function add () {
+         *
+         * @returns {void}
+         */
+        function add() {
           if (elems.includes(this)) {
             // Pretend this element is selected
             addThis = true;
@@ -210,12 +221,13 @@ export default {
 
         // Grab the ends
         const parts = [];
-        ['start', 'end'].forEach(function (pos, i) {
+        ['start', 'end'].forEach(function(pos, i) {
           const key = 'c_' + pos;
           let part = elData(this, key);
-          if (part === null || part === undefined) { // Does this ever return nullish values?
+          if (part === null || part === undefined) {
+            // Does this ever return nullish values?
             part = document.getElementById(
-              this.attributes['se:connector'].value.split(' ')[i]
+              this.attributes['se:connector'].value.split(' ')[i],
             );
             elData(this, 'c_' + pos, part.id);
             elData(this, pos + '_bb', svgCanvas.getStrokedBBox([part]));
@@ -228,7 +240,9 @@ export default {
 
           addThis = false;
           // The connected element might be part of a selected group
-          $(cElem).parents().each(add);
+          $(cElem)
+            .parents()
+            .each(add);
 
           if (!cElem || !cElem.parentNode) {
             $(this).remove();
@@ -239,9 +253,9 @@ export default {
             connections.push({
               elem: cElem,
               connector: this,
-              is_start: (i === 0),
+              is_start: i === 0,
               start_x: bb.x,
-              start_y: bb.y
+              start_y: bb.y,
             });
           }
         }
@@ -249,10 +263,10 @@ export default {
     }
 
     /**
-    * @param {Element[]} [elems=selElems]
-    * @returns {void}
-    */
-    function updateConnectors (elems) {
+     * @param {Element[]} [elems=selElems]
+     * @returns {void}
+     */
+    function updateConnectors(elems) {
       // Updates connector lines based on selected elements
       // Is not used on mousemove, as it runs getStrokedBBox every time,
       // which isn't necessary there.
@@ -263,7 +277,7 @@ export default {
         while (i--) {
           const conn = connections[i];
           const line = conn.connector;
-          const {elem} = conn;
+          const { elem } = conn;
 
           // const sw = line.getAttribute('stroke-width') * 5;
           const pre = conn.is_start ? 'start' : 'end';
@@ -287,7 +301,12 @@ export default {
           setPoint(line, conn.is_start ? 0 : 'end', pt.x, pt.y, true);
 
           // Set point of connected element
-          const pt2 = getBBintersect(pt.x, pt.y, elData(line, altPre + '_bb'), getOffset(altPre, line));
+          const pt2 = getBBintersect(
+            pt.x,
+            pt.y,
+            elData(line, altPre + '_bb'),
+            getOffset(altPre, line),
+          );
           setPoint(line, conn.is_start ? 'end' : 0, pt2.x, pt2.y, true);
 
           // Update points attribute manually for webkit
@@ -306,62 +325,67 @@ export default {
     }
 
     // Do once
-    (function () {
+    (function() {
       const gse = svgCanvas.groupSelectedElements;
 
-      svgCanvas.groupSelectedElements = function (...args) {
+      svgCanvas.groupSelectedElements = function(...args) {
         svgCanvas.removeFromSelection($(connSel).toArray());
         return gse.apply(this, args);
       };
 
       const mse = svgCanvas.moveSelectedElements;
 
-      svgCanvas.moveSelectedElements = function (...args) {
+      svgCanvas.moveSelectedElements = function(...args) {
         const cmd = mse.apply(this, args);
         updateConnectors();
         return cmd;
       };
 
       seNs = svgCanvas.getEditorNS();
-    }());
+    })();
 
     /**
-    * Do on reset.
-    * @returns {void}
-    */
-    function init () {
+     * Do on reset.
+     * @returns {void}
+     */
+    function init() {
       // Make sure all connectors have data set
-      $(svgcontent).find('*').each(function () {
-        const conn = this.getAttributeNS(seNs, 'connector');
-        if (conn) {
-          this.setAttribute('class', connSel.substr(1));
-          const connData = conn.split(' ');
-          const sbb = svgCanvas.getStrokedBBox([getElem(connData[0])]);
-          const ebb = svgCanvas.getStrokedBBox([getElem(connData[1])]);
-          $(this).data('c_start', connData[0])
-            .data('c_end', connData[1])
-            .data('start_bb', sbb)
-            .data('end_bb', ebb);
-          svgCanvas.getEditorNS(true);
-        }
-      });
+      $(svgcontent)
+        .find('*')
+        .each(function() {
+          const conn = this.getAttributeNS(seNs, 'connector');
+          if (conn) {
+            this.setAttribute('class', connSel.substr(1));
+            const connData = conn.split(' ');
+            const sbb = svgCanvas.getStrokedBBox([getElem(connData[0])]);
+            const ebb = svgCanvas.getStrokedBBox([getElem(connData[1])]);
+            $(this)
+              .data('c_start', connData[0])
+              .data('c_end', connData[1])
+              .data('start_bb', sbb)
+              .data('end_bb', ebb);
+            svgCanvas.getEditorNS(true);
+          }
+        });
     }
 
-    const buttons = [{
-      id: 'mode_connect',
-      type: 'mode',
-      icon: svgEditor.curConfig.imgPath + 'cut.png',
-      includeWith: {
-        button: '#tool_line',
-        isDefault: false,
-        position: 1
+    const buttons = [
+      {
+        id: 'mode_connect',
+        type: 'mode',
+        icon: svgEditor.curConfig.imgPath + 'cut.png',
+        includeWith: {
+          button: '#tool_line',
+          isDefault: false,
+          position: 1,
+        },
+        events: {
+          click() {
+            svgCanvas.setMode('connector');
+          },
+        },
       },
-      events: {
-        click () {
-          svgCanvas.setMode('connector');
-        }
-      }
-    }];
+    ];
     const strings = await loadExtensionTranslation(svgEditor.curPrefs.lang);
     return {
       name: strings.name,
@@ -369,20 +393,25 @@ export default {
       buttons: strings.buttons.map((button, i) => {
         return Object.assign(buttons[i], button);
       }),
-      /* async */ addLangData ({lang}) { // , importLocale: importLoc
+      /* async */ addLangData({ lang }) {
+        // , importLocale: importLoc
         return {
-          data: strings.langList
+          data: strings.langList,
         };
       },
-      mouseDown (opts) {
+      mouseDown(opts) {
         const e = opts.event;
         startX = opts.start_x;
         startY = opts.start_y;
         const mode = svgCanvas.getMode();
-        const {curConfig: {initStroke}} = svgEditor;
+        const {
+          curConfig: { initStroke },
+        } = svgEditor;
 
         if (mode === 'connector') {
-          if (started) { return undefined; }
+          if (started) {
+            return undefined;
+          }
 
           const mouseTarget = e.target;
 
@@ -405,20 +434,22 @@ export default {
               element: 'polyline',
               attr: {
                 id: svgCanvas.getNextId(),
-                points: (x + ',' + y + ' ' + x + ',' + y + ' ' + startX + ',' + startY),
+                points:
+                  x + ',' + y + ' ' + x + ',' + y + ' ' + startX + ',' + startY,
                 stroke: '#' + initStroke.color,
-                'stroke-width': (!startElem.stroke_width || startElem.stroke_width === 0)
-                  ? initStroke.width
-                  : startElem.stroke_width,
+                'stroke-width':
+                  !startElem.stroke_width || startElem.stroke_width === 0
+                    ? initStroke.width
+                    : startElem.stroke_width,
                 fill: 'none',
                 opacity: initStroke.opacity,
-                style: 'pointer-events:none'
-              }
+                style: 'pointer-events:none',
+              },
             });
             elData(curLine, 'start_bb', bb);
           }
           return {
-            started: true
+            started: true,
           };
         }
         if (mode === 'select') {
@@ -426,7 +457,7 @@ export default {
         }
         return undefined;
       },
-      mouseMove (opts) {
+      mouseMove(opts) {
         const zoom = svgCanvas.getZoom();
         // const e = opts.event;
         const x = opts.mouse_x / zoom;
@@ -440,7 +471,12 @@ export default {
         if (mode === 'connector' && started) {
           // const sw = curLine.getAttribute('stroke-width') * 3;
           // Set start point (adjusts based on bb)
-          const pt = getBBintersect(x, y, elData(curLine, 'start_bb'), getOffset('start', curLine));
+          const pt = getBBintersect(
+            x,
+            y,
+            elData(curLine, 'start_bb'),
+            getOffset('start', curLine),
+          );
           startX = pt.x;
           startY = pt.y;
 
@@ -464,7 +500,7 @@ export default {
           }
         }
       },
-      mouseUp (opts) {
+      mouseUp(opts) {
         // const zoom = svgCanvas.getZoom();
         const e = opts.event;
         // , x = opts.mouse_x / zoom,
@@ -475,7 +511,9 @@ export default {
           return undefined;
         }
         const fo = $(mouseTarget).closest('foreignObject');
-        if (fo.length) { mouseTarget = fo[0]; }
+        if (fo.length) {
+          mouseTarget = fo[0];
+        }
 
         const parents = $(mouseTarget).parents();
 
@@ -485,7 +523,7 @@ export default {
           return {
             keep: true,
             element: null,
-            started
+            started,
           };
         }
         if ($.inArray(svgcontent, parents) === -1) {
@@ -495,33 +533,43 @@ export default {
           return {
             keep: false,
             element: null,
-            started
+            started,
           };
         }
         // Valid end element
         endElem = mouseTarget;
 
-        const startId = startElem.id, endId = endElem.id;
+        const startId = startElem.id,
+          endId = endElem.id;
         const connStr = startId + ' ' + endId;
         const altStr = endId + ' ' + startId;
         // Don't create connector if one already exists
-        const dupe = $(svgcontent).find(connSel).filter(function () {
-          const conn = this.getAttributeNS(seNs, 'connector');
-          if (conn === connStr || conn === altStr) { return true; }
-          return false;
-        });
+        const dupe = $(svgcontent)
+          .find(connSel)
+          .filter(function() {
+            const conn = this.getAttributeNS(seNs, 'connector');
+            if (conn === connStr || conn === altStr) {
+              return true;
+            }
+            return false;
+          });
         if (dupe.length) {
           $(curLine).remove();
           return {
             keep: false,
             element: null,
-            started: false
+            started: false,
           };
         }
 
         const bb = svgCanvas.getStrokedBBox([endElem]);
 
-        const pt = getBBintersect(startX, startY, bb, getOffset('start', curLine));
+        const pt = getBBintersect(
+          startX,
+          startY,
+          bb,
+          getOffset('start', curLine),
+        );
         setPoint(curLine, 'end', pt.x, pt.y, true);
         $(curLine)
           .data('c_start', startId)
@@ -538,12 +586,14 @@ export default {
         return {
           keep: true,
           element: curLine,
-          started
+          started,
         };
       },
-      selectedChanged (opts) {
+      selectedChanged(opts) {
         // TODO: Find better way to skip operations if no connectors are in use
-        if (!$(svgcontent).find(connSel).length) { return; }
+        if (!$(svgcontent).find(connSel).length) {
+          return;
+        }
 
         if (svgCanvas.getMode() === 'connector') {
           svgCanvas.setMode('select');
@@ -569,7 +619,7 @@ export default {
         }
         updateConnectors();
       },
-      elementChanged (opts) {
+      elementChanged(opts) {
         let elem = opts.elems[0];
         if (!elem) return;
         if (elem.tagName === 'svg' && elem.id === 'svgcontent') {
@@ -599,21 +649,23 @@ export default {
             const x2 = Number(elem.getAttribute('x2'));
             const y1 = Number(elem.getAttribute('y1'));
             const y2 = Number(elem.getAttribute('y2'));
-            const {id} = elem;
+            const { id } = elem;
 
-            const midPt = (' ' + ((x1 + x2) / 2) + ',' + ((y1 + y2) / 2) + ' ');
+            const midPt = ' ' + (x1 + x2) / 2 + ',' + (y1 + y2) / 2 + ' ';
             const pline = addElem({
               element: 'polyline',
               attr: {
-                points: (x1 + ',' + y1 + midPt + x2 + ',' + y2),
+                points: x1 + ',' + y1 + midPt + x2 + ',' + y2,
                 stroke: elem.getAttribute('stroke'),
                 'stroke-width': elem.getAttribute('stroke-width'),
                 'marker-mid': mid,
                 fill: 'none',
-                opacity: elem.getAttribute('opacity') || 1
-              }
+                opacity: elem.getAttribute('opacity') || 1,
+              },
             });
-            $(elem).after(pline).remove();
+            $(elem)
+              .after(pline)
+              .remove();
             svgCanvas.clearSelection();
             pline.id = id;
             svgCanvas.addToSelection([pline]);
@@ -628,31 +680,34 @@ export default {
           updateConnectors();
         }
       },
-      IDsUpdated (input) {
+      IDsUpdated(input) {
         const remove = [];
-        input.elems.forEach(function (elem) {
+        input.elems.forEach(function(elem) {
           if ('se:connector' in elem.attr) {
-            elem.attr['se:connector'] = elem.attr['se:connector'].split(' ')
-              .map(function (oldID) { return input.changes[oldID]; }).join(' ');
+            elem.attr['se:connector'] = elem.attr['se:connector']
+              .split(' ')
+              .map(function(oldID) {
+                return input.changes[oldID];
+              })
+              .join(' ');
 
             // Check validity - the field would be something like 'svg_21 svg_22', but
             // if one end is missing, it would be 'svg_21' and therefore fail this test
-            if (!(/. ./).test(elem.attr['se:connector'])) {
+            if (!/. ./.test(elem.attr['se:connector'])) {
               remove.push(elem.attr.id);
             }
           }
         });
-        return {remove};
+        return { remove };
       },
-      toolButtonStateUpdate (opts) {
+      toolButtonStateUpdate(opts) {
         if (opts.nostroke) {
           if ($('#mode_connect').hasClass('tool_button_current')) {
             svgEditor.clickSelect();
           }
         }
-        $('#mode_connect')
-          .toggleClass('disabled', opts.nostroke);
-      }
+        $('#mode_connect').toggleClass('disabled', opts.nostroke);
+      },
     };
-  }
+  },
 };

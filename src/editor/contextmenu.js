@@ -13,90 +13,115 @@ let contextMenuExtensions = {};
  * @callback module:contextmenu.MenuItemAction
  * @param {...args} args
  * @returns {any}
-*/
+ */
 
 /**
-* @typedef {PlainObject} module:contextmenu.MenuItem
-* @property {string} id
-* @property {string} label
-* @property {module:contextmenu.MenuItemAction} action
-*/
+ * @typedef {PlainObject} module:contextmenu.MenuItem
+ * @property {string} id
+ * @property {string} label
+ * @property {module:contextmenu.MenuItemAction} action
+ */
 
 /**
-* @param {module:contextmenu.MenuItem} menuItem
-* @returns {boolean}
-*/
-const menuItemIsValid = function (menuItem) {
-  return menuItem && menuItem.id && menuItem.label && menuItem.action && typeof menuItem.action === 'function';
+ * @param {module:contextmenu.MenuItem} menuItem
+ * @returns {boolean}
+ */
+const menuItemIsValid = function(menuItem) {
+  return (
+    menuItem &&
+    menuItem.id &&
+    menuItem.label &&
+    menuItem.action &&
+    typeof menuItem.action === 'function'
+  );
 };
 
 /**
-* @function module:contextmenu.add
-* @param {module:contextmenu.MenuItem} menuItem
-* @throws {Error|TypeError}
-* @returns {void}
-*/
-export const add = function (menuItem) {
+ * @function module:contextmenu.add
+ * @param {module:contextmenu.MenuItem} menuItem
+ * @throws {Error|TypeError}
+ * @returns {void}
+ */
+export const add = function(menuItem) {
   // menuItem: {id, label, shortcut, action}
   if (!menuItemIsValid(menuItem)) {
     throw new TypeError(
       'Menu items must be defined and have at least properties: ' +
-      'id, label, action, where action must be a function'
+        'id, label, action, where action must be a function',
     );
   }
   if (menuItem.id in contextMenuExtensions) {
-    throw new Error('Cannot add extension "' + menuItem.id + '", an extension by that name already exists"');
+    throw new Error(
+      'Cannot add extension "' +
+        menuItem.id +
+        '", an extension by that name already exists"',
+    );
   }
   // Register menuItem action, see below for deferred menu dom injection
-  console.log('Registered contextmenu item: {id:' + menuItem.id + ', label:' + menuItem.label + '}'); // eslint-disable-line no-console
+  console.log(
+    'Registered contextmenu item: {id:' +
+      menuItem.id +
+      ', label:' +
+      menuItem.label +
+      '}',
+  ); // eslint-disable-line no-console
   contextMenuExtensions[menuItem.id] = menuItem;
   // TODO: Need to consider how to handle custom enable/disable behavior
 };
 
 /**
-* @function module:contextmenu.hasCustomHandler
-* @param {string} handlerKey
-* @returns {boolean}
-*/
-export const hasCustomHandler = function (handlerKey) {
+ * @function module:contextmenu.hasCustomHandler
+ * @param {string} handlerKey
+ * @returns {boolean}
+ */
+export const hasCustomHandler = function(handlerKey) {
   return Boolean(contextMenuExtensions[handlerKey]);
 };
 
 /**
-* @function module:contextmenu.getCustomHandler
-* @param {string} handlerKey
-* @returns {module:contextmenu.MenuItemAction}
-*/
-export const getCustomHandler = function (handlerKey) {
+ * @function module:contextmenu.getCustomHandler
+ * @param {string} handlerKey
+ * @returns {module:contextmenu.MenuItemAction}
+ */
+export const getCustomHandler = function(handlerKey) {
   return contextMenuExtensions[handlerKey].action;
 };
 
 /**
-* @param {module:contextmenu.MenuItem} menuItem
-* @returns {void}
-*/
-const injectExtendedContextMenuItemIntoDom = function (menuItem) {
+ * @param {module:contextmenu.MenuItem} menuItem
+ * @returns {void}
+ */
+const injectExtendedContextMenuItemIntoDom = function(menuItem) {
   if (!Object.keys(contextMenuExtensions).length) {
     // all menuItems appear at the bottom of the menu in their own container.
     // if this is the first extension menu we need to add the separator.
-    document.getElementById('cmenu_canvas').appendChild(`<li class='separator'>`);
+    // document.getElementById('cmenu_canvas').appendChild(`<li class='separator'>`);
+    // xiaoqing bugfix
+    document
+      .getElementById('cmenu_canvas')
+      .appendChild($(`<li class='separator'>`)[0]);
   }
   const shortcut = menuItem.shortcut || '';
-  document.getElementById('cmenu_canvas').appendChild(`
-    <li class='disabled'><a href='#${menuItem.id}'>${menuItem.label}<span class='shortcut'>${shortcut}</span></a></li>`);
+  // xiaoqing bugfix
+  document.getElementById('cmenu_canvas').appendChild(
+    $(`
+    <li class='disabled'><a href='#${menuItem.id}'>${menuItem.label}<span class='shortcut'>${shortcut}</span></a></li>`)[0],
+  );
 };
 
 /**
-* @function module:contextmenu.injectExtendedContextMenuItemsIntoDom
-* @returns {void}
-*/
-export const injectExtendedContextMenuItemsIntoDom = function () {
-  Object.values(contextMenuExtensions).forEach((menuItem) => {
+ * @function module:contextmenu.injectExtendedContextMenuItemsIntoDom
+ * @returns {void}
+ */
+export const injectExtendedContextMenuItemsIntoDom = function() {
+  Object.values(contextMenuExtensions).forEach(menuItem => {
     injectExtendedContextMenuItemIntoDom(menuItem);
   });
 };
 /**
-* @function module:contextmenu.resetCustomMenus
-* @returns {void}
-*/
-export const resetCustomMenus = function () { contextMenuExtensions = {}; };
+ * @function module:contextmenu.resetCustomMenus
+ * @returns {void}
+ */
+export const resetCustomMenus = function() {
+  contextMenuExtensions = {};
+};

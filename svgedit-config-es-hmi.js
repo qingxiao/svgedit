@@ -82,16 +82,16 @@ svgEditor.setConfig({
   //     'ext-storage.js'
   // ],
   extensions: [
-    'ext-overview_window.js',
-    'ext-markers.js',
-    'ext-connector.js',
-    'ext-eyedropper.js',
-    'ext-shapes.js',
-    'ext-imagelib.js',
-    'ext-grid.js',
-    'ext-polygon.js',
-    'ext-star.js',
-    'ext-panning.js',
+    'ext-overview_window',
+    'ext-markers',
+    'ext-connector',
+    'ext-eyedropper',
+    'ext-shapes',
+    'ext-imagelib',
+    'ext-grid',
+    'ext-polygon',
+    'ext-star',
+    'ext-panning',
   ],
   // noDefaultExtensions can only be meaningfully used in
   //  `svgedit-config-es.js` or in the URL
@@ -131,7 +131,7 @@ svgEditor.setConfig({
   // no_save_warning: false,
   // PATH CONFIGURATION
   extIconsPath: getPathWithPublic('/svgedit/editor/extensions/'),
-  imgPath: getPathWithPublic('/svgedit/editor/images/'),
+  imgPath: getPathWithPublic('/svgedit/editor/images'),
   langPath: getPathWithPublic('/svgedit/editor/locale/'),
   extPath: getPathWithPublic('/svgedit/editor/extensions/'),
   jGraduatePath: getPathWithPublic('/svgedit/editor/jgraduate/images/'),

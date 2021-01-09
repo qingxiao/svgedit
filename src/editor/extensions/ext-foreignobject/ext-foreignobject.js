@@ -7,42 +7,43 @@
  *
  */
 
-const loadExtensionTranslation = async function (lang) {
+const loadExtensionTranslation = async function(lang) {
   let translationModule;
   try {
-    translationModule = await import(`./locale/${encodeURIComponent(lang)}.js`);
+    translationModule = await Promise.resolve(
+      require(`./locale/${encodeURIComponent(lang)}.js`),
+    );
   } catch (_error) {
     // eslint-disable-next-line no-console
     console.error(`Missing translation (${lang}) - using 'en'`);
-    translationModule = await import(`./locale/en.js`);
+    translationModule = await Promise.resolve(require(`./locale/en.js`));
   }
   return translationModule.default;
 };
 
 export default {
   name: 'foreignobject',
-  async init (S) {
+  async init(S) {
     const svgEditor = this;
-    const {$, text2xml, NS} = S;
+    const { $, text2xml, NS } = S;
     const svgCanvas = svgEditor.canvas;
-    const
-      // {svgcontent} = S,
+    const // {svgcontent} = S,
       // addElem = svgCanvas.addSVGElementFromJson,
       svgdoc = S.svgroot.parentNode.ownerDocument;
 
     const strings = await loadExtensionTranslation(svgEditor.curPrefs.lang);
 
-    const properlySourceSizeTextArea = function () {
+    const properlySourceSizeTextArea = function() {
       // TODO: remove magic numbers here and get values from CSS
       const height = $('#svg_source_container').height() - 80;
       $('#svg_source_textarea').css('height', height);
     };
 
     /**
-    * @param {boolean} on
-    * @returns {void}
-    */
-    function showPanel (on) {
+     * @param {boolean} on
+     * @returns {void}
+     */
+    function showPanel(on) {
       let fcRules = $('#fc_rules');
       if (!fcRules.length) {
         fcRules = $('<style id="fc_rules"></style>').appendTo('head');
@@ -52,10 +53,10 @@ export default {
     }
 
     /**
-    * @param {boolean} on
-    * @returns {void}
-    */
-    function toggleSourceButtons (on) {
+     * @param {boolean} on
+     * @returns {void}
+     */
+    function toggleSourceButtons(on) {
       $('#tool_source_save, #tool_source_cancel').toggle(!on);
       $('#foreign_save, #foreign_cancel').toggle(on);
     }
@@ -66,18 +67,28 @@ export default {
       editingforeign = false;
 
     /**
-    * This function sets the content of element elt to the input XML.
-    * @param {string} xmlString - The XML text
-    * @returns {boolean} This function returns false if the set was unsuccessful, true otherwise.
-    */
-    function setForeignString (xmlString) {
+     * This function sets the content of element elt to the input XML.
+     * @param {string} xmlString - The XML text
+     * @returns {boolean} This function returns false if the set was unsuccessful, true otherwise.
+     */
+    function setForeignString(xmlString) {
       const elt = selElems[0]; // The parent `Element` to append to
       try {
         // convert string into XML document
-        const newDoc = text2xml('<svg xmlns="' + NS.SVG + '" xmlns:xlink="' + NS.XLINK + '">' + xmlString + '</svg>');
+        const newDoc = text2xml(
+          '<svg xmlns="' +
+            NS.SVG +
+            '" xmlns:xlink="' +
+            NS.XLINK +
+            '">' +
+            xmlString +
+            '</svg>',
+        );
         // run it through our sanitizer to remove anything we do not support
         svgCanvas.sanitizeSvg(newDoc.documentElement);
-        elt.replaceWith(svgdoc.importNode(newDoc.documentElement.firstChild, true));
+        elt.replaceWith(
+          svgdoc.importNode(newDoc.documentElement.firstChild, true),
+        );
         svgCanvas.call('changed', [elt]);
         svgCanvas.clearSelection();
       } catch (e) {
@@ -90,12 +101,14 @@ export default {
     }
 
     /**
-    *
-    * @returns {void}
-    */
-    function showForeignEditor () {
+     *
+     * @returns {void}
+     */
+    function showForeignEditor() {
       const elt = selElems[0];
-      if (!elt || editingforeign) { return; }
+      if (!elt || editingforeign) {
+        return;
+      }
       editingforeign = true;
       toggleSourceButtons(true);
       elt.removeAttribute('fill');
@@ -108,35 +121,38 @@ export default {
     }
 
     /**
-    * @param {string} attr
-    * @param {string|Float} val
-    * @returns {void}
-    */
-    function setAttr (attr, val) {
+     * @param {string} attr
+     * @param {string|Float} val
+     * @returns {void}
+     */
+    function setAttr(attr, val) {
       svgCanvas.changeSelectedAttribute(attr, val);
       svgCanvas.call('changed', selElems);
     }
 
-    const buttons = [{
-      id: 'tool_foreign',
-      icon: 'foreignobject-tool.png',
-      type: 'mode',
-      events: {
-        click () {
-          svgCanvas.setMode('foreign');
-        }
-      }
-    }, {
-      id: 'edit_foreign',
-      icon: 'foreignobject-edit.png',
-      type: 'context',
-      panel: 'foreignObject_panel',
-      events: {
-        click () {
-          showForeignEditor();
-        }
-      }
-    }];
+    const buttons = [
+      {
+        id: 'tool_foreign',
+        icon: 'foreignobject-tool.png',
+        type: 'mode',
+        events: {
+          click() {
+            svgCanvas.setMode('foreign');
+          },
+        },
+      },
+      {
+        id: 'edit_foreign',
+        icon: 'foreignobject-edit.png',
+        type: 'context',
+        panel: 'foreignObject_panel',
+        events: {
+          click() {
+            showForeignEditor();
+          },
+        },
+      },
+    ];
 
     const contextTools = [
       {
@@ -145,31 +161,33 @@ export default {
         id: 'foreign_width',
         size: 3,
         events: {
-          change () {
+          change() {
             setAttr('width', this.value);
-          }
-        }
-      }, {
+          },
+        },
+      },
+      {
         type: 'input',
         panel: 'foreignObject_panel',
         id: 'foreign_height',
         events: {
-          change () {
+          change() {
             setAttr('height', this.value);
-          }
-        }
-      }, {
+          },
+        },
+      },
+      {
         type: 'input',
         panel: 'foreignObject_panel',
         id: 'foreign_font_size',
         size: 2,
         defval: 16,
         events: {
-          change () {
+          change() {
             setAttr('font-size', this.value);
-          }
-        }
-      }
+          },
+        },
+      },
     ];
 
     return {
@@ -181,10 +199,10 @@ export default {
       context_tools: strings.contextTools.map((contextTool, i) => {
         return Object.assign(contextTools[i], contextTool);
       }),
-      callback () {
+      callback() {
         $('#foreignObject_panel').hide();
 
-        const endChanges = function () {
+        const endChanges = function() {
           $('#svg_source_editor').hide();
           editingforeign = false;
           $('#svg_source_textarea').blur();
@@ -192,16 +210,24 @@ export default {
         };
 
         // TODO: Needs to be done after orig icon loads
-        setTimeout(function () {
+        setTimeout(function() {
           // Create source save/cancel buttons
-          /* const save = */ $('#tool_source_save').clone()
-            .hide().attr('id', 'foreign_save').unbind()
-            .appendTo('#tool_source_back').click(async function () {
-              if (!editingforeign) { return; }
+          /* const save = */ $('#tool_source_save')
+            .clone()
+            .hide()
+            .attr('id', 'foreign_save')
+            .unbind()
+            .appendTo('#tool_source_back')
+            .click(async function() {
+              if (!editingforeign) {
+                return;
+              }
 
               if (!setForeignString($('#svg_source_textarea').val())) {
                 const ok = await $.confirm('Errors found. Revert to original?');
-                if (!ok) { return; }
+                if (!ok) {
+                  return;
+                }
                 endChanges();
               } else {
                 endChanges();
@@ -209,14 +235,18 @@ export default {
               // setSelectMode();
             });
 
-          /* const cancel = */ $('#tool_source_cancel').clone()
-            .hide().attr('id', 'foreign_cancel').unbind()
-            .appendTo('#tool_source_back').click(function () {
+          /* const cancel = */ $('#tool_source_cancel')
+            .clone()
+            .hide()
+            .attr('id', 'foreign_cancel')
+            .unbind()
+            .appendTo('#tool_source_back')
+            .click(function() {
               endChanges();
             });
         }, 3000);
       },
-      mouseDown (opts) {
+      mouseDown(opts) {
         // const e = opts.event;
         if (svgCanvas.getMode() !== 'foreign') {
           return undefined;
@@ -231,8 +261,8 @@ export default {
             'font-size': 16, // cur_text.font_size,
             width: '48',
             height: '20',
-            style: 'pointer-events:inherit'
-          }
+            style: 'pointer-events:inherit',
+          },
         });
         const m = svgdoc.createElementNS(NS.MATH, 'math');
         m.setAttributeNS(NS.XMLNS, 'xmlns', NS.MATH);
@@ -247,24 +277,24 @@ export default {
         m.append(mi, mo, mi2);
         newFO.append(m);
         return {
-          started: true
+          started: true,
         };
       },
-      mouseUp (opts) {
+      mouseUp(opts) {
         // const e = opts.event;
         if (svgCanvas.getMode() !== 'foreign' || !started) {
           return undefined;
         }
         const attrs = $(newFO).attr(['width', 'height']);
-        const keep = (attrs.width !== '0' || attrs.height !== '0');
+        const keep = attrs.width !== '0' || attrs.height !== '0';
         svgCanvas.addToSelection([newFO], true);
 
         return {
           keep,
-          element: newFO
+          element: newFO,
         };
       },
-      selectedChanged (opts) {
+      selectedChanged(opts) {
         // Use this to update the current selected elements
         selElems = opts.elems;
 
@@ -285,9 +315,9 @@ export default {
           }
         }
       },
-      elementChanged (opts) {
+      elementChanged(opts) {
         // const elem = opts.elems[0];
-      }
+      },
     };
-  }
+  },
 };

@@ -6,35 +6,36 @@
  *
  */
 
-const loadExtensionTranslation = async function (lang) {
+const loadExtensionTranslation = async function(lang) {
   let translationModule;
   try {
-    translationModule = await import(`./locale/${encodeURIComponent(lang)}.js`);
+    translationModule = await Promise.resolve(
+      require(`./locale/${encodeURIComponent(lang)}.js`),
+    );
   } catch (_error) {
     // eslint-disable-next-line no-console
     console.error(`Missing translation (${lang}) - using 'en'`);
-    translationModule = await import(`./locale/en.js`);
+    translationModule = await Promise.resolve(require(`./locale/en.js`));
   }
   return translationModule.default;
 };
 
 export default {
   name: 'star',
-  async init (S) {
+  async init(S) {
     const svgEditor = this;
     const svgCanvas = svgEditor.canvas;
 
-    const {$} = S; // {svgcontent},
-    let
-      selElems,
+    const { $ } = S; // {svgcontent},
+    let selElems,
       // editingitex = false,
       // svgdoc = S.svgroot.parentNode.ownerDocument,
       started,
       newFO;
-      // edg = 0,
-      // newFOG, newFOGParent, newDef, newImageName, newMaskID,
-      // undoCommand = 'Not image',
-      // modeChangeG, ccZoom, wEl, hEl, wOffset, hOffset, ccRgbEl, brushW, brushH;
+    // edg = 0,
+    // newFOG, newFOGParent, newDef, newImageName, newMaskID,
+    // undoCommand = 'Not image',
+    // modeChangeG, ccZoom, wEl, hEl, wOffset, hOffset, ccRgbEl, brushW, brushH;
     const strings = await loadExtensionTranslation(svgEditor.curPrefs.lang);
 
     /**
@@ -42,7 +43,7 @@ export default {
      * @param {boolean} on
      * @returns {void}
      */
-    function showPanel (on) {
+    function showPanel(on) {
       let fcRules = $('#fc_rules');
       if (!fcRules.length) {
         fcRules = $('<style id="fc_rules"></style>').appendTo('head');
@@ -63,7 +64,7 @@ export default {
      * @param {string|Float} val
      * @returns {void}
      */
-    function setAttr (attr, val) {
+    function setAttr(attr, val) {
       svgCanvas.changeSelectedAttribute(attr, val);
       svgCanvas.call('changed', selElems);
     }
@@ -77,47 +78,53 @@ export default {
       return 1 / Math.cos(n);
     }
     */
-    const buttons = [{
-      id: 'tool_star',
-      icon: 'star.png',
-      type: 'mode',
-      position: 12,
-      events: {
-        click () {
-          showPanel(true);
-          svgCanvas.setMode('star');
-        }
-      }
-    }];
-    const contextTools = [{
-      type: 'input',
-      panel: 'star_panel',
-      id: 'starNumPoints',
-      size: 3,
-      defval: 5,
-      events: {
-        change () {
-          setAttr('point', this.value);
-        }
-      }
-    }, {
-      type: 'input',
-      panel: 'star_panel',
-      id: 'starRadiusMulitplier',
-      size: 3,
-      defval: 2.5
-    }, {
-      type: 'input',
-      panel: 'star_panel',
-      id: 'radialShift',
-      size: 3,
-      defval: 0,
-      events: {
-        change () {
-          setAttr('radialshift', this.value);
-        }
-      }
-    }];
+    const buttons = [
+      {
+        id: 'tool_star',
+        icon: 'star.png',
+        type: 'mode',
+        position: 12,
+        events: {
+          click() {
+            showPanel(true);
+            svgCanvas.setMode('star');
+          },
+        },
+      },
+    ];
+    const contextTools = [
+      {
+        type: 'input',
+        panel: 'star_panel',
+        id: 'starNumPoints',
+        size: 3,
+        defval: 5,
+        events: {
+          change() {
+            setAttr('point', this.value);
+          },
+        },
+      },
+      {
+        type: 'input',
+        panel: 'star_panel',
+        id: 'starRadiusMulitplier',
+        size: 3,
+        defval: 2.5,
+      },
+      {
+        type: 'input',
+        panel: 'star_panel',
+        id: 'radialShift',
+        size: 3,
+        defval: 0,
+        events: {
+          change() {
+            setAttr('radialshift', this.value);
+          },
+        },
+      },
+    ];
 
     return {
       name: strings.name,
@@ -128,11 +135,11 @@ export default {
       context_tools: strings.contextTools.map((contextTool, i) => {
         return Object.assign(contextTools[i], contextTool);
       }),
-      callback () {
+      callback() {
         $('#star_panel').hide();
         // const endChanges = function(){};
       },
-      mouseDown (opts) {
+      mouseDown(opts) {
         const rgb = svgCanvas.getColor('fill');
         // const ccRgbEl = rgb.substring(1, rgb.length);
         const sRgb = svgCanvas.getColor('stroke');
@@ -156,27 +163,48 @@ export default {
               orient: 'point',
               fill: rgb,
               strokecolor: sRgb,
-              strokeWidth: sWidth
-            }
+              strokeWidth: sWidth,
+            },
           });
           return {
-            started: true
+            started: true,
           };
         }
         return undefined;
       },
-      mouseMove (opts) {
+      mouseMove(opts) {
         if (!started) {
           return undefined;
         }
         if (svgCanvas.getMode() === 'star') {
-          const c = $(newFO).attr(['cx', 'cy', 'point', 'orient', 'fill', 'strokecolor', 'strokeWidth', 'radialshift']);
+          const c = $(newFO).attr([
+            'cx',
+            'cy',
+            'point',
+            'orient',
+            'fill',
+            'strokecolor',
+            'strokeWidth',
+            'radialshift',
+          ]);
 
           let x = opts.mouse_x;
           let y = opts.mouse_y;
-          const {cx, cy, fill, strokecolor, strokeWidth, radialshift, point, orient} = c,
-            circumradius = (Math.sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy))) / 1.5,
-            inradius = circumradius / document.getElementById('starRadiusMulitplier').value;
+          const {
+              cx,
+              cy,
+              fill,
+              strokecolor,
+              strokeWidth,
+              radialshift,
+              point,
+              orient,
+            } = c,
+            circumradius =
+              Math.sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)) / 1.5,
+            inradius =
+              circumradius /
+              document.getElementById('starRadiusMulitplier').value;
           newFO.setAttribute('r', circumradius);
           newFO.setAttribute('r2', inradius);
 
@@ -184,27 +212,27 @@ export default {
           for (let s = 0; point >= s; s++) {
             let angle = 2.0 * Math.PI * (s / point);
             if (orient === 'point') {
-              angle -= (Math.PI / 2);
+              angle -= Math.PI / 2;
             } else if (orient === 'edge') {
-              angle = (angle + (Math.PI / point)) - (Math.PI / 2);
+              angle = angle + Math.PI / point - Math.PI / 2;
             }
 
-            x = (circumradius * Math.cos(angle)) + cx;
-            y = (circumradius * Math.sin(angle)) + cy;
+            x = circumradius * Math.cos(angle) + cx;
+            y = circumradius * Math.sin(angle) + cy;
 
             polyPoints += x + ',' + y + ' ';
 
             if (!isNaN(inradius)) {
-              angle = (2.0 * Math.PI * (s / point)) + (Math.PI / point);
+              angle = 2.0 * Math.PI * (s / point) + Math.PI / point;
               if (orient === 'point') {
-                angle -= (Math.PI / 2);
+                angle -= Math.PI / 2;
               } else if (orient === 'edge') {
-                angle = (angle + (Math.PI / point)) - (Math.PI / 2);
+                angle = angle + Math.PI / point - Math.PI / 2;
               }
               angle += radialshift;
 
-              x = (inradius * Math.cos(angle)) + cx;
-              y = (inradius * Math.sin(angle)) + cy;
+              x = inradius * Math.cos(angle) + cx;
+              y = inradius * Math.sin(angle) + cy;
 
               polyPoints += x + ',' + y + ' ';
             }
@@ -216,23 +244,23 @@ export default {
           /* const shape = */ newFO.getAttribute('shape');
 
           return {
-            started: true
+            started: true,
           };
         }
         return undefined;
       },
-      mouseUp () {
+      mouseUp() {
         if (svgCanvas.getMode() === 'star') {
           const attrs = $(newFO).attr(['r']);
           // svgCanvas.addToSelection([newFO], true);
           return {
-            keep: (attrs.r !== '0'),
-            element: newFO
+            keep: attrs.r !== '0',
+            element: newFO,
           };
         }
         return undefined;
       },
-      selectedChanged (opts) {
+      selectedChanged(opts) {
         // Use this to update the current selected elements
         selElems = opts.elems;
 
@@ -253,9 +281,9 @@ export default {
           }
         }
       },
-      elementChanged (opts) {
+      elementChanged(opts) {
         // const elem = opts.elems[0];
-      }
+      },
     };
-  }
+  },
 };

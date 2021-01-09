@@ -27,26 +27,28 @@
  *    add option for keeping text aligned to horizontal
  *    add support for dimension extension lines
  *
-*/
+ */
 
-const loadExtensionTranslation = async function (lang) {
+const loadExtensionTranslation = async function(lang) {
   let translationModule;
   try {
-    translationModule = await import(`./locale/${encodeURIComponent(lang)}.js`);
+    translationModule = await Promise.resolve(
+      require(`./locale/${encodeURIComponent(lang)}.js`),
+    );
   } catch (_error) {
     // eslint-disable-next-line no-console
     console.error(`Missing translation (${lang}) - using 'en'`);
-    translationModule = await import(`./locale/en.js`);
+    translationModule = await Promise.resolve(require(`./locale/en.js`));
   }
   return translationModule.default;
 };
 
 export default {
   name: 'markers',
-  async init (S) {
+  async init(S) {
     const svgEditor = this;
     const strings = await loadExtensionTranslation(svgEditor.curPrefs.lang);
-    const {$} = S;
+    const { $ } = S;
     const svgCanvas = svgEditor.canvas;
     const // {svgcontent} = S,
       addElem = svgCanvas.addSVGElementFromJson;
@@ -61,47 +63,57 @@ export default {
     // remember that the coordinate system has +y downward
     const markerTypes = {
       nomarker: {},
-      leftarrow:
-        {element: 'path', attr: {d: 'M0,50 L100,90 L70,50 L100,10 Z'}},
-      rightarrow:
-        {element: 'path', attr: {d: 'M100,50 L0,90 L30,50 L0,10 Z'}},
-      textmarker:
-        {element: 'text', attr: {
-          x: 0, y: 0, 'stroke-width': 0, stroke: 'none',
-          'font-size': 75, 'font-family': 'serif', 'text-anchor': 'left',
-          'xml:space': 'preserve'
-        }},
-      forwardslash:
-        {element: 'path', attr: {d: 'M30,100 L70,0'}},
-      reverseslash:
-        {element: 'path', attr: {d: 'M30,0 L70,100'}},
-      verticalslash:
-        {element: 'path', attr: {d: 'M50,0 L50,100'}},
-      box:
-        {element: 'path', attr: {d: 'M20,20 L20,80 L80,80 L80,20 Z'}},
-      star:
-        {element: 'path', attr: {d: 'M10,30 L90,30 L20,90 L50,10 L80,90 Z'}},
-      xmark:
-        {element: 'path', attr: {d: 'M20,80 L80,20 M80,80 L20,20'}},
-      triangle:
-        {element: 'path', attr: {d: 'M10,80 L50,20 L80,80 Z'}},
-      mcircle:
-        {element: 'circle', attr: {r: 30, cx: 50, cy: 50}}
+      leftarrow: {
+        element: 'path',
+        attr: { d: 'M0,50 L100,90 L70,50 L100,10 Z' },
+      },
+      rightarrow: {
+        element: 'path',
+        attr: { d: 'M100,50 L0,90 L30,50 L0,10 Z' },
+      },
+      textmarker: {
+        element: 'text',
+        attr: {
+          x: 0,
+          y: 0,
+          'stroke-width': 0,
+          stroke: 'none',
+          'font-size': 75,
+          'font-family': 'serif',
+          'text-anchor': 'left',
+          'xml:space': 'preserve',
+        },
+      },
+      forwardslash: { element: 'path', attr: { d: 'M30,100 L70,0' } },
+      reverseslash: { element: 'path', attr: { d: 'M30,0 L70,100' } },
+      verticalslash: { element: 'path', attr: { d: 'M50,0 L50,100' } },
+      box: { element: 'path', attr: { d: 'M20,20 L20,80 L80,80 L80,20 Z' } },
+      star: {
+        element: 'path',
+        attr: { d: 'M10,30 L90,30 L20,90 L50,10 L80,90 Z' },
+      },
+      xmark: { element: 'path', attr: { d: 'M20,80 L80,20 M80,80 L20,20' } },
+      triangle: { element: 'path', attr: { d: 'M10,80 L50,20 L80,80 Z' } },
+      mcircle: { element: 'circle', attr: { r: 30, cx: 50, cy: 50 } },
     };
 
     // duplicate shapes to support unfilled (open) marker types with an _o suffix
-    ['leftarrow', 'rightarrow', 'box', 'star', 'mcircle', 'triangle'].forEach((v) => {
-      markerTypes[v + '_o'] = markerTypes[v];
-    });
+    ['leftarrow', 'rightarrow', 'box', 'star', 'mcircle', 'triangle'].forEach(
+      v => {
+        markerTypes[v + '_o'] = markerTypes[v];
+      },
+    );
 
     /**
-    * @param {Element} elem - A graphic element will have an attribute like marker-start
-    * @param {"marker-start"|"marker-mid"|"marker-end"} attr
-    * @returns {Element} The marker element that is linked to the graphic element
-    */
-    function getLinked (elem, attr) {
+     * @param {Element} elem - A graphic element will have an attribute like marker-start
+     * @param {"marker-start"|"marker-mid"|"marker-end"} attr
+     * @returns {Element} The marker element that is linked to the graphic element
+     */
+    function getLinked(elem, attr) {
       const str = elem.getAttribute(attr);
-      if (!str) { return null; }
+      if (!str) {
+        return null;
+      }
       const m = str.match(/\(#(.*)\)/);
       // const m = str.match(/\(#(?<id>.+)\)/);
       // if (!m || !m.groups.id) {
@@ -118,11 +130,16 @@ export default {
      * @param {string} id
      * @returns {void}
      */
-    function setIcon (pos, id) {
-      if (id.substr(0, 1) !== '\\') { id = '\\textmarker'; }
+    function setIcon(pos, id) {
+      if (id.substr(0, 1) !== '\\') {
+        id = '\\textmarker';
+      }
       const ci = '#' + idPrefix + pos + '_' + id.substr(1);
       svgEditor.setIcon('#cur_' + pos + '_marker_list', $(ci).children());
-      $(ci).addClass('current').siblings().removeClass('current');
+      $(ci)
+        .addClass('current')
+        .siblings()
+        .removeClass('current');
     }
 
     let selElems;
@@ -131,15 +148,15 @@ export default {
      *   selected element's settings.
      * @param {boolean} on
      * @returns {void}
-    */
-    function showPanel (on) {
+     */
+    function showPanel(on) {
       $('#marker_panel').toggle(on);
 
       if (on) {
         const el = selElems[0];
 
         let val, ci;
-        $.each(mtypes, function (i, pos) {
+        $.each(mtypes, function(i, pos) {
           const m = getLinked(el, 'marker-' + pos);
           const txtbox = $('#' + pos + '_marker');
           if (!m) {
@@ -147,7 +164,9 @@ export default {
             ci = val;
             txtbox.hide(); // hide text box
           } else {
-            if (!m.attributes.se_type) { return; } // not created by this extension
+            if (!m.attributes.se_type) {
+              return;
+            } // not created by this extension
             val = '\\' + m.attributes.se_type.textContent;
             ci = val;
             if (val === '\\textmarker') {
@@ -164,19 +183,23 @@ export default {
     }
 
     /**
-    * @param {string} id
-    * @param {""|"\\nomarker"|"nomarker"|"leftarrow"|"rightarrow"|"textmarker"|"forwardslash"|"reverseslash"|"verticalslash"|"box"|"star"|"xmark"|"triangle"|"mcircle"} val
-    * @returns {SVGMarkerElement}
-    */
-    function addMarker (id, val) {
+     * @param {string} id
+     * @param {""|"\\nomarker"|"nomarker"|"leftarrow"|"rightarrow"|"textmarker"|"forwardslash"|"reverseslash"|"verticalslash"|"box"|"star"|"xmark"|"triangle"|"mcircle"} val
+     * @returns {SVGMarkerElement}
+     */
+    function addMarker(id, val) {
       const txtBoxBg = '#ffffff';
       const txtBoxBorder = 'none';
       const txtBoxStrokeWidth = 0;
 
       let marker = svgCanvas.getElem(id);
-      if (marker) { return undefined; }
+      if (marker) {
+        return undefined;
+      }
 
-      if (val === '' || val === '\\nomarker') { return undefined; }
+      if (val === '' || val === '\\nomarker') {
+        return undefined;
+      }
 
       const el = selElems[0];
       const color = el.getAttribute('stroke');
@@ -191,7 +214,9 @@ export default {
       let markerHeight = 5;
       const seType = val.substr(0, 1) === '\\' ? val.substr(1) : 'textmarker';
 
-      if (!markerTypes[seType]) { return undefined; } // an unknown type!
+      if (!markerTypes[seType]) {
+        return undefined;
+      } // an unknown type!
 
       // create a generic marker
       marker = addElem({
@@ -201,15 +226,13 @@ export default {
           markerUnits: 'strokeWidth',
           orient: 'auto',
           style: 'pointer-events:none',
-          se_type: seType
-        }
+          se_type: seType,
+        },
       });
 
       if (seType !== 'textmarker') {
         const mel = addElem(markerTypes[seType]);
-        const fillcolor = (seType.substr(-2) === '_o')
-          ? 'none'
-          : color;
+        const fillcolor = seType.substr(-2) === '_o' ? 'none' : color;
 
         mel.setAttribute('fill', fillcolor);
         mel.setAttribute('stroke', color);
@@ -246,8 +269,8 @@ export default {
             height: bb.height,
             fill: txtBoxBg,
             stroke: txtBoxBorder,
-            'stroke-width': txtBoxStrokeWidth
-          }
+            'stroke-width': txtBoxStrokeWidth,
+          },
         });
         marker.setAttribute('orient', 0);
         marker.append(box, text);
@@ -264,13 +287,15 @@ export default {
     }
 
     /**
-    * @param {Element} elem
-    * @returns {SVGPolylineElement}
-    */
-    function convertline (elem) {
+     * @param {Element} elem
+     * @returns {SVGPolylineElement}
+     */
+    function convertline(elem) {
       // this routine came from the connectors extension
       // it is needed because midpoint markers don't work with line elements
-      if (elem.tagName !== 'line') { return elem; }
+      if (elem.tagName !== 'line') {
+        return elem;
+      }
 
       // Convert to polyline to accept mid-arrow
 
@@ -278,30 +303,35 @@ export default {
       const x2 = Number(elem.getAttribute('x2'));
       const y1 = Number(elem.getAttribute('y1'));
       const y2 = Number(elem.getAttribute('y2'));
-      const {id} = elem;
+      const { id } = elem;
 
-      const midPt = (' ' + ((x1 + x2) / 2) + ',' + ((y1 + y2) / 2) + ' ');
+      const midPt = ' ' + (x1 + x2) / 2 + ',' + (y1 + y2) / 2 + ' ';
       const pline = addElem({
         element: 'polyline',
         attr: {
-          points: (x1 + ',' + y1 + midPt + x2 + ',' + y2),
+          points: x1 + ',' + y1 + midPt + x2 + ',' + y2,
           stroke: elem.getAttribute('stroke'),
           'stroke-width': elem.getAttribute('stroke-width'),
           fill: 'none',
-          opacity: elem.getAttribute('opacity') || 1
-        }
+          opacity: elem.getAttribute('opacity') || 1,
+        },
       });
-      $.each(mtypes, function (i, pos) { // get any existing marker definitions
+      $.each(mtypes, function(i, pos) {
+        // get any existing marker definitions
         const nam = 'marker-' + pos;
         const m = elem.getAttribute(nam);
-        if (m) { pline.setAttribute(nam, elem.getAttribute(nam)); }
+        if (m) {
+          pline.setAttribute(nam, elem.getAttribute(nam));
+        }
       });
 
       const batchCmd = new S.BatchCommand();
       batchCmd.addSubCommand(new S.RemoveElementCommand(elem, elem.parentNode));
       batchCmd.addSubCommand(new S.InsertElementCommand(pline));
 
-      $(elem).after(pline).remove();
+      $(elem)
+        .after(pline)
+        .remove();
       svgCanvas.clearSelection();
       pline.id = id;
       svgCanvas.addToSelection([pline]);
@@ -310,19 +340,27 @@ export default {
     }
 
     /**
-    *
-    * @returns {void}
-    */
-    function setMarker () {
-      const poslist = {start_marker: 'start', mid_marker: 'mid', end_marker: 'end'};
+     *
+     * @returns {void}
+     */
+    function setMarker() {
+      const poslist = {
+        start_marker: 'start',
+        mid_marker: 'mid',
+        end_marker: 'end',
+      };
       const pos = poslist[this.id];
       const markerName = 'marker-' + pos;
       const el = selElems[0];
       const marker = getLinked(el, markerName);
-      if (marker) { $(marker).remove(); }
+      if (marker) {
+        $(marker).remove();
+      }
       el.removeAttribute(markerName);
       let val = this.value;
-      if (val === '') { val = '\\nomarker'; }
+      if (val === '') {
+        val = '\\nomarker';
+      }
       if (val === '\\nomarker') {
         setIcon(pos, val);
         svgCanvas.call('changed', selElems);
@@ -344,35 +382,47 @@ export default {
      *   the associated markers to be the same color.
      * @param {Element} elem
      * @returns {void}
-    */
-    function colorChanged (elem) {
+     */
+    function colorChanged(elem) {
       const color = elem.getAttribute('stroke');
 
-      $.each(mtypes, function (i, pos) {
+      $.each(mtypes, function(i, pos) {
         const marker = getLinked(elem, 'marker-' + pos);
-        if (!marker) { return; }
-        if (!marker.attributes.se_type) { return; } // not created by this extension
+        if (!marker) {
+          return;
+        }
+        if (!marker.attributes.se_type) {
+          return;
+        } // not created by this extension
         const ch = marker.lastElementChild;
-        if (!ch) { return; }
+        if (!ch) {
+          return;
+        }
         const curfill = ch.getAttribute('fill');
         const curstroke = ch.getAttribute('stroke');
-        if (curfill && curfill !== 'none') { ch.setAttribute('fill', color); }
-        if (curstroke && curstroke !== 'none') { ch.setAttribute('stroke', color); }
+        if (curfill && curfill !== 'none') {
+          ch.setAttribute('fill', color);
+        }
+        if (curstroke && curstroke !== 'none') {
+          ch.setAttribute('stroke', color);
+        }
       });
     }
 
     /**
-    * Called when the main system creates or modifies an object.
-    * Its primary purpose is to create new markers for cloned objects.
-    * @param {Element} el
-    * @returns {void}
-    */
-    function updateReferences (el) {
-      $.each(mtypes, function (i, pos) {
+     * Called when the main system creates or modifies an object.
+     * Its primary purpose is to create new markers for cloned objects.
+     * @param {Element} el
+     * @returns {void}
+     */
+    function updateReferences(el) {
+      $.each(mtypes, function(i, pos) {
         const id = markerPrefix + pos + '_' + el.id;
         const markerName = 'marker-' + pos;
         const marker = getLinked(el, markerName);
-        if (!marker || !marker.attributes.se_type) { return; } // not created by this extension
+        if (!marker || !marker.attributes.se_type) {
+          return;
+        } // not created by this extension
         const url = el.getAttribute(markerName);
         if (url) {
           const len = el.id.length;
@@ -381,7 +431,9 @@ export default {
             const val = $('#' + pos + '_marker').attr('value');
             addMarker(id, val);
             svgCanvas.changeSelectedAttribute(markerName, 'url(#' + id + ')');
-            if (el.tagName === 'line' && pos === 'mid') { el = convertline(el); }
+            if (el.tagName === 'line' && pos === 'mid') {
+              el = convertline(el);
+            }
             svgCanvas.call('changed', selElems);
           }
         }
@@ -390,11 +442,11 @@ export default {
 
     // simulate a change event a text box that stores the current element's marker type
     /**
-    * @param {"start"|"mid"|"end"} pos
-    * @param {string} val
-    * @returns {void}
-    */
-    function triggerTextEntry (pos, val) {
+     * @param {"start"|"mid"|"end"} pos
+     * @param {string} val
+     * @returns {void}
+     */
+    function triggerTextEntry(pos, val) {
       $('#' + pos + '_marker').val(val);
       $('#' + pos + '_marker').change();
       // const txtbox = $('#'+pos+'_marker');
@@ -403,12 +455,14 @@ export default {
     }
 
     /**
-    * @param {"start"|"mid"|"end"} pos
-    * @returns {Promise<void>} Resolves to `undefined`
-    */
-    async function showTextPrompt (pos) {
+     * @param {"start"|"mid"|"end"} pos
+     * @returns {Promise<void>} Resolves to `undefined`
+     */
+    async function showTextPrompt(pos) {
       let def = $('#' + pos + '_marker').val();
-      if (def.substr(0, 1) === '\\') { def = ''; }
+      if (def.substr(0, 1) === '\\') {
+        def = '';
+      }
       const txt = await $.prompt('Enter text for ' + pos + ' marker', def);
       if (txt) {
         triggerTextEntry(pos, txt);
@@ -441,14 +495,16 @@ export default {
 
     // callback function for a toolbar button click
     /**
-    * @param {Event} ev
-    * @returns {Promise<void>} Resolves to `undefined`
-    */
-    async function setArrowFromButton (ev) {
+     * @param {Event} ev
+     * @returns {Promise<void>} Resolves to `undefined`
+     */
+    async function setArrowFromButton(ev) {
       const parts = this.id.split('_');
       const pos = parts[1];
       let val = parts[2];
-      if (parts[3]) { val += '_' + parts[3]; }
+      if (parts[3]) {
+        val += '_' + parts[3];
+      }
 
       if (val !== 'textmarker') {
         triggerTextEntry(pos, '\\' + val);
@@ -458,22 +514,22 @@ export default {
     }
 
     /**
-    * @param {"nomarker"|"leftarrow"|"rightarrow"|"textmarker"|"forwardslash"|"reverseslash"|"verticalslash"|"box"|"star"|"xmark"|"triangle"|"mcircle"} id
-    * @returns {string}
-    */
-    function getTitle (id) {
-      const {langList} = strings;
-      const item = langList.find((itm) => {
+     * @param {"nomarker"|"leftarrow"|"rightarrow"|"textmarker"|"forwardslash"|"reverseslash"|"verticalslash"|"box"|"star"|"xmark"|"triangle"|"mcircle"} id
+     * @returns {string}
+     */
+    function getTitle(id) {
+      const { langList } = strings;
+      const item = langList.find(itm => {
         return itm.id === id;
       });
       return item ? item.title : id;
     }
 
     /**
-    * Build the toolbar button array from the marker definitions.
-    * @returns {module:SVGEditor.Button[]}
-    */
-    function buildButtonList () {
+     * Build the toolbar button array from the marker definitions.
+     * @returns {module:SVGEditor.Button[]}
+     */
+    function buildButtonList() {
       const buttons = [];
       // const i = 0;
       /*
@@ -499,10 +555,10 @@ export default {
         panel: 'marker_panel'
       });
   */
-      $.each(mtypes, function (k, pos) {
+      $.each(mtypes, function(k, pos) {
         const listname = pos + '_marker_list';
         let def = true;
-        Object.keys(markerTypes).forEach(function (id) {
+        Object.keys(markerTypes).forEach(function(id) {
           const title = getTitle(String(id));
           buttons.push({
             id: idPrefix + pos + '_' + id,
@@ -510,10 +566,10 @@ export default {
             icon: 'markers-' + id + '.png',
             title,
             type: 'context',
-            events: {click: setArrowFromButton},
+            events: { click: setArrowFromButton },
             panel: 'marker_panel',
             list: listname,
-            isDefault: def
+            isDefault: def,
           });
           def = false;
         });
@@ -527,51 +583,58 @@ export default {
         panel: 'marker_panel',
         id: 'start_marker',
         size: 3,
-        events: {change: setMarker}
-      }, {
+        events: { change: setMarker },
+      },
+      {
         type: 'button-select',
         panel: 'marker_panel',
         id: 'start_marker_list',
         colnum: 3,
-        events: {change: setArrowFromButton}
-      }, {
+        events: { change: setArrowFromButton },
+      },
+      {
         type: 'input',
         panel: 'marker_panel',
         id: 'mid_marker',
         defval: '',
         size: 3,
-        events: {change: setMarker}
-      }, {
+        events: { change: setMarker },
+      },
+      {
         type: 'button-select',
         panel: 'marker_panel',
         id: 'mid_marker_list',
         colnum: 3,
-        events: {change: setArrowFromButton}
-      }, {
+        events: { change: setArrowFromButton },
+      },
+      {
         type: 'input',
         panel: 'marker_panel',
         id: 'end_marker',
         size: 3,
-        events: {change: setMarker}
-      }, {
+        events: { change: setMarker },
+      },
+      {
         type: 'button-select',
         panel: 'marker_panel',
         id: 'end_marker_list',
         colnum: 3,
-        events: {change: setArrowFromButton}
-      }
+        events: { change: setArrowFromButton },
+      },
     ];
 
     return {
       name: strings.name,
       svgicons: 'markers-icons.xml',
-      callback () {
-        $('#marker_panel').addClass('toolset').hide();
+      callback() {
+        $('#marker_panel')
+          .addClass('toolset')
+          .hide();
       },
-      /* async */ addLangData ({importLocale, lang}) {
-        return {data: strings.langList};
+      /* async */ addLangData({ importLocale, lang }) {
+        return { data: strings.langList };
       },
-      selectedChanged (opts) {
+      selectedChanged(opts) {
         // Use this to update the current selected elements
         // console.log('selectChanged',opts);
         selElems = opts.elems;
@@ -593,14 +656,15 @@ export default {
         }
       },
 
-      elementChanged (opts) {
+      elementChanged(opts) {
         // console.log('elementChanged',opts);
         const elem = opts.elems[0];
-        if (elem && (
-          elem.getAttribute('marker-start') ||
-          elem.getAttribute('marker-mid') ||
-          elem.getAttribute('marker-end')
-        )) {
+        if (
+          elem &&
+          (elem.getAttribute('marker-start') ||
+            elem.getAttribute('marker-mid') ||
+            elem.getAttribute('marker-end'))
+        ) {
           colorChanged(elem);
           updateReferences(elem);
         }
@@ -609,7 +673,7 @@ export default {
       buttons: buildButtonList(),
       context_tools: strings.contextTools.map((contextTool, i) => {
         return Object.assign(contextTools[i], contextTool);
-      })
+      }),
     };
-  }
+  },
 };
